@@ -1,0 +1,235 @@
+{
+  "nav": {
+    "theory": "Theory",
+    "problems": "Problems",
+    "mistakes": "Mistakes"
+  },
+  "language": {
+    "label": "Language of the interface and tasks"
+  },
+  "counts": {
+    "task_one": "{{count}} task",
+    "task_other": "{{count}} tasks",
+    "solved": "{{count}} solved"
+  },
+  "difficulty": {
+    "easy": "easy",
+    "medium": "medium",
+    "hard": "hard"
+  },
+  "tags": {
+    "solved": "solved"
+  },
+  "categories": {
+    "all": {
+      "name": "All problems"
+    },
+    "arrays": {
+      "name": "Arrays"
+    },
+    "two-pointers": {
+      "name": "Two Pointers"
+    },
+    "hash-map": {
+      "name": "Hash Map"
+    },
+    "stack": {
+      "name": "Stack"
+    },
+    "sliding-window": {
+      "name": "Sliding Window"
+    },
+    "trees": {
+      "name": "Trees"
+    },
+    "graphs": {
+      "name": "Graphs"
+    },
+    "strings": {
+      "name": "Strings"
+    },
+    "concurrency": {
+      "name": "Concurrency"
+    },
+    "slices": {
+      "name": "Slices"
+    },
+    "interfaces": {
+      "name": "Interfaces"
+    },
+    "sql": {
+      "name": "SQL"
+    }
+  },
+  "problems": {
+    "title": "Problems",
+    "searchAll": "Search all problems…  (Enter)",
+    "searchPlaceholder": "Search by title, company or category…",
+    "allCategories": "← All categories",
+    "none": "No problems found.",
+    "unknownCategory": "Unknown category."
+  },
+  "theory": {
+    "title": "Theory",
+    "back": "← Theory",
+    "practice": "Practice {{category}} →",
+    "practiceLink": "Practice: {{category}} problems →",
+    "notFound": "Note not found.",
+    "backToList": "Back to theory"
+  },
+  "task": {
+    "back": "← Problems",
+    "description": "Description",
+    "output": "Output",
+    "run": "Run ▶",
+    "running": "Running…",
+    "reset": "↺ Reset",
+    "resetConfirm": "Your current code will be replaced with the starter code.",
+    "shortcut": "⌘/Ctrl + Enter",
+    "notFound": "Task not found.",
+    "backToList": "Back to problems",
+    "emptyOutput": "Run your code to see the output here.",
+    "compiling": "Compiling and running…",
+    "noOutput": "(no output)",
+    "runnerError": "Our server is down at the moment",
+    "leetcode": "Open on LeetCode ↗",
+    "tests": "Tests",
+    "testsHint_one": "The runner checks your solution against this {{count}} case.",
+    "testsHint_other": "The runner checks your solution against these {{count}} cases.",
+    "testN": "Case {{n}}",
+    "expected": "expected",
+    "attempts": "Submissions",
+    "statsSolved_one": "Solved {{count}} time",
+    "statsSolved_other": "Solved {{count}} times",
+    "statsFailed_one": "Failed {{count}} time",
+    "statsFailed_other": "Failed {{count}} times",
+    "resetTitle": "Reset code?",
+    "resetAction": "Reset",
+    "solution": "Solution"
+  },
+  "status": {
+    "running": "Running…",
+    "passed": "Passed · {{ms}} ms",
+    "timeout": "Time limit exceeded",
+    "compile": "Compile error",
+    "failed": "Failed",
+    "error": "Error"
+  },
+  "companies": {
+    "vk": "VK",
+    "yandex": "Yandex",
+    "yellow-bank": "Yellow Bank",
+    "ozon": "Ozon",
+    "avito": "Avito"
+  },
+  "attempts": {
+    "empty": "No submissions yet. Run your code to record one.",
+    "restore": "Restore this code",
+    "showCode": "Show code",
+    "hideCode": "Hide code",
+    "output": "Output",
+    "loadError": "Our server is down at the moment",
+    "status": {
+      "passed": "Passed",
+      "failed": "Failed",
+      "compile": "Compile error",
+      "timeout": "Time limit exceeded"
+    },
+    "delete": "Delete",
+    "deleteConfirm": "Solved and failed counts will change. This can't be undone.",
+    "deleteError": "Could not delete the submission.",
+    "deleteTitle": "Delete this submission?"
+  },
+  "dialog": {
+    "cancel": "Cancel",
+    "close": "Close"
+  },
+  "solution": {
+    "reveal": "Show solution",
+    "spoiler": "Try to solve it first. This reveals the reference solution.",
+    "time": "Time",
+    "space": "Space",
+    "none": "No reference solution for this task yet.",
+    "notes": "Notes"
+  },
+  "mistakes": {
+    "title": "Mistakes journal",
+    "intro": "File failed solutions under a type of mistake to remember what went wrong.",
+    "newType": "New type",
+    "empty": "No mistake types yet. Open a task, go to Submissions and add a failed solution to a new type.",
+    "count_one": "{{count}} mistake",
+    "count_other": "{{count}} mistakes",
+    "back": "← Mistakes",
+    "notFound": "Mistake type not found.",
+    "noMistakes": "No mistakes of this type yet.",
+    "loadError": "Our server is down at the moment",
+    "deleteType": "Delete type",
+    "deleteTypeTitle": "Delete this type?",
+    "deleteTypeMessage": "The type and all mistakes saved in it will be deleted. The submissions themselves stay in their tasks.",
+    "removeMistake": "Remove",
+    "removeTitle": "Remove from the journal?",
+    "removeMessage": "The saved copy of the code will be deleted. The submission itself stays in the task.",
+    "inJournal": "In journal: {{type}}",
+    "add": "Add to mistakes",
+    "addTitle": "Add to mistakes",
+    "chooseType": "What kind of mistake was it?",
+    "createNew": "Create a new type",
+    "titleLabel": "Title",
+    "descriptionLabel": "Description",
+    "titlePlaceholder": "e.g. Off-by-one in a loop bound",
+    "descriptionPlaceholder": "What goes wrong and how to notice it next time",
+    "submitAdd": "Add",
+    "create": "Create",
+    "saveError": "Our server is down at the moment",
+    "edit": "Edit",
+    "editTitle": "Edit type",
+    "save": "Save",
+    "move": "Move",
+    "moveTitle": "Move to another type",
+    "moveChoose": "Which type does it belong to?",
+    "moveSubmit": "Move",
+    "openType": "Open mistake type"
+  },
+  "theme": {
+    "label": "Theme"
+  },
+  "sections": {
+    "algorithms": {
+      "name": "Algorithms",
+      "all": "All algorithms"
+    },
+    "golang": {
+      "name": "Golang",
+      "all": "All Golang"
+    },
+    "sql": {
+      "name": "SQL",
+      "all": "All SQL"
+    }
+  },
+  "filters": {
+    "title": "Filters",
+    "difficulty": "Difficulty",
+    "status": "Status",
+    "solved": "Solved",
+    "unsolved": "Unsolved",
+    "company": "Company",
+    "reset": "Reset filters"
+  },
+  "stats": {
+    "title": "Progress",
+    "total": "All tasks",
+    "byDifficulty": "By difficulty",
+    "bySection": "By section"
+  },
+  "timer": {
+    "label": "Solving time",
+    "start": "Start",
+    "stop": "Stop",
+    "reset": "Reset",
+    "solveTime": "Time to solve",
+    "discard": "Discard time",
+    "discardHint": "Remove the recorded time (the submission stays)"
+  },
+  "loading": "Loading"
+}

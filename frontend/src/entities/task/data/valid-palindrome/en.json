@@ -1,0 +1,45 @@
+{
+  "title": "Valid Palindrome",
+  "description": [
+    {
+      "p": "You are given a string <code>s</code>. Return <code>true</code> if <code>s</code> is a palindrome, or <code>false</code> otherwise. A phrase is a palindrome if, after converting all uppercase letters to lowercase and removing all characters except letters and digits, it reads the same left to right and right to left."
+    },
+    {
+      "p": "Alphanumeric characters include Latin letters and digits."
+    },
+    {
+      "h": "Example 1:"
+    },
+    {
+      "pre": "Input: s = \"A man, a plan, a canal: Panama\"\nOutput: true\nExplanation: the string \"amanaplanacanalpanama\" is a palindrome"
+    },
+    {
+      "h": "Example 2:"
+    },
+    {
+      "pre": "Input: s = \"AbaCdaba\"\nOutput: false"
+    },
+    {
+      "h": "Constraints:"
+    },
+    {
+      "ul": [
+        "<code>len(s) >= 1</code>"
+      ]
+    }
+  ],
+  "solution": [
+    {
+      "h": "Complexity estimate"
+    },
+    {
+      "ul": [
+        "Time: <code>O(n)</code>, where <code>n</code> is the size of the string",
+        "Space: <code>O(1)</code>"
+      ]
+    },
+    {
+      "p": "You must not modify the string. The interviewer expects the palindrome check to be done without modifying the original string and with <code>O(1)</code> extra memory."
+    }
+  ]
+}

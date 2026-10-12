@@ -1,0 +1,24 @@
+{
+  "number": 4,
+  "difficulty": "medium",
+  "categories": [
+    "two-pointers"
+  ],
+  "companies": [
+    "yandex"
+  ],
+  "complexity": {
+    "time": "O(n)",
+    "space": "O(1)"
+  },
+  "signature": {
+    "name": "isPalindrome",
+    "params": [
+      {
+        "name": "s",
+        "type": "string"
+      }
+    ],
+    "returns": "bool"
+  }
+}

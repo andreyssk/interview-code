@@ -1,0 +1,48 @@
+{
+  "title": "Common Elements of Arrays",
+  "description": [
+    {
+      "p": "You are given two arrays <code>nums1</code> and <code>nums2</code>, sorted in ascending order. Return a new array <code>nums3</code> that contains all the common elements of <code>nums1</code> and <code>nums2</code>."
+    },
+    {
+      "p": "The result must also be sorted in ascending order. If an element occurs several times in the arrays, it must be duplicated in the answer."
+    },
+    {
+      "h": "Example 1:"
+    },
+    {
+      "pre": "Input: nums1 = [-3,2,2,5,8,19,31], nums2 = [1,2,2,2,6,19,52]\nOutput: [2,2,19]"
+    },
+    {
+      "h": "Example 2:"
+    },
+    {
+      "pre": "Input: nums1 = [-5,4], nums2 = [1,2]\nOutput: []"
+    },
+    {
+      "h": "Example 3:"
+    },
+    {
+      "pre": "Input: nums1 = [], nums2 = [1,2]\nOutput: []"
+    },
+    {
+      "h": "Constraints:"
+    },
+    {
+      "ul": [
+        "<code>len(nums1), len(nums2) >= 0</code>"
+      ]
+    }
+  ],
+  "solution": [
+    {
+      "h": "Complexity estimate"
+    },
+    {
+      "ul": [
+        "Time: <code>O(n+m)</code>, where <code>n</code> is the size of the array <code>nums1</code>, <code>m</code> is the size of the array <code>nums2</code>",
+        "Space: <code>O(min(n,m))</code>, where <code>n</code> is the size of the array <code>nums1</code>, <code>m</code> is the size of the array <code>nums2</code>"
+      ]
+    }
+  ]
+}

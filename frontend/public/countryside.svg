@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 700" preserveAspectRatio="xMidYMax slice" fill="none" stroke="#7a6450" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" opacity="0.5">
+  <!-- sun -->
+  <circle cx="1340" cy="128" r="48" fill="#f2c36b" fill-opacity="0.35"/>
+  <circle cx="1342" cy="126" r="46" stroke-width="1.6"/>
+  <path d="M1340 52 V68 M1340 188 V204 M1264 128 H1280 M1400 128 H1416 M1286 74 L1297 85 M1384 172 L1395 183 M1394 74 L1383 85 M1296 172 L1285 183"/>
+  <!-- clouds -->
+  <path d="M230 150 C205 150 200 120 228 118 C228 92 268 88 280 110 C300 92 340 104 336 130 C362 132 360 156 336 156 Z" fill="#fff" fill-opacity="0.55"/>
+  <path d="M760 96 C740 96 736 72 758 70 C760 50 792 48 802 66 C820 54 848 68 842 88 C862 90 860 108 842 108 Z" fill="#fff" fill-opacity="0.55"/>
+  <path d="M1020 210 C1004 210 1000 190 1018 188 C1020 172 1044 170 1052 184 C1066 176 1086 186 1082 202 C1098 204 1096 218 1080 218 Z" fill="#fff" fill-opacity="0.5"/>
+  <!-- birds -->
+  <path d="M520 110 q10 -13 20 0 q10 -13 20 0 M590 150 q8 -10 16 0 q8 -10 16 0 M1120 70 q8 -10 16 0 q8 -10 16 0"/>
+  <!-- far hills -->
+  <path d="M0 430 C140 350 330 352 520 412 S860 350 1100 398 S1500 372 1600 352 V700 H0 Z" fill="#a3b57c" fill-opacity="0.22"/>
+  <path d="M60 408 l14 -8 M110 392 l14 -8 M160 386 l14 -8 M690 392 l14 -8 M740 384 l14 -8 M1200 388 l14 -8 M1260 380 l14 -8" stroke-width="1.6"/>
+  <!-- mid hills -->
+  <path d="M0 510 C230 436 500 470 790 506 S1290 452 1600 492 V700 H0 Z" fill="#cdb872" fill-opacity="0.24"/>
+  <path d="M300 482 l16 -8 M350 478 l16 -8 M400 480 l16 -8 M900 492 l16 -8 M950 488 l16 -8 M1400 478 l16 -8 M1450 480 l16 -8" stroke-width="1.6"/>
+  <!-- trees on the hills -->
+  <path d="M256 478 C258 460 254 446 256 432" />
+  <path d="M256 438 C214 442 206 396 238 388 C246 360 292 362 298 392 C328 398 322 436 284 440 C274 444 264 442 256 438 Z" fill="#8fae6f" fill-opacity="0.35"/>
+  <path d="M826 520 C828 500 824 486 826 472"/>
+  <path d="M826 478 C788 482 780 438 810 430 C816 404 858 406 864 432 C892 438 886 474 852 480 C844 484 834 482 826 478 Z" fill="#8fae6f" fill-opacity="0.35"/>
+  <path d="M1352 492 C1354 480 1350 470 1352 460"/>
+  <path d="M1352 464 C1326 468 1320 436 1340 430 C1344 410 1372 412 1376 432 C1394 436 1390 462 1368 466 Z" fill="#8fae6f" fill-opacity="0.35"/>
+  <!-- cottage -->
+  <path d="M996 514 L994 444 L1148 446 L1150 512" fill="#f4e3c1" fill-opacity="0.6"/>
+  <path d="M976 450 L1072 380 L1168 450 Z" fill="#c4753f" fill-opacity="0.3"/>
+  <path d="M1108 414 V372 H1130 V428" fill="#f4e3c1" fill-opacity="0.6"/>
+  <path d="M1120 360 C1108 346 1136 340 1124 322 C1114 306 1140 300 1130 284" stroke-width="1.6"/>
+  <path d="M1056 513 V470 C1056 462 1086 462 1086 470 V513"/>
+  <path d="M1080 492 h1"/>
+  <rect x="1008" y="462" width="32" height="28" rx="2"/>
+  <path d="M1024 462 V490 M1008 476 H1040" stroke-width="1.6"/>
+  <rect x="1102" y="462" width="32" height="28" rx="2"/>
+  <path d="M1118 462 V490 M1102 476 H1134" stroke-width="1.6"/>
+  <path d="M1000 458 l10 6 M1160 458 l-8 6 M1040 408 l16 -12 M1090 396 l16 12" stroke-width="1.4"/>
+  <!-- fence -->
+  <path d="M90 548 V512 M150 552 V516 M210 552 V516 M270 548 V512 M330 546 V510 M390 544 V508"/>
+  <path d="M84 524 C170 530 250 522 396 520 M84 540 C170 546 250 540 396 536"/>
+  <!-- front hills -->
+  <path d="M0 610 C260 566 640 626 980 592 S1440 566 1600 604 V700 H0 Z" fill="#8fae6f" fill-opacity="0.26"/>
+  <!-- path -->
+  <path d="M1054 514 C1018 540 1096 566 1030 596 C984 620 1000 660 930 700"/>
+  <path d="M1090 514 C1066 538 1134 566 1086 596 C1052 620 1070 660 1010 700"/>
+  <!-- grass tufts and flowers -->
+  <path d="M420 600 l-4 -14 M424 600 v-18 M428 600 l5 -14 M1240 620 l-4 -14 M1244 620 v-18 M1248 620 l5 -14 M640 650 l-4 -14 M644 650 v-18 M648 650 l5 -14" stroke-width="1.8"/>
+  <path d="M520 640 V608 M514 622 l6 6 M526 618 l-6 6" stroke-width="1.8"/>
+  <circle cx="520" cy="604" r="6" fill="#e9a45e" fill-opacity="0.6"/>
+  <path d="M1180 650 V620" stroke-width="1.8"/>
+  <circle cx="1180" cy="616" r="6" fill="#d97a7a" fill-opacity="0.55"/>
+  <path d="M760 670 V642" stroke-width="1.8"/>
+  <circle cx="760" cy="638" r="6" fill="#f2c36b" fill-opacity="0.6"/>
+</svg>

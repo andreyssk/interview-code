@@ -1,0 +1,25 @@
+{
+  "number": 3,
+  "difficulty": "medium",
+  "categories": [
+    "two-pointers"
+  ],
+  "companies": [
+    "yandex"
+  ],
+  "leetcodeUrl": "https://leetcode.com/problems/container-with-most-water/",
+  "complexity": {
+    "time": "O(n)",
+    "space": "O(1)"
+  },
+  "signature": {
+    "name": "maxArea",
+    "params": [
+      {
+        "name": "height",
+        "type": "[]int"
+      }
+    ],
+    "returns": "int"
+  }
+}

@@ -1,0 +1,47 @@
+{
+  "title": "Group Anagrams",
+  "description": [
+    {
+      "p": "You are given an array of strings <code>strs</code>; group the anagrams together. The answer can be returned in any order."
+    },
+    {
+      "p": "An anagram is a word or phrase formed by rearranging the letters of another word or phrase, using all the original letters exactly once."
+    },
+    {
+      "h": "Example 1:"
+    },
+    {
+      "pre": "Input: strs=[\"ab\",\"bat\",\"ba\",\"tab\",\"ear\",\"apt\"]\nOutput:[[\"ab\",ba\"],[\"bat\",\"tab\"],[\"apt\"],[\"ear\"]]"
+    },
+    {
+      "h": "Example 2:"
+    },
+    {
+      "pre": "Input: strs=[\"hello\"]\nOutput: [[\"hello\"]]"
+    },
+    {
+      "h": "Constraints:"
+    },
+    {
+      "ul": [
+        "<code>len(strs) >= 0</code>",
+        "<code>len(strs[i]) >= 1</code>",
+        "The strings in the array <code>strs</code> contain only lowercase English letters."
+      ]
+    }
+  ],
+  "solution": [
+    {
+      "h": "Complexity estimate"
+    },
+    {
+      "ul": [
+        "Time: <code>O(n)</code>, where <code>n</code> is the number of characters in all the strings",
+        "Space: <code>O(n)</code>, where <code>n</code> is the number of characters in all the strings"
+      ]
+    },
+    {
+      "p": "Note that <code>n</code> in the complexity estimate is the number of characters in all the strings! Time and space can also be estimated as <code>O(n*m)</code>, but then <code>n</code> is the number of strings and <code>m</code> is the average length of a string."
+    }
+  ]
+}

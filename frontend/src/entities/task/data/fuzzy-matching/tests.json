@@ -1,0 +1,15 @@
+[
+  {"name": "example 1", "input": {"s": "abc", "t": "a1b2c3"}, "expected": true},
+  {"name": "example 2", "input": {"s": "abc", "t": "acb"}, "expected": false},
+  {"name": "empty s", "input": {"s": "", "t": "abc"}, "expected": true},
+  {"name": "both empty", "input": {"s": "", "t": ""}, "expected": true},
+  {"name": "empty t", "input": {"s": "a", "t": ""}, "expected": false},
+  {"name": "equal strings", "input": {"s": "hello", "t": "hello"}, "expected": true},
+  {"name": "s longer than t", "input": {"s": "abcd", "t": "abc"}, "expected": false},
+  {"name": "match at the end", "input": {"s": "xyz", "t": "aaxbbybbz"}, "expected": true},
+  {"name": "repeated letters need repeated matches", "input": {"s": "aab", "t": "ab"}, "expected": false},
+  {"name": "repeated letters, enough matches", "input": {"s": "aa", "t": "abca"}, "expected": true},
+  {"name": "letters in the wrong order", "input": {"s": "ba", "t": "ab"}, "expected": false},
+  {"name": "skips and a miss", "input": {"s": "axc", "t": "ahbgdc"}, "expected": false},
+  {"name": "skips and a hit", "input": {"s": "abc", "t": "ahbgdc"}, "expected": true}
+]

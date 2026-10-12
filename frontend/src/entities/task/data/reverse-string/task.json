@@ -1,0 +1,24 @@
+{
+  "number": 5,
+  "difficulty": "easy",
+  "categories": [
+    "two-pointers"
+  ],
+  "companies": [
+    "ozon"
+  ],
+  "complexity": {
+    "time": "O(n)",
+    "space": "O(1)"
+  },
+  "signature": {
+    "name": "reverse",
+    "params": [
+      {
+        "name": "chars",
+        "type": "[]rune"
+      }
+    ],
+    "returns": "[]rune"
+  }
+}

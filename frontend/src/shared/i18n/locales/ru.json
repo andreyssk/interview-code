@@ -1,0 +1,245 @@
+{
+  "nav": {
+    "theory": "Теория",
+    "problems": "Задачи",
+    "mistakes": "Ошибки"
+  },
+  "language": {
+    "label": "Язык интерфейса и задач"
+  },
+  "counts": {
+    "task_one": "{{count}} задача",
+    "task_few": "{{count}} задачи",
+    "task_many": "{{count}} задач",
+    "task_other": "{{count}} задачи",
+    "solved": "решено: {{count}}"
+  },
+  "difficulty": {
+    "easy": "легко",
+    "medium": "средне",
+    "hard": "сложно"
+  },
+  "tags": {
+    "solved": "решено"
+  },
+  "categories": {
+    "all": {
+      "name": "Все задачи"
+    },
+    "arrays": {
+      "name": "Массивы"
+    },
+    "two-pointers": {
+      "name": "Два указателя"
+    },
+    "hash-map": {
+      "name": "Хеш-таблицы"
+    },
+    "stack": {
+      "name": "Стек"
+    },
+    "sliding-window": {
+      "name": "Скользящее окно"
+    },
+    "trees": {
+      "name": "Деревья"
+    },
+    "graphs": {
+      "name": "Графы"
+    },
+    "strings": {
+      "name": "Строки"
+    },
+    "concurrency": {
+      "name": "Конкурентность"
+    },
+    "slices": {
+      "name": "Слайсы"
+    },
+    "interfaces": {
+      "name": "Интерфейсы"
+    },
+    "sql": {
+      "name": "SQL"
+    }
+  },
+  "problems": {
+    "title": "Задачи",
+    "searchAll": "Поиск по всем задачам…  (Enter)",
+    "searchPlaceholder": "Поиск по названию, компании или категории…",
+    "allCategories": "← Все категории",
+    "none": "Задачи не найдены.",
+    "unknownCategory": "Неизвестная категория."
+  },
+  "theory": {
+    "title": "Теория",
+    "back": "← Теория",
+    "practice": "Практика: {{category}} →",
+    "practiceLink": "Практика: задачи — {{category}} →",
+    "notFound": "Заметка не найдена.",
+    "backToList": "Назад к теории"
+  },
+  "task": {
+    "back": "← Задачи",
+    "description": "Описание",
+    "output": "Вывод",
+    "run": "Запустить ▶",
+    "running": "Выполняется…",
+    "reset": "↺ Сбросить",
+    "resetConfirm": "Текущий код будет заменён шаблоном.",
+    "shortcut": "⌘/Ctrl + Enter",
+    "notFound": "Задача не найдена.",
+    "backToList": "Назад к задачам",
+    "emptyOutput": "Запустите код, чтобы увидеть вывод здесь.",
+    "compiling": "Компиляция и запуск…",
+    "noOutput": "(нет вывода)",
+    "runnerError": "Сервер сейчас недоступен",
+    "leetcode": "Открыть на LeetCode ↗",
+    "tests": "Тесты",
+    "testsHint_one": "Запускатор проверяет решение на этом {{count}} тесте.",
+    "testsHint_few": "Запускатор проверяет решение на этих {{count}} тестах.",
+    "testsHint_many": "Запускатор проверяет решение на этих {{count}} тестах.",
+    "testsHint_other": "Запускатор проверяет решение на этих {{count}} тестах.",
+    "testN": "Тест {{n}}",
+    "expected": "ожидается",
+    "attempts": "Мои попытки",
+    "statsSolved_one": "Решено {{count}} раз",
+    "statsSolved_few": "Решено {{count}} раза",
+    "statsSolved_many": "Решено {{count}} раз",
+    "statsSolved_other": "Решено {{count}} раза",
+    "statsFailed_one": "Провалено {{count}} раз",
+    "statsFailed_few": "Провалено {{count}} раза",
+    "statsFailed_many": "Провалено {{count}} раз",
+    "statsFailed_other": "Провалено {{count}} раза",
+    "resetTitle": "Сбросить код?",
+    "resetAction": "Сбросить",
+    "solution": "Решение"
+  },
+  "status": {
+    "running": "Выполняется…",
+    "passed": "Пройдено · {{ms}} мс",
+    "timeout": "Превышен лимит времени",
+    "compile": "Ошибка компиляции",
+    "failed": "Не пройдено",
+    "error": "Ошибка"
+  },
+  "companies": {
+    "vk": "вк",
+    "yandex": "яндекс",
+    "yellow-bank": "желтый банк",
+    "ozon": "озон",
+    "avito": "авито"
+  },
+  "attempts": {
+    "empty": "Пока нет решений. Запустите код, чтобы сохранить попытку.",
+    "restore": "Вернуть этот код",
+    "showCode": "Показать код",
+    "hideCode": "Скрыть код",
+    "output": "Вывод",
+    "loadError": "Сервер сейчас недоступен",
+    "status": {
+      "passed": "Пройдено",
+      "failed": "Не пройдено",
+      "compile": "Ошибка компиляции",
+      "timeout": "Превышен лимит времени"
+    },
+    "delete": "Удалить",
+    "deleteConfirm": "Счётчики решено и провалено изменятся. Это нельзя отменить.",
+    "deleteError": "Не удалось удалить решение.",
+    "deleteTitle": "Удалить это решение?"
+  },
+  "dialog": {
+    "cancel": "Отмена",
+    "close": "Закрыть"
+  },
+  "solution": {
+    "reveal": "Показать решение",
+    "spoiler": "Сначала попробуйте решить сами. Дальше эталонное решение.",
+    "time": "Время",
+    "space": "Память",
+    "none": "Для этой задачи пока нет эталонного решения.",
+    "notes": "Заметки"
+  },
+  "mistakes": {
+    "title": "Журнал ошибок",
+    "intro": "Складывайте неудачные решения по типам ошибок, чтобы помнить, что пошло не так.",
+    "newType": "Новый тип",
+    "empty": "Пока нет типов ошибок. Откройте задачу, перейдите в «Мои попытки» и добавьте неудачное решение в новый тип.",
+    "count_one": "{{count}} ошибка",
+    "count_few": "{{count}} ошибки",
+    "count_many": "{{count}} ошибок",
+    "count_other": "{{count}} ошибки",
+    "back": "← Ошибки",
+    "notFound": "Тип ошибки не найден.",
+    "noMistakes": "В этом типе пока нет ошибок.",
+    "loadError": "Сервер сейчас недоступен",
+    "deleteType": "Удалить тип",
+    "deleteTypeTitle": "Удалить этот тип?",
+    "deleteTypeMessage": "Тип и все сохранённые в нём ошибки будут удалены. Сами попытки останутся в своих задачах.",
+    "removeMistake": "Убрать",
+    "removeTitle": "Убрать из журнала?",
+    "removeMessage": "Сохранённая копия кода будет удалена. Сама попытка останется в задаче.",
+    "inJournal": "В журнале: {{type}}",
+    "add": "В ошибки",
+    "addTitle": "Добавить в ошибки",
+    "chooseType": "Что это была за ошибка?",
+    "createNew": "Создать новый тип",
+    "titleLabel": "Название",
+    "descriptionLabel": "Описание",
+    "titlePlaceholder": "Например: выход за границу цикла на единицу",
+    "descriptionPlaceholder": "Что идёт не так и как заметить это в следующий раз",
+    "submitAdd": "Добавить",
+    "create": "Создать",
+    "saveError": "Сервер сейчас недоступен",
+    "edit": "Изменить",
+    "editTitle": "Изменить тип",
+    "save": "Сохранить",
+    "move": "Перенести",
+    "moveTitle": "Перенести в другой тип",
+    "moveChoose": "К какому типу это относится?",
+    "moveSubmit": "Перенести",
+    "openType": "Открыть тип ошибки"
+  },
+  "theme": {
+    "label": "Тема"
+  },
+  "sections": {
+    "algorithms": {
+      "name": "Алгоритмы",
+      "all": "Все алгоритмы"
+    },
+    "golang": {
+      "name": "Golang",
+      "all": "Все задачи Golang"
+    },
+    "sql": {
+      "name": "SQL",
+      "all": "Все задачи SQL"
+    }
+  },
+  "filters": {
+    "title": "Фильтры",
+    "difficulty": "Сложность",
+    "status": "Статус",
+    "solved": "Решённые",
+    "unsolved": "Нерешённые",
+    "company": "Компания",
+    "reset": "Сбросить фильтры"
+  },
+  "stats": {
+    "title": "Прогресс",
+    "total": "Все задачи",
+    "byDifficulty": "По сложности",
+    "bySection": "По разделам"
+  },
+  "timer": {
+    "label": "Время решения",
+    "start": "Старт",
+    "stop": "Стоп",
+    "reset": "Сбросить",
+    "solveTime": "Время решения",
+    "discard": "Убрать время",
+    "discardHint": "Удалить записанное время (решение останется)"
+  },
+  "loading": "Загрузка"
+}

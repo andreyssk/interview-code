@@ -1,0 +1,44 @@
+{
+  "title": "Fuzzy Matching",
+  "description": [
+    {
+      "p": "You are given two strings <code>s</code> and <code>t</code>. Determine whether the string <code>s</code> can be obtained by deleting some (possibly none) characters from the string <code>t</code> without changing the order of the remaining characters."
+    },
+    {
+      "h": "Example 1:"
+    },
+    {
+      "pre": "Input: s = \"abc\", t = \"a1b2c3\"\nOutput: True\nExplanation: You can delete the digits from t to get t = \"abc\""
+    },
+    {
+      "h": "Example 2:"
+    },
+    {
+      "pre": "Input: s = \"abc\", t = \"acb\"\nOutput: False"
+    },
+    {
+      "h": "Constraints:"
+    },
+    {
+      "ul": [
+        "<code>len(s) >= 0</code>",
+        "<code>len(t) >= 0</code>",
+        "The strings <code>s</code> and <code>t</code> contain only <code>ascii</code> characters"
+      ]
+    }
+  ],
+  "solution": [
+    {
+      "h": "Complexity estimate"
+    },
+    {
+      "ul": [
+        "Time: <code>O(m)</code>, where <code>m</code> is the length of <code>t</code>",
+        "Space: <code>O(1)</code>"
+      ]
+    },
+    {
+      "note": "A common mistake: thinking the time complexity is <code>O(n+m)</code> or <code>O(min(n, m))</code>. But it is the length of the string <code>t</code> that limits the maximum number of iterations in the worst case."
+    }
+  ]
+}

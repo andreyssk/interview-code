@@ -1,0 +1,34 @@
+{
+  "title": "Sort 012",
+  "description": [
+    {
+      "p": "You are given an array <code>colors</code> whose elements represent one of three colors: red (0), green (1) and blue (2). Sort the array so that the colors go in the order: red, green, blue, and return the modified array."
+    },
+    {
+      "p": "It is important that the sorting is done <code>in-place</code>, which means sorting without using additional memory for copies of the array."
+    },
+    {
+      "h": "Example 1:"
+    },
+    {
+      "pre": "Input: colors = [2,1,1,0,0,1]\nOutput: [0,0,1,1,1,2]"
+    },
+    {
+      "h": "Example 2:"
+    },
+    {
+      "pre": "Input: colors = [2,2,2,2,0]\nOutput: [0,2,2,2,2]"
+    }
+  ],
+  "solution": [
+    {
+      "h": "Complexity estimate"
+    },
+    {
+      "ul": [
+        "Time: <code>O(n)</code>, where <code>n</code> is the length of the array <code>colors</code>",
+        "Space: <code>O(1)</code>"
+      ]
+    }
+  ]
+}

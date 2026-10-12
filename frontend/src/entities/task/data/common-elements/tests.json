@@ -1,0 +1,13 @@
+[
+  {"name": "example 1", "input": {"nums1": [-3, 2, 2, 5, 8, 19, 31], "nums2": [1, 2, 2, 2, 6, 19, 52]}, "expected": [2, 2, 19]},
+  {"name": "example 2", "input": {"nums1": [-5, 4], "nums2": [1, 2]}, "expected": []},
+  {"name": "example 3 (first is empty)", "input": {"nums1": [], "nums2": [1, 2]}, "expected": []},
+  {"name": "second is empty", "input": {"nums1": [1, 2], "nums2": []}, "expected": []},
+  {"name": "both empty", "input": {"nums1": [], "nums2": []}, "expected": []},
+  {"name": "identical arrays", "input": {"nums1": [1, 2, 3], "nums2": [1, 2, 3]}, "expected": [1, 2, 3]},
+  {"name": "interleaved, nothing in common", "input": {"nums1": [1, 3, 5], "nums2": [2, 4, 6]}, "expected": []},
+  {"name": "duplicates, smaller count wins", "input": {"nums1": [1, 1, 1], "nums2": [1, 1]}, "expected": [1, 1]},
+  {"name": "one inside the other", "input": {"nums1": [1, 2, 3, 4, 5], "nums2": [2, 4]}, "expected": [2, 4]},
+  {"name": "negatives and zero", "input": {"nums1": [-5, -3, 0, 2], "nums2": [-3, 0, 7]}, "expected": [-3, 0]},
+  {"name": "long tail in the second", "input": {"nums1": [1, 2, 3], "nums2": [3, 4, 5, 6, 7]}, "expected": [3]}
+]

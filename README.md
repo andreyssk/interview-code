@@ -1,0 +1,92 @@
+# Interview Prep
+
+LeetCode-style practice for software interview prep, with a neon Tokyo look.
+
+- `frontend/` – React + TypeScript + Vite, React Router, TanStack Query, Tailwind v4
+- `backend/` – Go (`net/http`, `pgx`): runs Go code and records every attempt in PostgreSQL
+- `docker-compose.yml` – PostgreSQL 17 (bound to 127.0.0.1:5432)
+
+Tasks are static data in `frontend/src/entities/task/`. The backend stores **attempts**: each run of a task saves
+the code, the result (passed / failed / compile error / timeout), the output and the duration. A task counts as solved
+once any attempt passed; the solved and failed counters and the **Submissions** tab (every past solution, with a
+button to restore its code into the editor) are derived from that table. Only the editor's current draft stays in the
+browser (localStorage).
+
+## Run
+
+```sh
+make db        # PostgreSQL in Docker (data lives in the pgdata volume)
+make backend   # API on 127.0.0.1:8080 (needs the Go toolchain); DATABASE_URL and ADDR override the defaults
+make frontend  # UI on :5173, proxies /api to the backend
+```
+
+## Themes
+
+Six themes, picked from a header dropdown and remembered in the browser: **Apple** and **Android** (light, system-style looks), **JetBrains** (IDE-style dark with Darcula syntax colors), **Tokyo** (neon, the default; two 80s cars with nitro flames along the bottom) and **Depressive** (flat black / gray / white
+with a single dimmed-red accent, square corners and rain) and **Cozy** (light, warm paper with hand-drawn outlines and type, and a countryside sketch
+background from `frontend/public/countryside.svg`). A theme is just a set of CSS variables in `frontend/src/app/styles/index.css`, selected by
+`<html data-theme="...">`; no component knows which theme is active. To add one, add its name to `shared/lib/theme.ts` and a
+`:root[data-theme='name']` block that overrides the variables. Background decor is the fixed `body::after` layer (SVGs in `frontend/public`).
+
+## Frontend architecture
+
+Feature-Sliced Design under `frontend/src` (alias `@` = `src`; a layer only imports from layers below it):
+
+```
+app/        providers, routing, global styles
+pages/      problems, problem-list, task, theory-list, theory
+widgets/    header, category-grid, task-browser, task-workspace
+features/   switch-language, filter-tasks, run-code
+entities/   task, category, theory
+shared/     api, i18n, lib, ui (CodeEditor, RichBlocks)
+```
+
+Each slice exposes its public API through `index.ts`.
+
+## i18n
+
+`i18next` + `react-i18next`, languages `en` and `ru` (switch in the header; saved in localStorage; `?lng=ru` overrides).
+- UI strings: `shared/i18n/locales/{en,ru}.json`
+- Task and theory content: `ru.json` / `en.json` next to each item, registered with `addTexts`
+- Search matches titles, companies and categories in both languages
+
+## Adding a task
+
+A task is a folder in `frontend/src/entities/task/data/<slug>/` with these files and nothing to register:
+
+```
+task.json     number (unique, auto-increment from 1), difficulty, categories, companies, leetcodeUrl?, signature (function name, params, return type), complexity
+tests.json    [{ name, input: {param: value}, expected }]
+solution.go   reference solution, exactly as provided by the user (Solution tab; hidden until you click "Show solution"); optional
+en.json       title, description blocks, solution notes
+ru.json       same, in Russian
+```
+
+The editor's starter code and the Go test harness are generated from `task.json` + `tests.json`
+(`entities/task/lib/buildTemplate.ts`, `buildHarness.ts`). The same tests are listed on the task's **Tests** tab.
+`npm run verify` (in `frontend/`) runs every task's `solution.go` against its tests, so a wrong reference solution or test is caught.
+The `add-task` skill in `.claude/skills/` automates all of this from screenshots, including the LeetCode lookup.
+Theory notes live under `entities/theory`.
+
+## Mistakes journal
+
+On a task's **Submissions** tab every failed attempt has an **Add to mistakes** button. It asks for a type of mistake: pick an
+existing one or create a new one (title and description). The **Mistakes** page lists the types, and each type page lists
+its mistakes with the code and output that failed. A type can be edited (title and description), and each mistake can be moved to another type, existing or new. A mistake keeps its own copy of the code, so it stays even if you later delete
+the submission it came from.
+
+## API
+
+- `POST /api/run` `{taskSlug, code, harness}`: compiles and runs the code, saves the attempt, returns the result
+- `GET /api/stats`: `[{taskSlug, passed, failed, lastAttemptAt}]`
+- `GET /api/tasks/{slug}/attempts?limit=50`: saved attempts with code, newest first
+- `DELETE /api/attempts/{id}`: delete one saved attempt (counters are recomputed)
+- `GET /api/mistake-types`, `POST /api/mistake-types {title, description}`: types of mistakes (with how many mistakes each holds)
+- `GET /api/mistake-types/{id}`: one type with its mistakes; `PATCH` changes its title and description; `DELETE` removes it and its mistakes
+- `POST /api/mistakes {attemptId, typeId}`: file a failed attempt under a type (copies its code and output); `PATCH /api/mistakes/{id} {typeId}` moves it to another type; `DELETE /api/mistakes/{id}`
+
+## How running works
+
+The frontend sends `{taskSlug, code, harness}` (the generated harness embeds the JSON tests); the backend writes both to a temp dir as one `package main`,
+runs `go build` (30 s limit) then the binary (5 s limit, 64 KB output cap), saves the attempt and returns the output.
+It executes arbitrary code with your user's permissions, so it binds to localhost only.

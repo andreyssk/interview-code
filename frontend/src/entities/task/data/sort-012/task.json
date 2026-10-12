@@ -1,0 +1,24 @@
+{
+  "number": 8,
+  "difficulty": "easy",
+  "categories": [
+    "hash-map"
+  ],
+  "companies": [
+    "ozon"
+  ],
+  "complexity": {
+    "time": "O(n)",
+    "space": "O(1)"
+  },
+  "signature": {
+    "name": "sort012",
+    "params": [
+      {
+        "name": "colors",
+        "type": "[]int"
+      }
+    ],
+    "returns": "[]int"
+  }
+}

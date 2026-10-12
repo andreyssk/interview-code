@@ -1,0 +1,42 @@
+{
+  "title": "Container With Most Water",
+  "description": [
+    {
+      "p": "You are given an array of integers <code>height</code>, where <code>height[i]</code> is the height of a line. Find the maximum area of water that can be held between two lines."
+    },
+    {
+      "p": "<b>IMPORTANT:</b> the water area is calculated as <code>min(height[i], height[j]) * (j - i)</code>, where <code>i</code> is the index of the first line and <code>j</code> is the index of the second."
+    },
+    {
+      "h": "Example 1:"
+    },
+    {
+      "pre": "Input: height = [1,8,6,2,5,4,8,3,7]\nOutput: 49\nExplanation: 7 * (8 - 1) = 49, \"1\" is the index of the first line, \"8\" is the second"
+    },
+    {
+      "h": "Example 2:"
+    },
+    {
+      "pre": "Input: height = [2,3,4,5]\nOutput: 6"
+    },
+    {
+      "h": "Constraints:"
+    },
+    {
+      "ul": [
+        "<code>len(height) >= 2</code>"
+      ]
+    }
+  ],
+  "solution": [
+    {
+      "h": "Complexity estimate"
+    },
+    {
+      "ul": [
+        "Time: <code>O(n)</code>, where <code>n</code> is the number of elements in the array",
+        "Space: <code>O(1)</code>"
+      ]
+    }
+  ]
+}
