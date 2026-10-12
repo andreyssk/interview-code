@@ -75,7 +75,9 @@
     "practice": "Practice {{category}} →",
     "practiceLink": "Practice: {{category}} problems →",
     "notFound": "Note not found.",
-    "backToList": "Back to theory"
+    "backToList": "Back to theory",
+    "source": "Source",
+    "relatedTitle": "Related theory"
   },
   "task": {
     "back": "← Problems",

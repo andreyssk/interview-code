@@ -1,12 +1,11 @@
-import { useEffect, useRef, useState } from 'react'
-import { createPortal } from 'react-dom'
+import { useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router-dom'
 import { useMistakeType, useMistakeTypes } from '@/entities/mistake'
 import { findTask, TaskTitleLink, useTaskText } from '@/entities/task'
 import type { Mistake, MistakeTypeDetail } from '@/shared/api/mistakes'
 import { highlightGo } from '@/shared/lib/highlight'
-import { Modal, Spinner, StatusTag } from '@/shared/ui'
+import { Modal, Popover, Spinner, StatusTag } from '@/shared/ui'
 
 interface Selected {
   type: MistakeTypeDetail
@@ -46,52 +45,14 @@ function TypeMistakes({ id, onSelect }: { id: number; onSelect: (s: Selected) =>
 export function MistakesPopover() {
   const { t } = useTranslation()
   const { data: types, isPending, isError } = useMistakeTypes()
-  const [open, setOpen] = useState(false)
   const [expanded, setExpanded] = useState<number | null>(null)
   const [selected, setSelected] = useState<Selected | null>(null)
-  const [pos, setPos] = useState({ top: 0, right: 0 })
-  const button = useRef<HTMLButtonElement>(null)
-  const menu = useRef<HTMLDivElement>(null)
-
-  // Rendered in a portal: the editor panel clips overflow, which would cut the popover off.
-  const toggle = () => {
-    const r = button.current?.getBoundingClientRect()
-    if (r) setPos({ top: r.bottom + 6, right: window.innerWidth - r.right })
-    setOpen((v) => !v)
-  }
-
-  useEffect(() => {
-    if (!open) return
-    const onDown = (e: MouseEvent) => {
-      const target = e.target as Node
-      if (!menu.current?.contains(target) && !button.current?.contains(target)) setOpen(false)
-    }
-    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && setOpen(false)
-    const close = () => setOpen(false)
-    document.addEventListener('mousedown', onDown)
-    document.addEventListener('keydown', onKey)
-    window.addEventListener('resize', close)
-    return () => {
-      document.removeEventListener('mousedown', onDown)
-      document.removeEventListener('keydown', onKey)
-      window.removeEventListener('resize', close)
-    }
-  }, [open])
 
   return (
     <>
-      <button ref={button} className="btn-ghost" aria-haspopup="dialog" aria-expanded={open} onClick={toggle}>
-        <span aria-hidden="true">⚠</span> {t('nav.mistakes')}
-      </button>
-      {open &&
-        createPortal(
-          <div
-            ref={menu}
-            role="dialog"
-            aria-label={t('mistakes.title')}
-            className="panel fixed z-50 max-h-[70vh] w-[min(24rem,calc(100vw-1rem))] overflow-auto p-2"
-            style={{ top: pos.top, right: pos.right }}
-          >
+      <Popover button={<><span aria-hidden="true">⚠</span> {t('nav.mistakes')}</>} label={t('mistakes.title')}>
+        {(close) => (
+          <>
             {isPending && <Spinner />}
             {isError && <p className="p-2 text-sm text-[var(--pink)]">{t('mistakes.loadError')}</p>}
             {types?.length === 0 && <p className="p-2 text-sm text-[var(--muted)]">{t('mistakes.empty')}</p>}
@@ -109,16 +70,16 @@ export function MistakesPopover() {
                   <TypeMistakes
                     id={type.id}
                     onSelect={(sel) => {
-                      setOpen(false)
+                      close()
                       setSelected(sel)
                     }}
                   />
                 )}
               </div>
             ))}
-          </div>,
-          document.body,
+          </>
         )}
+      </Popover>
       <MistakeModal selected={selected} onClose={() => setSelected(null)} />
     </>
   )

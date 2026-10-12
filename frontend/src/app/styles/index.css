@@ -817,6 +817,7 @@ body::before {
   border: 1px solid var(--border); color: var(--text); background: var(--ghost-bg);
   transition: color .15s, background-color .15s, border-color .15s, box-shadow .15s, transform .15s, opacity .15s;
 }
+.btn-icon { padding-left: 0.65rem; padding-right: 0.65rem; }
 button.btn-ghost:hover { border-color: var(--violet); box-shadow: var(--ghost-hover-glow); }
 
 /* Stopwatch: the play/stop icon and the reading share one bordered pill; the icon itself is unframed. */

@@ -66,7 +66,7 @@ The editor's starter code and the Go test harness are generated from `task.json`
 (`entities/task/lib/buildTemplate.ts`, `buildHarness.ts`). The same tests are listed on the task's **Tests** tab.
 `npm run verify` (in `frontend/`) runs every task's `solution.go` against its tests, so a wrong reference solution or test is caught.
 The `add-task` skill in `.claude/skills/` automates all of this from screenshots, including the LeetCode lookup.
-Theory notes live under `entities/theory`.
+Theory notes live under `entities/theory` (add one with the `add-article` skill; they are Russian only).
 
 ## Mistakes journal
 

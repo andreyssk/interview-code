@@ -41,7 +41,7 @@ Slugs, colors and names are defined once, so a tag looks the same in every langu
 
 ## 4. Categories
 
-Never choose or infer a category yourself. Use only what the input says: the user's message, or a category/course name visible in the screenshots or pasted text. Slugs live in `frontend/src/entities/category/model/categories.ts` (arrays, two-pointers, hash-map, stack, sliding-window, trees, graphs). If the input gives no category, ask the user before creating the task. For a category that is not in the list, add it there and add `categories.<slug>.name` to both `frontend/src/shared/i18n/locales/{en,ru}.json`, but ask the user first.
+Never choose or infer a category yourself. Use only what the input says: the user's message, or a category/course name visible in the screenshots or pasted text. Slugs live in `frontend/src/entities/category/model/categories.ts` (Algorithms: arrays, two-pointers, hash-map, stack, sliding-window, trees, graphs; Golang: strings, concurrency, slices, interfaces; SQL: sql). A category's `section` decides where its tile is shown on the Problems page. If the input gives no category, ask the user before creating the task. For a category that is not in the list, add it there and add `categories.<slug>.name` to both `frontend/src/shared/i18n/locales/{en,ru}.json`, but ask the user first.
 
 ## 5. Create the folder `frontend/src/entities/task/data/<slug>/`
 

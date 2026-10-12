@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next'
 import { Link, useParams } from 'react-router-dom'
-import { findTheory, useTheoryText } from '@/entities/theory'
+import { findTheory, TheorySourceLabel, useTheoryText, type TheorySource } from '@/entities/theory'
 import { RichBlocks } from '@/shared/ui'
 
 export function TheoryPage() {
@@ -16,19 +16,24 @@ export function TheoryPage() {
       </p>
     )
   }
-  return <Note slug={note.slug} category={note.category} />
+  return <Note slug={note.slug} category={note.category} source={note.source} />
 }
 
-function Note({ slug, category }: { slug: string; category?: string }) {
+function Note({ slug, category, source }: { slug: string; category?: string; source?: TheorySource }) {
   const { t } = useTranslation()
   const { title, content } = useTheoryText(slug)
   return (
-    <div>
+    <div className="mx-auto max-w-[46rem]">
       <Link to="/theory" className="mb-3 inline-block text-sm text-[var(--muted)] hover:text-[var(--cyan)]">
         {t('theory.back')}
       </Link>
       <article className="panel p-6">
-        <h1 className="neon-title mb-4 text-3xl font-bold">{title}</h1>
+        <h1 className="neon-title mb-2 text-3xl font-bold">{title}</h1>
+        {source && (
+          <div className="mb-4">
+            <TheorySourceLabel source={source} />
+          </div>
+        )}
         <RichBlocks blocks={content} />
         {category && (
           <Link to={`/problems/${category}`} className="btn-run mt-4 inline-block">
