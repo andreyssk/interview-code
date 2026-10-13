@@ -1,4 +1,5 @@
 import type { Block } from '@/shared/ui'
+import { request } from './http'
 
 export type Difficulty = 'easy' | 'medium' | 'hard'
 
@@ -95,8 +96,4 @@ export interface Content {
   articles: ApiArticle[]
 }
 
-export async function fetchContent(): Promise<Content> {
-  const res = await fetch('/api/content')
-  if (!res.ok) throw new Error(`Request failed (${res.status})`)
-  return res.json()
-}
+export const fetchContent = () => request<Content>('/api/content')

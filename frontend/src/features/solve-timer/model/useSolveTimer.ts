@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
+import { useAuth } from '@/shared/auth/AuthContext'
 import { usePersistentState } from '@/shared/lib/storage'
 
 interface State {
@@ -14,7 +15,8 @@ const initial: State = { acc: 0, startedAt: null, done: false }
 
 /** Manual stopwatch for one task. Survives reloads (kept in localStorage). */
 export function useSolveTimer(taskSlug: string) {
-  const [state, setState] = usePersistentState<State>(`timer:${taskSlug}`, initial)
+  const { user } = useAuth()
+  const [state, setState] = usePersistentState<State>(`u${user.id}:timer:${taskSlug}`, initial, user.role === 'admin' ? `timer:${taskSlug}` : undefined)
   const [now, setNow] = useState(() => Date.now())
   const running = state.startedAt !== null
 

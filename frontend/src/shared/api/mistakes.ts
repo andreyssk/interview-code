@@ -1,3 +1,4 @@
+import { jsonInit as json, request } from './http'
 import type { AttemptStatus } from './run'
 
 export interface MistakeType {
@@ -23,21 +24,6 @@ export interface Mistake {
 export interface MistakeTypeDetail extends MistakeType {
   mistakes: Mistake[]
 }
-
-async function request<T>(url: string, init?: RequestInit): Promise<T> {
-  const res = await fetch(url, init)
-  if (!res.ok) {
-    const body = await res.json().catch(() => ({}))
-    throw new Error(body.error ?? `Request failed (${res.status})`)
-  }
-  return res.status === 204 ? (undefined as T) : res.json()
-}
-
-const json = (method: string, body: unknown): RequestInit => ({
-  method,
-  headers: { 'Content-Type': 'application/json' },
-  body: JSON.stringify(body),
-})
 
 export const fetchMistakeTypes = () => request<MistakeType[]>('/api/mistake-types')
 export const fetchMistakeType = (id: number) => request<MistakeTypeDetail>(`/api/mistake-types/${id}`)

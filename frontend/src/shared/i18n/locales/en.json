@@ -2,7 +2,8 @@
   "nav": {
     "theory": "Theory",
     "problems": "Problems",
-    "mistakes": "Mistakes"
+    "mistakes": "Mistakes",
+    "admin": "Admin"
   },
   "language": {
     "label": "Language of the interface and tasks"
@@ -174,5 +175,23 @@
     "discard": "Discard time",
     "discardHint": "Remove the recorded time (the submission stays)"
   },
-  "loading": "Loading"
+  "loading": "Loading",
+  "auth": {
+    "username": "Username",
+    "password": "Password",
+    "signIn": "Sign in",
+    "signUp": "Sign up",
+    "noAccount": "No account? Sign up",
+    "haveAccount": "Have an account? Sign in",
+    "signupClosed": "New sign-ups are closed. Ask the admin for an account.",
+    "account": "Account",
+    "changePassword": "Change password",
+    "signOut": "Sign out",
+    "currentPassword": "Current password",
+    "newPassword": "New password (8+ characters)",
+    "repeatPassword": "Repeat new password",
+    "mismatch": "Passwords do not match",
+    "mustChangeTitle": "Choose a new password",
+    "mustChangeHint": "An admin reset your password. Enter the temporary one as the current password, then pick your own."
+  }
 }

@@ -7,6 +7,7 @@ import { AddToMistakes } from '@/features/add-to-mistakes'
 import { AttemptHistory } from '@/features/attempt-history'
 import { SolveTimer, useSolveTimer } from '@/features/solve-timer'
 import { RunOutput, statusTone, useRunCode } from '@/features/run-code'
+import { useAuth } from '@/shared/auth/AuthContext'
 import { usePersistentState } from '@/shared/lib/storage'
 import { CodeEditor, ConfirmDialog, RichBlocks } from '@/shared/ui'
 
@@ -18,7 +19,9 @@ export function TaskWorkspace({ task, editorActions }: { task: TaskDef; editorAc
   const { title, description } = task
   const { isSolved, counts } = useTaskStats()
   const { passed, failed } = counts(task.slug)
-  const [code, setCode] = usePersistentState(`code:${task.slug}`, task.template)
+  const { user } = useAuth()
+  // Drafts belong to the signed-in user; the admin also inherits drafts saved before accounts existed.
+  const [code, setCode] = usePersistentState(`u${user.id}:code:${task.slug}`, task.template, user.role === 'admin' ? `code:${task.slug}` : undefined)
   const requested = useSearchParams()[0].get('tab') // lets a tab be linked to, e.g. ?tab=attempts
   const [tab, setTab] = useState<(typeof TABS)[number]>(TABS.find((x) => x === requested) ?? 'description')
   const [resetting, setResetting] = useState(false)

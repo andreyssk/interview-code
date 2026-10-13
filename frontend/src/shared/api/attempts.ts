@@ -1,3 +1,4 @@
+import { request } from './http'
 import type { AttemptStatus } from './run'
 
 export interface TaskStats {
@@ -21,19 +22,7 @@ export interface Attempt {
   mistake: { id: number; typeId: number; typeTitle: string } | null
 }
 
-async function getJson<T>(url: string): Promise<T> {
-  const res = await fetch(url)
-  if (!res.ok) throw new Error(`Request failed (${res.status})`)
-  return res.json()
-}
-
-export const fetchStats = () => getJson<TaskStats[]>('/api/stats')
-export const fetchAttempts = (slug: string) => getJson<Attempt[]>(`/api/tasks/${encodeURIComponent(slug)}/attempts`)
-export async function deleteAttempt(id: number): Promise<void> {
-  const res = await fetch(`/api/attempts/${id}`, { method: 'DELETE' })
-  if (!res.ok) throw new Error(`Request failed (${res.status})`)
-}
-export async function clearSolveTime(id: number): Promise<void> {
-  const res = await fetch(`/api/attempts/${id}/solve-time`, { method: 'DELETE' })
-  if (!res.ok) throw new Error(`Request failed (${res.status})`)
-}
+export const fetchStats = () => request<TaskStats[]>('/api/stats')
+export const fetchAttempts = (slug: string) => request<Attempt[]>(`/api/tasks/${encodeURIComponent(slug)}/attempts`)
+export const deleteAttempt = (id: number) => request<void>(`/api/attempts/${id}`, { method: 'DELETE' })
+export const clearSolveTime = (id: number) => request<void>(`/api/attempts/${id}/solve-time`, { method: 'DELETE' })

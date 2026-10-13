@@ -90,3 +90,12 @@ the submission it came from.
 The frontend sends `{taskSlug, code, harness}` (the generated harness embeds the JSON tests); the backend writes both to a temp dir as one `package main`,
 runs `go build` (30 s limit) then the binary (5 s limit, 64 KB output cap), saves the attempt and returns the output.
 It executes arbitrary code with your user's permissions, so it binds to localhost only.
+
+## Accounts
+
+Everything except the login screen needs an account (username + password). Attempts and the mistakes journal are per user.
+
+- The first admin is created at startup from `ADMIN_USERNAME` / `ADMIN_PASSWORD` in `.env` (copy `.env.example`). It is created only if it does not exist yet, so changing the password in the app sticks. Data that existed before accounts is given to this admin.
+- **Sign-up is closed by default.** An admin opens or closes it with a switch (`GET/PUT /api/admin/settings`, `signupEnabled`).
+- A forgotten password is reset by an admin: `POST /api/admin/users/{id}/reset-password` returns a temporary password once; the user must replace it at the next login.
+- Sessions are an HttpOnly cookie (30 days); failed logins are rate-limited per username and IP.

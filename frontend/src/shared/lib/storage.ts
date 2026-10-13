@@ -17,9 +17,10 @@ export function writeStorage(key: string, value: string) {
 }
 
 // Everything lives in the browser: the backend only runs code.
-export function usePersistentState<T>(key: string, initial: T) {
+// `legacyKey`: an older, user-less key to read once when `key` has nothing yet (data saved before accounts existed).
+export function usePersistentState<T>(key: string, initial: T, legacyKey?: string) {
   const [value, setValue] = useState<T>(() => {
-    const raw = readStorage(key)
+    const raw = readStorage(key) ?? (legacyKey ? readStorage(legacyKey) : null)
     if (raw === null) return initial
     try {
       return JSON.parse(raw) as T

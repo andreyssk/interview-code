@@ -2,6 +2,7 @@ import { useTranslation } from 'react-i18next'
 import { Link, NavLink } from 'react-router-dom'
 import { LanguageSwitcher } from '@/features/switch-language'
 import { ThemeSwitcher } from '@/features/switch-theme'
+import { UserMenu } from '@/features/user-menu'
 
 const LINKS = [
   ['/theory', 'nav.theory'],
@@ -25,6 +26,7 @@ export function Header() {
         <span className="ml-2 flex items-center gap-3">
           <ThemeSwitcher />
           <LanguageSwitcher />
+          <UserMenu />
         </span>
       </nav>
     </header>
