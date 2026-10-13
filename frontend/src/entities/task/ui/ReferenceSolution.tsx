@@ -3,12 +3,11 @@ import { useTranslation } from 'react-i18next'
 import { highlightGo } from '@/shared/lib/highlight'
 import { RichBlocks } from '@/shared/ui'
 import type { TaskDef } from '../model/types'
-import { useTaskText } from '../model/useTaskText'
 
 /** The interview-ready answer with complexity and notes. Hidden until asked for, to avoid spoiling yourself. */
 export function ReferenceSolution({ task }: { task: TaskDef }) {
   const { t } = useTranslation()
-  const { solutionNotes } = useTaskText(task.slug)
+  const { solutionNotes } = task
   const [revealed, setRevealed] = useState(false)
 
   if (!task.solution) return <p className="text-[var(--muted)]">{t('solution.none')}</p>

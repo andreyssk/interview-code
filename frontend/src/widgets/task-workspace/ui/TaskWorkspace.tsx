@@ -2,7 +2,7 @@ import { useState, type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link, useSearchParams } from 'react-router-dom'
 import { CategoryTag } from '@/entities/category'
-import { CompanyTag, DifficultyTag, ReferenceSolution, SolvedTag, TestCases, useTaskStats, useTaskText, type TaskDef } from '@/entities/task'
+import { CompanyTag, DifficultyTag, ReferenceSolution, SolvedTag, TestCases, useTaskStats, type TaskDef } from '@/entities/task'
 import { AddToMistakes } from '@/features/add-to-mistakes'
 import { AttemptHistory } from '@/features/attempt-history'
 import { SolveTimer, useSolveTimer } from '@/features/solve-timer'
@@ -15,7 +15,7 @@ const TABS = ['description', 'tests', 'solution', 'attempts', 'output'] as const
 /** LeetCode-style split view: statement and output on the left, editor on the right. */
 export function TaskWorkspace({ task, editorActions }: { task: TaskDef; editorActions?: ReactNode }) {
   const { t } = useTranslation()
-  const { title, description } = useTaskText(task.slug)
+  const { title, description } = task
   const { isSolved, counts } = useTaskStats()
   const { passed, failed } = counts(task.slug)
   const [code, setCode] = usePersistentState(`code:${task.slug}`, task.template)

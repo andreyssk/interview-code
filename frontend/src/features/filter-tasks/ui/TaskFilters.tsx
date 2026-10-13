@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next'
-import { COMPANY_TONES } from '@/entities/task'
+import { useCompanies } from '@/entities/task'
 import { useTaskFilters } from '../model/useTaskFilters'
 
 const DIFFICULTIES = ['easy', 'medium', 'hard']
@@ -30,6 +30,7 @@ function Group({ label, value, options, render, onChange }: {
 export function TaskFilters() {
   const { t } = useTranslation()
   const f = useTaskFilters()
+  const companies = useCompanies()
   return (
     <>
       <Group label={t('filters.difficulty')} value={f.difficulty} options={DIFFICULTIES} render={(o) => t(`difficulty.${o}`)} onChange={f.setDifficulty} />
@@ -37,8 +38,8 @@ export function TaskFilters() {
       <Group
         label={t('filters.company')}
         value={f.company}
-        options={Object.keys(COMPANY_TONES)}
-        render={(o) => t(`companies.${o}`, { defaultValue: o })}
+        options={companies.map((c) => c.slug)}
+        render={(o) => companies.find((c) => c.slug === o)?.name ?? o}
         onChange={f.setCompany}
       />
       {f.active && (

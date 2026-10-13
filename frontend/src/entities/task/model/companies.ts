@@ -1,12 +1,9 @@
-// Companies are identified by a slug, so a tag keeps its color in every language.
-// Display names live in the "common" translations under companies.<slug>.
-// To add a company: add it here and add companies.<slug> to shared/i18n/locales/{en,ru}.json.
-export const COMPANY_TONES: Record<string, string> = {
-  vk: 'neon-blue',
-  yandex: 'neon-red',
-  'yellow-bank': 'neon-yellow',
-  ozon: 'neon-indigo',
-  avito: 'neon-green',
-}
+import { useContent } from '@/shared/content/ContentContext'
 
-export const companyTone = (slug: string) => COMPANY_TONES[slug] ?? 'neon-violet'
+export const useCompanies = () => useContent().companies
+
+/** Display name and tag color of a company; an unknown slug falls back to the slug itself. */
+export function useCompany(slug: string) {
+  const company = useCompanies().find((c) => c.slug === slug)
+  return { name: company?.name ?? slug, tone: company?.tone ?? 'neon-violet' }
+}

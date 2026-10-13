@@ -12,6 +12,7 @@ import (
 
 	"github.com/app/interview-prep/internal/api"
 	"github.com/app/interview-prep/internal/db"
+	"github.com/app/interview-prep/internal/envfile"
 	"github.com/app/interview-prep/internal/store"
 	"github.com/app/interview-prep/migrations"
 )
@@ -24,6 +25,10 @@ func env(key, fallback string) string {
 }
 
 func main() {
+	// .env next to the Makefile (when started from the repo root) or in backend/.
+	envfile.Load("../.env")
+	envfile.Load(".env")
+
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()
 

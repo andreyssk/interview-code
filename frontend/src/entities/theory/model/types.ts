@@ -1,19 +1,13 @@
-// Translatable content (title, summary, body) lives next to each note in en.json / ru.json
-// and is registered under the "theory" i18n namespace.
+import type { ApiArticle } from '@/shared/api/content'
+
 export interface TheorySource {
   /** Shown as is, e.g. "algocode.io" */
   name: string
   url?: string
 }
 
-export interface TheoryDef {
-  slug: string
-  /** Main category: decides the section the note is listed under and where "Practice" leads */
+/** An article ready for the UI. `category` decides its section and where "Practice" leads. */
+export interface TheoryDef extends Omit<ApiArticle, 'sourceName' | 'sourceUrl' | 'category'> {
   category?: string
-  /** Where the material comes from */
   source?: TheorySource
-  /** More categories this note helps with (besides `category`); the note is suggested on their tasks */
-  categories?: string[]
-  /** Individual tasks (slugs) this note helps with */
-  tasks?: string[]
 }

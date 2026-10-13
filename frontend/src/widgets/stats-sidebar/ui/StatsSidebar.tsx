@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next'
-import { categories, sections } from '@/entities/category'
-import { tasks, useTaskStats, type Difficulty } from '@/entities/task'
+import { useCategories, useSections } from '@/entities/category'
+import { useTasks, useTaskStats, type Difficulty } from '@/entities/task'
 
 const DIFFICULTIES: Difficulty[] = ['easy', 'medium', 'hard']
 
@@ -24,6 +24,9 @@ function Bar({ label, done, total }: { label: string; done: number; total: numbe
 export function StatsSidebar() {
   const { t } = useTranslation()
   const { solvedCount } = useTaskStats()
+  const tasks = useTasks()
+  const sections = useSections()
+  const categories = useCategories()
   const solvedOf = (list: typeof tasks) => solvedCount(list.map((x) => x.slug))
   const inSection = (section: string) => {
     const slugs = categories.filter((c) => c.section === section).map((c) => c.slug)
@@ -42,7 +45,7 @@ export function StatsSidebar() {
       <h2 className="mt-5">{t('stats.bySection')}</h2>
       {sections.map((s) => {
         const list = inSection(s.slug)
-        return <Bar key={s.slug} label={t(`sections.${s.slug}.name`)} done={solvedOf(list)} total={list.length} />
+        return <Bar key={s.slug} label={s.name} done={solvedOf(list)} total={list.length} />
       })}
     </aside>
   )

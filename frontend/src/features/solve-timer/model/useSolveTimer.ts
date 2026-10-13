@@ -20,7 +20,6 @@ export function useSolveTimer(taskSlug: string) {
 
   useEffect(() => {
     if (!running) return
-    setNow(Date.now())
     const id = setInterval(() => setNow(Date.now()), 250)
     return () => clearInterval(id)
   }, [running])

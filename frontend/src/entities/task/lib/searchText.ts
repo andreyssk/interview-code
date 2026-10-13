@@ -1,14 +1,6 @@
-import { i18n, languages } from '@/shared/i18n'
 import type { TaskDef } from '../model/types'
 
-/** Title, companies and difficulty in every language, so search works whichever one is displayed. */
-export function taskSearchText(task: TaskDef): string[] {
-  return languages.flatMap((lng) => {
-    const common = i18n.getFixedT(lng)
-    return [
-      i18n.getFixedT(lng, 'tasks')(`${task.slug}.title`),
-      ...task.companies.map((c) => common(`companies.${c}`, { defaultValue: c })),
-      common(`difficulty.${task.difficulty}`),
-    ]
-  })
+/** What a task's search box query is matched against: title, company names, difficulty and category names. */
+export function taskSearchText(task: TaskDef, names: { company: (slug: string) => string; category: (slug: string) => string; difficulty: string }): string[] {
+  return [task.title, ...task.companies.map(names.company), ...task.categories.map(names.category), task.difficulty, names.difficulty]
 }

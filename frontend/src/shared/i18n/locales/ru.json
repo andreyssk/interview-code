@@ -22,54 +22,15 @@
   "tags": {
     "solved": "решено"
   },
-  "categories": {
-    "all": {
-      "name": "Все задачи"
-    },
-    "arrays": {
-      "name": "Массивы"
-    },
-    "two-pointers": {
-      "name": "Два указателя"
-    },
-    "hash-map": {
-      "name": "Хеш-таблицы"
-    },
-    "stack": {
-      "name": "Стек"
-    },
-    "sliding-window": {
-      "name": "Скользящее окно"
-    },
-    "trees": {
-      "name": "Деревья"
-    },
-    "graphs": {
-      "name": "Графы"
-    },
-    "strings": {
-      "name": "Строки"
-    },
-    "concurrency": {
-      "name": "Конкурентность"
-    },
-    "slices": {
-      "name": "Слайсы"
-    },
-    "interfaces": {
-      "name": "Интерфейсы"
-    },
-    "sql": {
-      "name": "SQL"
-    }
-  },
   "problems": {
     "title": "Задачи",
     "searchAll": "Поиск по всем задачам…  (Enter)",
     "searchPlaceholder": "Поиск по названию, компании или категории…",
     "allCategories": "← Все категории",
     "none": "Задачи не найдены.",
-    "unknownCategory": "Неизвестная категория."
+    "unknownCategory": "Неизвестная категория.",
+    "allProblems": "Все задачи",
+    "allOf": "Все: {{name}}"
   },
   "theory": {
     "title": "Теория",
@@ -123,14 +84,8 @@
     "timeout": "Превышен лимит времени",
     "compile": "Ошибка компиляции",
     "failed": "Не пройдено",
-    "error": "Ошибка"
-  },
-  "companies": {
-    "vk": "вк",
-    "yandex": "яндекс",
-    "yellow-bank": "желтый банк",
-    "ozon": "озон",
-    "avito": "авито"
+    "error": "Ошибка",
+    "serverDown": "Сервер сейчас недоступен"
   },
   "attempts": {
     "empty": "Пока нет решений. Запустите код, чтобы сохранить попытку.",
@@ -204,20 +159,6 @@
   },
   "theme": {
     "label": "Тема"
-  },
-  "sections": {
-    "algorithms": {
-      "name": "Алгоритмы",
-      "all": "Все алгоритмы"
-    },
-    "golang": {
-      "name": "Golang",
-      "all": "Все задачи Golang"
-    },
-    "sql": {
-      "name": "SQL",
-      "all": "Все задачи SQL"
-    }
   },
   "filters": {
     "title": "Фильтры",

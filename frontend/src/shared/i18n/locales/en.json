@@ -20,54 +20,15 @@
   "tags": {
     "solved": "solved"
   },
-  "categories": {
-    "all": {
-      "name": "All problems"
-    },
-    "arrays": {
-      "name": "Arrays"
-    },
-    "two-pointers": {
-      "name": "Two Pointers"
-    },
-    "hash-map": {
-      "name": "Hash Map"
-    },
-    "stack": {
-      "name": "Stack"
-    },
-    "sliding-window": {
-      "name": "Sliding Window"
-    },
-    "trees": {
-      "name": "Trees"
-    },
-    "graphs": {
-      "name": "Graphs"
-    },
-    "strings": {
-      "name": "Strings"
-    },
-    "concurrency": {
-      "name": "Concurrency"
-    },
-    "slices": {
-      "name": "Slices"
-    },
-    "interfaces": {
-      "name": "Interfaces"
-    },
-    "sql": {
-      "name": "SQL"
-    }
-  },
   "problems": {
     "title": "Problems",
     "searchAll": "Search all problems…  (Enter)",
     "searchPlaceholder": "Search by title, company or category…",
     "allCategories": "← All categories",
     "none": "No problems found.",
-    "unknownCategory": "Unknown category."
+    "unknownCategory": "Unknown category.",
+    "allProblems": "All problems",
+    "allOf": "All: {{name}}"
   },
   "theory": {
     "title": "Theory",
@@ -115,14 +76,8 @@
     "timeout": "Time limit exceeded",
     "compile": "Compile error",
     "failed": "Failed",
-    "error": "Error"
-  },
-  "companies": {
-    "vk": "VK",
-    "yandex": "Yandex",
-    "yellow-bank": "Yellow Bank",
-    "ozon": "Ozon",
-    "avito": "Avito"
+    "error": "Error",
+    "serverDown": "Our server is down at the moment"
   },
   "attempts": {
     "empty": "No submissions yet. Run your code to record one.",
@@ -194,20 +149,6 @@
   },
   "theme": {
     "label": "Theme"
-  },
-  "sections": {
-    "algorithms": {
-      "name": "Algorithms",
-      "all": "All algorithms"
-    },
-    "golang": {
-      "name": "Golang",
-      "all": "All Golang"
-    },
-    "sql": {
-      "name": "SQL",
-      "all": "All SQL"
-    }
   },
   "filters": {
     "title": "Filters",

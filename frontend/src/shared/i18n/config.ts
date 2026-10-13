@@ -17,16 +17,15 @@ function initialLanguage(): Language {
   return isLanguage(stored) ? stored : 'en'
 }
 
-// "tasks" and "theory" namespaces are filled by the entities that own the content (see addTexts).
 i18n.use(initReactI18next).init({
   resources: {
-    en: { common: en, tasks: {}, theory: {} },
-    ru: { common: ru, tasks: {}, theory: {} },
+    en: { common: en },
+    ru: { common: ru },
   },
   lng: initialLanguage(),
   fallbackLng: 'en',
   supportedLngs: languages,
-  ns: ['common', 'tasks', 'theory'],
+  ns: ['common'],
   defaultNS: 'common',
   interpolation: { escapeValue: false }, // React already escapes
 })

@@ -1,11 +1,12 @@
 import { useTranslation } from 'react-i18next'
 import { Link, useParams } from 'react-router-dom'
-import { findTheory, TheorySourceLabel, useTheoryText, type TheorySource } from '@/entities/theory'
+import { TheorySourceLabel, useNote, type TheoryDef } from '@/entities/theory'
+import { useCategory } from '@/entities/category'
 import { RichBlocks } from '@/shared/ui'
 
 export function TheoryPage() {
   const { t } = useTranslation()
-  const note = findTheory(useParams().slug)
+  const note = useNote(useParams().slug)
   if (!note) {
     return (
       <p>
@@ -16,28 +17,28 @@ export function TheoryPage() {
       </p>
     )
   }
-  return <Note slug={note.slug} category={note.category} source={note.source} />
+  return <Note note={note} />
 }
 
-function Note({ slug, category, source }: { slug: string; category?: string; source?: TheorySource }) {
+function Note({ note }: { note: TheoryDef }) {
   const { t } = useTranslation()
-  const { title, content } = useTheoryText(slug)
+  const category = useCategory(note.category)
   return (
     <div className="mx-auto max-w-[46rem]">
       <Link to="/theory" className="mb-3 inline-block text-sm text-[var(--muted)] hover:text-[var(--cyan)]">
         {t('theory.back')}
       </Link>
       <article className="panel p-6">
-        <h1 className="neon-title mb-2 text-3xl font-bold">{title}</h1>
-        {source && (
+        <h1 className="neon-title mb-2 text-3xl font-bold">{note.title}</h1>
+        {note.source && (
           <div className="mb-4">
-            <TheorySourceLabel source={source} />
+            <TheorySourceLabel source={note.source} />
           </div>
         )}
-        <RichBlocks blocks={content} />
+        <RichBlocks blocks={note.content} />
         {category && (
-          <Link to={`/problems/${category}`} className="btn-run mt-4 inline-block">
-            {t('theory.practice', { category: t(`categories.${category}.name`) })}
+          <Link to={`/problems/${category.slug}`} className="btn-run mt-4 inline-block">
+            {t('theory.practice', { category: category.name })}
           </Link>
         )}
       </article>

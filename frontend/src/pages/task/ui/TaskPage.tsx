@@ -1,13 +1,13 @@
 import { useTranslation } from 'react-i18next'
 import { Link, useParams } from 'react-router-dom'
-import { findTask } from '@/entities/task'
+import { useTask } from '@/entities/task'
 import { MistakesPopover } from '@/widgets/mistakes-popover'
 import { TaskTheoryPopover } from '@/widgets/task-theory-popover'
 import { TaskWorkspace } from '@/widgets/task-workspace'
 
 export function TaskPage() {
   const { t } = useTranslation()
-  const task = findTask(useParams().slug)
+  const task = useTask(useParams().slug)
   if (!task) {
     return (
       <p>

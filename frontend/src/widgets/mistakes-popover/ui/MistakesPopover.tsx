@@ -1,8 +1,8 @@
-import { useRef, useState } from 'react'
+import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router-dom'
 import { useMistakeType, useMistakeTypes } from '@/entities/mistake'
-import { findTask, TaskTitleLink, useTaskText } from '@/entities/task'
+import { TaskTitleLink, useTask } from '@/entities/task'
 import type { Mistake, MistakeTypeDetail } from '@/shared/api/mistakes'
 import { highlightGo } from '@/shared/lib/highlight'
 import { Modal, Popover, Spinner, StatusTag } from '@/shared/ui'
@@ -14,8 +14,8 @@ interface Selected {
 
 /** Task title as plain text: the row is a button, so it can't hold a link. */
 function MistakeTitle({ slug }: { slug: string }) {
-  const { title } = useTaskText(slug)
-  return <span className="min-w-0 truncate">{findTask(slug) ? title : slug}</span>
+  const task = useTask(slug)
+  return <span className="min-w-0 truncate">{task?.title ?? slug}</span>
 }
 
 function TypeMistakes({ id, onSelect }: { id: number; onSelect: (s: Selected) => void }) {
@@ -88,9 +88,8 @@ export function MistakesPopover() {
 function MistakeModal({ selected, onClose }: { selected: Selected | null; onClose: () => void }) {
   const { t, i18n } = useTranslation()
   // Keep the last selection while the dialog closes so its content doesn't blank out.
-  const last = useRef(selected)
-  if (selected) last.current = selected
-  const view = last.current
+  const [view, setView] = useState(selected)
+  if (selected && selected !== view) setView(selected)
   return (
     <Modal open={selected !== null} code title={view?.type.title ?? ''} onClose={onClose}>
       {view && (

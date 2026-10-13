@@ -68,6 +68,7 @@ func (a *API) Handler() http.Handler {
 		writeJSON(w, http.StatusOK, map[string]string{"status": "ok"})
 	})
 	mux.HandleFunc("POST /api/run", a.run)
+	mux.HandleFunc("GET /api/content", a.content)
 	mux.HandleFunc("GET /api/stats", a.stats)
 	mux.HandleFunc("GET /api/tasks/{slug}/attempts", a.attempts)
 	mux.HandleFunc("DELETE /api/attempts/{id}", a.deleteAttempt)

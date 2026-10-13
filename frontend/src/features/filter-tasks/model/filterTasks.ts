@@ -1,17 +1,18 @@
-import { categoriesForSlug, categorySearchText } from '@/entities/category'
-import { taskSearchText, type TaskDef } from '@/entities/task'
+import type { TaskDef } from '@/entities/task'
 
 interface Filters {
-  category: string // category slug, a section's "all" slug, or 'all'
+  /** Category slugs the list is limited to; undefined = every task */
+  slugs?: string[]
   q: string
   difficulty?: string
   company?: string
   status?: 'solved' | 'unsolved' | ''
   isSolved?: (slug: string) => boolean
+  /** Strings the query is matched against (title, company, difficulty and category names) */
+  searchText: (task: TaskDef) => string[]
 }
 
-export function filterTasks(tasks: TaskDef[], { category, q, difficulty, company, status, isSolved }: Filters): TaskDef[] {
-  const slugs = category === 'all' ? undefined : (categoriesForSlug(category) ?? [])
+export function filterTasks(tasks: TaskDef[], { slugs, q, difficulty, company, status, isSolved, searchText }: Filters): TaskDef[] {
   const needle = q.trim().toLowerCase()
   return tasks.filter((t) => {
     if (slugs && !t.categories.some((c) => slugs.includes(c))) return false
@@ -19,7 +20,6 @@ export function filterTasks(tasks: TaskDef[], { category, q, difficulty, company
     if (company && !t.companies.includes(company)) return false
     if (status && isSolved && isSolved(t.slug) !== (status === 'solved')) return false
     if (!needle) return true
-    // Matches title, companies, difficulty and category names in every language.
-    return [...taskSearchText(t), ...t.categories.flatMap(categorySearchText)].some((s) => s.toLowerCase().includes(needle))
+    return searchText(t).some((s) => s.toLowerCase().includes(needle))
   })
 }

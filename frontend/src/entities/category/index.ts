@@ -1,13 +1,12 @@
 export {
-  categories,
-  categoriesOf,
-  categoriesForSlug,
-  findCategory,
-  sections,
+  allSlug,
+  useCategories,
+  useCategoriesOf,
+  useCategoriesForSlug,
+  useCategory,
+  useSections,
   type Category,
   type Section,
-  type SectionSlug,
 } from './model/categories'
-export { categorySearchText } from './lib/searchText'
 export { CategoryTag } from './ui/CategoryTag'
 export { CategoryTile } from './ui/CategoryTile'

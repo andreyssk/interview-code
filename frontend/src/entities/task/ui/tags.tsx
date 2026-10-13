@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next'
-import { companyTone } from '../model/companies'
+import { useCompany } from '../model/companies'
 import type { Difficulty } from '../model/types'
 
 const DIFFICULTY_CLASS: Record<Difficulty, string> = { easy: 'neon-cyan', medium: 'neon-amber', hard: 'neon-pink' }
@@ -11,8 +11,8 @@ export function DifficultyTag({ difficulty }: { difficulty: Difficulty }) {
 }
 
 export function CompanyTag({ slug }: { slug: string }) {
-  const { t } = useTranslation()
-  return <span className={`tag ${companyTone(slug)}`}># {t(`companies.${slug}`, { defaultValue: slug })}</span>
+  const { name, tone } = useCompany(slug)
+  return <span className={`tag ${tone}`}># {name}</span>
 }
 
 export function SolvedTag() {
