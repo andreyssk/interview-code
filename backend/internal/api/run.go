@@ -94,6 +94,7 @@ func (a *API) Handler() http.Handler {
 	mux.HandleFunc("POST /api/mistakes", a.addMistake)
 	mux.HandleFunc("PATCH /api/mistakes/{id}", a.moveMistake)
 	mux.HandleFunc("DELETE /api/mistakes/{id}", a.deleteMistake)
+	a.registerAdminContent(mux)
 	return a.protect(mux)
 }
 

@@ -3,8 +3,11 @@ package store
 import (
 	"context"
 	"encoding/json"
+	"errors"
+	"strings"
 
 	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgconn"
 )
 
 // Content is everything the frontend needs to render problems and theory; it is small, so it is served in one piece.
@@ -260,4 +263,90 @@ func nilIfNull(m json.RawMessage) any {
 		return nil
 	}
 	return []byte(m)
+}
+
+// ErrInUse: the row is still referenced (e.g. a category that tasks belong to).
+var ErrInUse = errors.New("still in use")
+
+// ErrBadReference: a link points at something that does not exist; Detail names the missing kind.
+type ErrBadReference struct{ Detail string }
+
+func (e ErrBadReference) Error() string { return "unknown " + e.Detail }
+
+// refError translates foreign-key violations into typed errors.
+func refError(err error) error {
+	var pgErr *pgconn.PgError
+	if !errors.As(err, &pgErr) {
+		return err
+	}
+	switch pgErr.Code {
+	case "23503": // foreign key violation
+		c := pgErr.ConstraintName
+		switch {
+		case strings.Contains(c, "category") || strings.Contains(c, "section"):
+			if strings.HasPrefix(pgErr.Message, "update or delete") {
+				return ErrInUse
+			}
+			return ErrBadReference{Detail: "category or section"}
+		case strings.Contains(c, "company"):
+			if strings.HasPrefix(pgErr.Message, "update or delete") {
+				return ErrInUse
+			}
+			return ErrBadReference{Detail: "company"}
+		case strings.Contains(c, "task"):
+			return ErrBadReference{Detail: "task"}
+		}
+	case "23505":
+		return ErrDuplicate
+	}
+	return err
+}
+
+func (s *Store) deleteBySlug(ctx context.Context, table, slug string) error {
+	tag, err := s.pool.Exec(ctx, `DELETE FROM `+table+` WHERE slug = $1`, slug)
+	if err != nil {
+		return refError(err)
+	}
+	if tag.RowsAffected() == 0 {
+		return ErrNotFound
+	}
+	return nil
+}
+
+func (s *Store) DeleteSection(ctx context.Context, slug string) error {
+	return s.deleteBySlug(ctx, "sections", slug)
+}
+func (s *Store) DeleteCategory(ctx context.Context, slug string) error {
+	return s.deleteBySlug(ctx, "categories", slug)
+}
+func (s *Store) DeleteCompany(ctx context.Context, slug string) error {
+	return s.deleteBySlug(ctx, "companies", slug)
+}
+func (s *Store) DeleteTask(ctx context.Context, slug string) error {
+	return s.deleteBySlug(ctx, "tasks", slug)
+}
+func (s *Store) DeleteArticle(ctx context.Context, slug string) error {
+	return s.deleteBySlug(ctx, "articles", slug)
+}
+
+// SaveSection, SaveCategory, ... are the admin-facing upserts: same as the Upsert* helpers, with typed reference errors.
+func (s *Store) SaveSection(ctx context.Context, x Section) error {
+	return refError(s.UpsertSection(ctx, x))
+}
+func (s *Store) SaveCategory(ctx context.Context, x Category) error {
+	return refError(s.UpsertCategory(ctx, x))
+}
+func (s *Store) SaveCompany(ctx context.Context, x Company) error {
+	return refError(s.UpsertCompany(ctx, x))
+}
+func (s *Store) SaveTask(ctx context.Context, x Task) error { return refError(s.UpsertTask(ctx, x)) }
+func (s *Store) SaveArticle(ctx context.Context, x Article) error {
+	return refError(s.UpsertArticle(ctx, x))
+}
+
+// TaskExists reports whether a task with this slug exists.
+func (s *Store) TaskExists(ctx context.Context, slug string) (bool, error) {
+	var ok bool
+	err := s.pool.QueryRow(ctx, `SELECT EXISTS (SELECT 1 FROM tasks WHERE slug = $1)`, slug).Scan(&ok)
+	return ok, err
 }
