@@ -1,0 +1,170 @@
+{
+  "slug": "valid-palindrome",
+  "title": "Правильный палиндром",
+  "difficulty": "medium",
+  "categories": [
+    "two-pointers"
+  ],
+  "companies": [
+    "yandex"
+  ],
+  "leetcodeUrl": null,
+  "description": [
+    {
+      "p": "Дана строка <code>s</code>. Верните <code>true</code>, если <code>s</code> является палиндромом, или <code>false</code> в противном случае. Фраза является палиндромом, если после преобразования всех заглавных букв в строчные и удаления всех символов, кроме букв и цифр, она читается одинаково слева направо и справа налево."
+    },
+    {
+      "p": "Буквенно-цифровые символы включают латинские буквы и цифры."
+    },
+    {
+      "h": "Пример 1:"
+    },
+    {
+      "pre": "Ввод: s = \"A man, a plan, a canal: Panama\"\nВывод: true\nОбъяснение: строка \"amanaplanacanalpanama\" является палиндромом"
+    },
+    {
+      "h": "Пример 2:"
+    },
+    {
+      "pre": "Ввод: s = \"AbaCdaba\"\nВывод: false"
+    },
+    {
+      "h": "Ограничения:"
+    },
+    {
+      "ul": [
+        "<code>len(s) >= 1</code>"
+      ]
+    }
+  ],
+  "solutionNotes": [
+    {
+      "h": "Оценка сложности"
+    },
+    {
+      "ul": [
+        "Время: <code>O(n)</code>, где <code>n</code> - размер строки",
+        "Память: <code>O(1)</code>"
+      ]
+    },
+    {
+      "p": "Нельзя изменять строку. Интервьюер ожидает, что проверка палиндрома будет выполнена без модификации исходной строки и с дополнительной памятью <code>O(1)</code>."
+    }
+  ],
+  "solution": "package main\n\nimport (\n\t\"strings\"\n)\n\nfunc isPalindrome(s string) bool {\n\tl := 0\n\tr := len(s) - 1\n\n\tfor l < r {\n\t\t// переходим к следующей букве пока l и r\n\t\t// не будут указывать на буквы или цифры\n\t\tfor l < r && !isAlnum(s[l]) {\n\t\t\tl++\n\t\t}\n\t\tfor l < r && !isAlnum(s[r]) {\n\t\t\tr--\n\t\t}\n\t\t// оба символа - буквы или цифры\n\t\tif strings.ToLower(string(s[l])) != strings.ToLower(string(s[r])) {\n\t\t\treturn false\n\t\t}\n\t\tl++\n\t\tr--\n\t}\n\treturn true\n}\n\nfunc isAlnum(c byte) bool {\n\treturn ('a' <= c && c <= 'z') || ('A' <= c && c <= 'Z') || ('0' <= c && c <= '9')\n}\n",
+  "signature": {
+    "name": "isPalindrome",
+    "params": [
+      {
+        "name": "s",
+        "type": "string"
+      }
+    ],
+    "returns": "bool"
+  },
+  "tests": [
+    {
+      "name": "example 1",
+      "input": {
+        "s": "A man, a plan, a canal: Panama"
+      },
+      "expected": true
+    },
+    {
+      "name": "example 2",
+      "input": {
+        "s": "AbaCdaba"
+      },
+      "expected": false
+    },
+    {
+      "name": "single character",
+      "input": {
+        "s": "a"
+      },
+      "expected": true
+    },
+    {
+      "name": "only punctuation and spaces",
+      "input": {
+        "s": " .,! "
+      },
+      "expected": true
+    },
+    {
+      "name": "not a palindrome",
+      "input": {
+        "s": "race a car"
+      },
+      "expected": false
+    },
+    {
+      "name": "digit versus letter",
+      "input": {
+        "s": "0P"
+      },
+      "expected": false
+    },
+    {
+      "name": "apostrophes",
+      "input": {
+        "s": "No 'x' in Nixon"
+      },
+      "expected": true
+    },
+    {
+      "name": "underscore is ignored",
+      "input": {
+        "s": "ab_a"
+      },
+      "expected": true
+    },
+    {
+      "name": "mixed case with commas",
+      "input": {
+        "s": "Madam, I'm Adam"
+      },
+      "expected": true
+    },
+    {
+      "name": "digits and letters",
+      "input": {
+        "s": "abc12321cba"
+      },
+      "expected": true
+    },
+    {
+      "name": "same letter, different case",
+      "input": {
+        "s": "aA"
+      },
+      "expected": true
+    },
+    {
+      "name": "two different letters",
+      "input": {
+        "s": "ab"
+      },
+      "expected": false
+    },
+    {
+      "name": "digits around a letter",
+      "input": {
+        "s": "1b1"
+      },
+      "expected": true
+    },
+    {
+      "name": "mismatch after skipping",
+      "input": {
+        "s": "ab@#c!a"
+      },
+      "expected": false
+    }
+  ],
+  "complexity": {
+    "time": "O(n)",
+    "space": "O(1)"
+  },
+  "template": null
+}

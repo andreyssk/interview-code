@@ -1,0 +1,180 @@
+{
+  "slug": "fuzzy-matching",
+  "title": "Неточный поиск",
+  "difficulty": "easy",
+  "categories": [
+    "two-pointers"
+  ],
+  "companies": [
+    "yandex",
+    "yellow-bank"
+  ],
+  "leetcodeUrl": null,
+  "description": [
+    {
+      "p": "Даны две строки <code>s</code> и <code>t</code>. Необходимо определить, можно ли получить строку <code>s</code>, удаляя некоторые (возможно, ни одного) символы из строки <code>t</code>, не изменяя порядок оставшихся символов."
+    },
+    {
+      "h": "Пример 1:"
+    },
+    {
+      "pre": "Ввод: s = \"abc\", t = \"a1b2c3\"\nВывод: True\nОбъяснение: Можно удалить цифры из t, чтобы получить t = \"abc\""
+    },
+    {
+      "h": "Пример 2:"
+    },
+    {
+      "pre": "Ввод: s = \"abc\", t = \"acb\"\nВывод: False"
+    },
+    {
+      "h": "Ограничения:"
+    },
+    {
+      "ul": [
+        "<code>len(s) >= 0</code>",
+        "<code>len(t) >= 0</code>",
+        "Строки <code>s</code> и <code>t</code> содержат только <code>ascii</code> символы"
+      ]
+    }
+  ],
+  "solutionNotes": [
+    {
+      "h": "Оценка сложности"
+    },
+    {
+      "ul": [
+        "Время: <code>O(m)</code>, где <code>m</code> — длина <code>t</code>",
+        "Память: <code>O(1)</code>"
+      ]
+    },
+    {
+      "note": "Частая ошибка: думать, что оценка по времени <code>O(n+m)</code> или <code>O(min(n, m))</code>. Но именно длина строки <code>t</code> ограничивает максимальное число итераций в худшем случае."
+    }
+  ],
+  "solution": "package main\n\nfunc fuzzyMatch(s string, t string) bool {\n\tp1 := 0\n\tp2 := 0\n\n\t// Пока не достигли конца хотя бы одной из строк\n\tfor p1 < len(s) && p2 < len(t) {\n\t\tif s[p1] == t[p2] {\n\t\t\t// Если символы совпадают — продвигаем указатель по s\n\t\t\tp1++\n\t\t}\n\t\t// Всегда двигаем указатель по t\n\t\tp2++\n\t}\n\treturn p1 == len(s)\n}\n",
+  "signature": {
+    "name": "fuzzyMatch",
+    "params": [
+      {
+        "name": "s",
+        "type": "string"
+      },
+      {
+        "name": "t",
+        "type": "string"
+      }
+    ],
+    "returns": "bool"
+  },
+  "tests": [
+    {
+      "name": "example 1",
+      "input": {
+        "s": "abc",
+        "t": "a1b2c3"
+      },
+      "expected": true
+    },
+    {
+      "name": "example 2",
+      "input": {
+        "s": "abc",
+        "t": "acb"
+      },
+      "expected": false
+    },
+    {
+      "name": "empty s",
+      "input": {
+        "s": "",
+        "t": "abc"
+      },
+      "expected": true
+    },
+    {
+      "name": "both empty",
+      "input": {
+        "s": "",
+        "t": ""
+      },
+      "expected": true
+    },
+    {
+      "name": "empty t",
+      "input": {
+        "s": "a",
+        "t": ""
+      },
+      "expected": false
+    },
+    {
+      "name": "equal strings",
+      "input": {
+        "s": "hello",
+        "t": "hello"
+      },
+      "expected": true
+    },
+    {
+      "name": "s longer than t",
+      "input": {
+        "s": "abcd",
+        "t": "abc"
+      },
+      "expected": false
+    },
+    {
+      "name": "match at the end",
+      "input": {
+        "s": "xyz",
+        "t": "aaxbbybbz"
+      },
+      "expected": true
+    },
+    {
+      "name": "repeated letters need repeated matches",
+      "input": {
+        "s": "aab",
+        "t": "ab"
+      },
+      "expected": false
+    },
+    {
+      "name": "repeated letters, enough matches",
+      "input": {
+        "s": "aa",
+        "t": "abca"
+      },
+      "expected": true
+    },
+    {
+      "name": "letters in the wrong order",
+      "input": {
+        "s": "ba",
+        "t": "ab"
+      },
+      "expected": false
+    },
+    {
+      "name": "skips and a miss",
+      "input": {
+        "s": "axc",
+        "t": "ahbgdc"
+      },
+      "expected": false
+    },
+    {
+      "name": "skips and a hit",
+      "input": {
+        "s": "abc",
+        "t": "ahbgdc"
+      },
+      "expected": true
+    }
+  ],
+  "complexity": {
+    "time": "O(m)",
+    "space": "O(1)"
+  },
+  "template": null
+}

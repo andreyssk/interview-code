@@ -1,0 +1,203 @@
+{
+  "slug": "container-with-most-water",
+  "title": "Самый большой контейнер",
+  "difficulty": "medium",
+  "categories": [
+    "two-pointers"
+  ],
+  "companies": [
+    "yandex"
+  ],
+  "leetcodeUrl": "https://leetcode.com/problems/container-with-most-water/",
+  "description": [
+    {
+      "p": "Дан массив целых чисел <code>height</code>, <code>height[i]</code> – высота линии. Нужно найти максимальную площадь, которую может заполнить вода между двумя линиями."
+    },
+    {
+      "p": "<b>ВАЖНО:</b> площадь воды считается как <code>min(height[i], height[j]) * (j - i)</code>, где <code>i</code> – индекс первой линии, а <code>j</code> - номер второй."
+    },
+    {
+      "h": "Пример 1:"
+    },
+    {
+      "pre": "Ввод: height = [1,8,6,2,5,4,8,3,7]\nВывод: 49\nОбъяснение: 7 * (8 - 1) = 49, \"1\" - индекс первой линии, \"8\" - второй"
+    },
+    {
+      "h": "Пример 2:"
+    },
+    {
+      "pre": "Ввод: height = [2,3,4,5]\nВывод: 6"
+    },
+    {
+      "h": "Ограничения:"
+    },
+    {
+      "ul": [
+        "<code>len(height) >= 2</code>"
+      ]
+    }
+  ],
+  "solutionNotes": [
+    {
+      "h": "Оценка сложности"
+    },
+    {
+      "ul": [
+        "Время: <code>O(n)</code>, где <code>n</code> - число элементов в массиве",
+        "Память: <code>O(1)</code>"
+      ]
+    }
+  ],
+  "solution": "package main\n\nfunc maxArea(height []int) int {\n\tl := 0\n\tr := len(height) - 1\n\tresultArea := 0\n\n\tfor l < r {\n\t\t// текущая площадь, ограниченная l и r\n\t\tcurrArea := min(height[l], height[r]) * (r - l)\n\t\t// обновляем максимальную площадь\n\t\tresultArea = max(resultArea, currArea)\n\t\t// сдвигаем указатель, который указывает на меньшую высоту\n\t\tif height[l] < height[r] {\n\t\t\tl++\n\t\t} else {\n\t\t\tr--\n\t\t}\n\t}\n\n\treturn resultArea\n}\n",
+  "signature": {
+    "name": "maxArea",
+    "params": [
+      {
+        "name": "height",
+        "type": "[]int"
+      }
+    ],
+    "returns": "int"
+  },
+  "tests": [
+    {
+      "name": "example 1",
+      "input": {
+        "height": [
+          1,
+          8,
+          6,
+          2,
+          5,
+          4,
+          8,
+          3,
+          7
+        ]
+      },
+      "expected": 49
+    },
+    {
+      "name": "example 2",
+      "input": {
+        "height": [
+          2,
+          3,
+          4,
+          5
+        ]
+      },
+      "expected": 6
+    },
+    {
+      "name": "two lines, equal",
+      "input": {
+        "height": [
+          1,
+          1
+        ]
+      },
+      "expected": 1
+    },
+    {
+      "name": "two lines, different",
+      "input": {
+        "height": [
+          4,
+          3
+        ]
+      },
+      "expected": 3
+    },
+    {
+      "name": "tall ends",
+      "input": {
+        "height": [
+          9,
+          1,
+          1,
+          1,
+          9
+        ]
+      },
+      "expected": 36
+    },
+    {
+      "name": "all equal",
+      "input": {
+        "height": [
+          5,
+          5,
+          5,
+          5
+        ]
+      },
+      "expected": 15
+    },
+    {
+      "name": "ascending",
+      "input": {
+        "height": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ]
+      },
+      "expected": 9
+    },
+    {
+      "name": "descending",
+      "input": {
+        "height": [
+          6,
+          5,
+          4,
+          3,
+          2,
+          1
+        ]
+      },
+      "expected": 9
+    },
+    {
+      "name": "peak in the middle",
+      "input": {
+        "height": [
+          1,
+          2,
+          100,
+          100,
+          2,
+          1
+        ]
+      },
+      "expected": 100
+    },
+    {
+      "name": "best pair is not the widest",
+      "input": {
+        "height": [
+          3,
+          9,
+          3,
+          4,
+          7,
+          2,
+          12,
+          6,
+          4,
+          5
+        ]
+      },
+      "expected": 45
+    }
+  ],
+  "complexity": {
+    "time": "O(n)",
+    "space": "O(1)"
+  },
+  "template": null
+}

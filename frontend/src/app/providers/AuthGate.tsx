@@ -27,8 +27,9 @@ export function AuthGate({ children }: { children: ReactNode }) {
             refresh: () => refetch(),
             signOut: async () => {
               await logout().catch(() => undefined)
-              queryClient.clear() // nothing of this user may leak into the next session
-              await refetch()
+              // Nothing of this user may leak into the next session.
+              queryClient.removeQueries({ predicate: (q) => q.queryKey[0] !== queryKeys.me[0] })
+              queryClient.setQueryData(queryKeys.me, null)
             },
           }
         : null,

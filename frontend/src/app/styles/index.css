@@ -941,6 +941,7 @@ code, pre, .code-text, .code-gutter, .output, .prose-task code, .prose-task pre 
   width: 100%; padding: 0.7rem 1rem; border-radius: 0.7rem; outline: none; color: var(--text);
   background: var(--input-bg); border: 1px solid var(--border); transition: color .15s, background-color .15s, border-color .15s, box-shadow .15s, transform .15s, opacity .15s;
 }
+.search-sm { width: auto; padding: 0.3rem 0.7rem; border-radius: 0.5rem; }
 .search::placeholder { color: var(--muted); }
 .search:focus { border-color: var(--accent-line); box-shadow: var(--focus-glow); }
 .chip {

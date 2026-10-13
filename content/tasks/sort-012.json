@@ -1,0 +1,252 @@
+{
+  "slug": "sort-012",
+  "title": "Сортировка 012",
+  "difficulty": "easy",
+  "categories": [
+    "hash-map"
+  ],
+  "companies": [
+    "ozon"
+  ],
+  "leetcodeUrl": null,
+  "description": [
+    {
+      "p": "Дан массив <code>colors</code>, элементы которого представляют один из трех цветов: красный (0), зелёный (1) и синий (2). Необходимо отсортировать массив так, чтобы цвета шли в порядке: красный, зелёный, синий, и вернуть изменённый массив."
+    },
+    {
+      "p": "Важно, чтобы сортировка осуществлялась <code>in-place</code>, что означает выполнение сортировки без использования дополнительной памяти для копий массива."
+    },
+    {
+      "h": "Пример 1:"
+    },
+    {
+      "pre": "Ввод: colors = [2,1,1,0,0,1]\nВывод: [0,0,1,1,1,2]"
+    },
+    {
+      "h": "Пример 2:"
+    },
+    {
+      "pre": "Ввод: colors = [2,2,2,2,0]\nВывод: [0,2,2,2,2]"
+    }
+  ],
+  "solutionNotes": [
+    {
+      "h": "Оценка сложности"
+    },
+    {
+      "ul": [
+        "Время: <code>O(n)</code>, где <code>n</code> - длина массива <code>colors</code>",
+        "Память: <code>O(1)</code>"
+      ]
+    }
+  ],
+  "solution": "package main\n\nfunc sort012(colors []int) []int {\n\t// индекс: число, значение: кол-во повторений\n\tcount := make([]int, 3)\n\t// делаем подсчет\n\tfor _, num := range colors {\n\t\tcount[num]++\n\t}\n\n\t// сортируем\n\ti := 0\n\tfor j := 0; j < 3; j++ {\n\t\tfor ; count[j] > 0; count[j]-- {\n\t\t\tcolors[i] = j\n\t\t\ti++\n\t\t}\n\t}\n\treturn colors\n}\n",
+  "signature": {
+    "name": "sort012",
+    "params": [
+      {
+        "name": "colors",
+        "type": "[]int"
+      }
+    ],
+    "returns": "[]int"
+  },
+  "tests": [
+    {
+      "name": "example 1",
+      "input": {
+        "colors": [
+          2,
+          1,
+          1,
+          0,
+          0,
+          1
+        ]
+      },
+      "expected": [
+        0,
+        0,
+        1,
+        1,
+        1,
+        2
+      ]
+    },
+    {
+      "name": "example 2",
+      "input": {
+        "colors": [
+          2,
+          2,
+          2,
+          2,
+          0
+        ]
+      },
+      "expected": [
+        0,
+        2,
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "name": "single element",
+      "input": {
+        "colors": [
+          1
+        ]
+      },
+      "expected": [
+        1
+      ]
+    },
+    {
+      "name": "already sorted",
+      "input": {
+        "colors": [
+          0,
+          1,
+          2
+        ]
+      },
+      "expected": [
+        0,
+        1,
+        2
+      ]
+    },
+    {
+      "name": "reversed",
+      "input": {
+        "colors": [
+          2,
+          1,
+          0
+        ]
+      },
+      "expected": [
+        0,
+        1,
+        2
+      ]
+    },
+    {
+      "name": "all the same",
+      "input": {
+        "colors": [
+          1,
+          1,
+          1
+        ]
+      },
+      "expected": [
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "name": "no green",
+      "input": {
+        "colors": [
+          2,
+          0,
+          2,
+          0
+        ]
+      },
+      "expected": [
+        0,
+        0,
+        2,
+        2
+      ]
+    },
+    {
+      "name": "no red",
+      "input": {
+        "colors": [
+          2,
+          1,
+          2,
+          1
+        ]
+      },
+      "expected": [
+        1,
+        1,
+        2,
+        2
+      ]
+    },
+    {
+      "name": "no blue",
+      "input": {
+        "colors": [
+          1,
+          0,
+          1,
+          0
+        ]
+      },
+      "expected": [
+        0,
+        0,
+        1,
+        1
+      ]
+    },
+    {
+      "name": "zero at the end",
+      "input": {
+        "colors": [
+          1,
+          1,
+          0
+        ]
+      },
+      "expected": [
+        0,
+        1,
+        1
+      ]
+    },
+    {
+      "name": "longer mix",
+      "input": {
+        "colors": [
+          0,
+          2,
+          1,
+          2,
+          0,
+          1,
+          1,
+          0,
+          2,
+          2
+        ]
+      },
+      "expected": [
+        0,
+        0,
+        0,
+        1,
+        1,
+        1,
+        2,
+        2,
+        2,
+        2
+      ]
+    }
+  ],
+  "complexity": {
+    "time": "O(n)",
+    "space": "O(1)"
+  },
+  "template": null
+}

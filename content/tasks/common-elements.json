@@ -1,0 +1,265 @@
+{
+  "slug": "common-elements",
+  "title": "Общие элементы массивов",
+  "difficulty": "easy",
+  "categories": [
+    "two-pointers"
+  ],
+  "companies": [
+    "yandex"
+  ],
+  "leetcodeUrl": null,
+  "description": [
+    {
+      "p": "Даны два отсортированных по возрастанию массива <code>nums1</code> и <code>nums2</code>. Необходимо вернуть новый массив <code>nums3</code>, который содержит все общие элементы из <code>nums1</code> и <code>nums2</code>."
+    },
+    {
+      "p": "Результат должен быть также отсортирован по возрастанию. Если элементы встречаются в массивах несколько раз, то их нужно продублировать в ответе."
+    },
+    {
+      "h": "Пример 1:"
+    },
+    {
+      "pre": "Ввод: nums1 = [-3,2,2,5,8,19,31], nums2 = [1,2,2,2,6,19,52]\nВывод: [2,2,19]"
+    },
+    {
+      "h": "Пример 2:"
+    },
+    {
+      "pre": "Ввод: nums1 = [-5,4], nums2 = [1,2]\nВывод: []"
+    },
+    {
+      "h": "Пример 3:"
+    },
+    {
+      "pre": "Ввод: nums1 = [], nums2 = [1,2]\nВывод: []"
+    },
+    {
+      "h": "Ограничения:"
+    },
+    {
+      "ul": [
+        "<code>len(nums1), len(nums2) >= 0</code>"
+      ]
+    }
+  ],
+  "solutionNotes": [
+    {
+      "h": "Оценка сложности"
+    },
+    {
+      "ul": [
+        "Время: <code>O(n+m)</code>, где <code>n</code> - размер массива <code>nums1</code>, <code>m</code> - размер массива <code>nums2</code>",
+        "Память: <code>O(min(n,m))</code>, где <code>n</code> - размер массива <code>nums1</code>, <code>m</code> - размер массива <code>nums2</code>"
+      ]
+    }
+  ],
+  "solution": "package main\n\nfunc intersect(nums1 []int, nums2 []int) []int {\n\tp1 := 0\n\tp2 := 0\n\tvar res []int\n\n\t// Т.к. мы можем иметь дубликаты, на каждой итерации сравниваем на равенство\n\t// и если равны - двигаем оба указателя и добавляем в результат.\n\t// Иначе двигаем указатель, который указывает на меньшее значение.\n\tfor p1 < len(nums1) && p2 < len(nums2) {\n\t\tif nums1[p1] > nums2[p2] {\n\t\t\tp2++\n\t\t} else if nums1[p1] < nums2[p2] {\n\t\t\tp1++\n\t\t} else {\n\t\t\tres = append(res, nums1[p1])\n\t\t\tp1++\n\t\t\tp2++\n\t\t}\n\t}\n\n\treturn res\n}\n",
+  "signature": {
+    "name": "intersect",
+    "params": [
+      {
+        "name": "nums1",
+        "type": "[]int"
+      },
+      {
+        "name": "nums2",
+        "type": "[]int"
+      }
+    ],
+    "returns": "[]int"
+  },
+  "tests": [
+    {
+      "name": "example 1",
+      "input": {
+        "nums1": [
+          -3,
+          2,
+          2,
+          5,
+          8,
+          19,
+          31
+        ],
+        "nums2": [
+          1,
+          2,
+          2,
+          2,
+          6,
+          19,
+          52
+        ]
+      },
+      "expected": [
+        2,
+        2,
+        19
+      ]
+    },
+    {
+      "name": "example 2",
+      "input": {
+        "nums1": [
+          -5,
+          4
+        ],
+        "nums2": [
+          1,
+          2
+        ]
+      },
+      "expected": []
+    },
+    {
+      "name": "example 3 (first is empty)",
+      "input": {
+        "nums1": [],
+        "nums2": [
+          1,
+          2
+        ]
+      },
+      "expected": []
+    },
+    {
+      "name": "second is empty",
+      "input": {
+        "nums1": [
+          1,
+          2
+        ],
+        "nums2": []
+      },
+      "expected": []
+    },
+    {
+      "name": "both empty",
+      "input": {
+        "nums1": [],
+        "nums2": []
+      },
+      "expected": []
+    },
+    {
+      "name": "identical arrays",
+      "input": {
+        "nums1": [
+          1,
+          2,
+          3
+        ],
+        "nums2": [
+          1,
+          2,
+          3
+        ]
+      },
+      "expected": [
+        1,
+        2,
+        3
+      ]
+    },
+    {
+      "name": "interleaved, nothing in common",
+      "input": {
+        "nums1": [
+          1,
+          3,
+          5
+        ],
+        "nums2": [
+          2,
+          4,
+          6
+        ]
+      },
+      "expected": []
+    },
+    {
+      "name": "duplicates, smaller count wins",
+      "input": {
+        "nums1": [
+          1,
+          1,
+          1
+        ],
+        "nums2": [
+          1,
+          1
+        ]
+      },
+      "expected": [
+        1,
+        1
+      ]
+    },
+    {
+      "name": "one inside the other",
+      "input": {
+        "nums1": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "nums2": [
+          2,
+          4
+        ]
+      },
+      "expected": [
+        2,
+        4
+      ]
+    },
+    {
+      "name": "negatives and zero",
+      "input": {
+        "nums1": [
+          -5,
+          -3,
+          0,
+          2
+        ],
+        "nums2": [
+          -3,
+          0,
+          7
+        ]
+      },
+      "expected": [
+        -3,
+        0
+      ]
+    },
+    {
+      "name": "long tail in the second",
+      "input": {
+        "nums1": [
+          1,
+          2,
+          3
+        ],
+        "nums2": [
+          3,
+          4,
+          5,
+          6,
+          7
+        ]
+      },
+      "expected": [
+        3
+      ]
+    }
+  ],
+  "complexity": {
+    "time": "O(n+m)",
+    "space": "O(min(n,m))"
+  },
+  "template": null
+}

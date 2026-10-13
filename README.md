@@ -34,39 +34,35 @@ Feature-Sliced Design under `frontend/src` (alias `@` = `src`; a layer only impo
 
 ```
 app/        providers, routing, global styles
-pages/      problems, problem-list, task, theory-list, theory
-widgets/    header, category-grid, task-browser, task-workspace
-features/   switch-language, filter-tasks, run-code
-entities/   task, category, theory
-shared/     api, i18n, lib, ui (CodeEditor, RichBlocks)
+pages/      login, change-password, problems, problem-list, task, theory-list, theory, mistakes, admin
+widgets/    header, category-grid, task-browser, task-workspace, stats-sidebar, mistakes-popover, task-theory-popover
+features/   auth/user-menu, filter-tasks, run-code, solve-timer, attempt-history, switch-theme, switch-language, ...
+entities/   task, category, theory, mistake
+shared/     api, auth, content, i18n, lib, ui (CodeEditor, RichBlocks, Modal, Popover, Spinner)
 ```
 
 Each slice exposes its public API through `index.ts`.
 
+## Content lives in the database
+
+Tasks, theory articles, sections, categories and companies are stored in PostgreSQL and served by `GET /api/content` in one
+response (the app waits for it once at startup, see `shared/content`). Their text is stored once, in the language it was
+written in. Managed in the **admin panel** (`/admin`, admins only):
+
+- **Tasks / Articles**: list, create (form), edit, delete, export as JSON, and **upload a JSON file** (one object or an array; an
+  existing slug is replaced). The form can verify a reference solution against the tests by running it in the sandbox.
+  Task numbers (`#N`) come from a database sequence: unique, starting at 1, never reused. The `add-task` and `add-article` skills
+  produce these upload files (versioned copies go in `content/tasks/` and `content/articles/`).
+- **Sections & categories**: Algorithms / Golang / SQL, their categories and the company tags.
+- **Users & access**: the sign-up switch and password resets.
+
+The starter code and the Go test harness of a task are generated in the browser from its `signature` + `tests`
+(`entities/task/lib/buildTemplate.ts`, `buildHarness.ts`).
+
 ## i18n
 
 `i18next` + `react-i18next`, languages `en` and `ru` (switch in the header; saved in localStorage; `?lng=ru` overrides).
-- UI strings: `shared/i18n/locales/{en,ru}.json`
-- Task and theory content: `ru.json` / `en.json` next to each item, registered with `addTexts`
-- Search matches titles, companies and categories in both languages
-
-## Adding a task
-
-A task is a folder in `frontend/src/entities/task/data/<slug>/` with these files and nothing to register:
-
-```
-task.json     number (unique, auto-increment from 1), difficulty, categories, companies, leetcodeUrl?, signature (function name, params, return type), complexity
-tests.json    [{ name, input: {param: value}, expected }]
-solution.go   reference solution, exactly as provided by the user (Solution tab; hidden until you click "Show solution"); optional
-en.json       title, description blocks, solution notes
-ru.json       same, in Russian
-```
-
-The editor's starter code and the Go test harness are generated from `task.json` + `tests.json`
-(`entities/task/lib/buildTemplate.ts`, `buildHarness.ts`). The same tests are listed on the task's **Tests** tab.
-`npm run verify` (in `frontend/`) runs every task's `solution.go` against its tests, so a wrong reference solution or test is caught.
-The `add-task` skill in `.claude/skills/` automates all of this from screenshots, including the LeetCode lookup.
-Theory notes live under `entities/theory` (add one with the `add-article` skill; they are Russian only).
+Only the **interface** is translated (`shared/i18n/locales/{en,ru}.json`); content from the database is not. The admin panel is English only.
 
 ## Mistakes journal
 
@@ -84,6 +80,11 @@ the submission it came from.
 - `GET /api/mistake-types`, `POST /api/mistake-types {title, description}`: types of mistakes (with how many mistakes each holds)
 - `GET /api/mistake-types/{id}`: one type with its mistakes; `PATCH` changes its title and description; `DELETE` removes it and its mistakes
 - `POST /api/mistakes {attemptId, typeId}`: file a failed attempt under a type (copies its code and output); `PATCH /api/mistakes/{id} {typeId}` moves it to another type; `DELETE /api/mistakes/{id}`
+
+- `GET /api/content`: sections, categories, companies, tasks and articles
+- `POST /api/auth/{signup,login,logout,password}`, `GET /api/auth/{me,config}`: accounts (see Accounts below)
+- `PUT|DELETE /api/admin/{tasks,articles,sections,categories,companies}/{slug}`: content management (admin only)
+- `GET /api/admin/users`, `POST /api/admin/users/{id}/reset-password`, `GET|PUT /api/admin/settings`: users and the sign-up switch (admin only)
 
 ## How running works
 

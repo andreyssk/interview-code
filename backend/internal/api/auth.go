@@ -74,7 +74,7 @@ func (a *API) protect(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		route := r.Method + " " + r.URL.Path
 		if r.Method != http.MethodGet && r.Method != http.MethodHead {
-			if origin := r.Header.Get("Origin"); origin != "" && !sameHost(origin, r.Host) {
+			if origin := r.Header.Get("Origin"); origin != "" && !sameHost(origin, r.Host) && !sameHost(origin, r.Header.Get("X-Forwarded-Host")) {
 				writeJSON(w, http.StatusForbidden, map[string]string{"error": "cross-origin request refused"})
 				return
 			}

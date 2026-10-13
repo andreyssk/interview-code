@@ -1,4 +1,5 @@
 import { Navigate, Route, Routes } from 'react-router-dom'
+import { AdminPage } from '@/pages/admin'
 import { MistakeTypePage } from '@/pages/mistake-type'
 import { MistakesPage } from '@/pages/mistakes'
 import { ProblemListPage } from '@/pages/problem-list'
@@ -22,6 +23,7 @@ export function App() {
           <Route path="/tasks/:slug" element={<TaskPage />} />
           <Route path="/mistakes" element={<MistakesPage />} />
           <Route path="/mistakes/:id" element={<MistakeTypePage />} />
+          <Route path="/admin/*" element={<AdminPage />} />
         </Routes>
       </main>
     </div>

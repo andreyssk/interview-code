@@ -1,0 +1,275 @@
+{
+  "slug": "group-anagrams",
+  "title": "Группировка анаграмм",
+  "difficulty": "medium",
+  "categories": [
+    "hash-map"
+  ],
+  "companies": [
+    "yandex"
+  ],
+  "leetcodeUrl": null,
+  "description": [
+    {
+      "p": "Дан массив строк <code>strs</code> и нужно сгруппировать анаграммы вместе. Ответ можно вернуть в любом порядке."
+    },
+    {
+      "p": "Анаграмма — это слово или фраза, образованная путем перестановки букв другого слова или фразы, с использованием всех исходных букв ровно один раз."
+    },
+    {
+      "h": "Пример 1:"
+    },
+    {
+      "pre": "Ввод: strs=[\"ab\",\"bat\",\"ba\",\"tab\",\"ear\",\"apt\"]\nВывод:[[\"ab\",ba\"],[\"bat\",\"tab\"],[\"apt\"],[\"ear\"]]"
+    },
+    {
+      "h": "Пример 2:"
+    },
+    {
+      "pre": "Ввод: strs=[\"hello\"]\nВывод: [[\"hello\"]]"
+    },
+    {
+      "h": "Ограничения:"
+    },
+    {
+      "ul": [
+        "<code>len(strs) >= 0</code>",
+        "<code>len(strs[i]) >= 1</code>",
+        "Строки в массиве <code>strs</code> содержат только английские буквы в нижнем регистре."
+      ]
+    }
+  ],
+  "solutionNotes": [
+    {
+      "h": "Оценка сложности"
+    },
+    {
+      "ul": [
+        "Время: <code>O(n)</code>, где <code>n</code> - число символов во всех строчках",
+        "Память: <code>O(n)</code>, где <code>n</code> - число символов во всех строчках"
+      ]
+    },
+    {
+      "p": "Обрати внимание что <code>n</code> в оценке сложности - число символов всех строк! Можно оценить время и память как <code>O(n*m)</code>, но тогда <code>n</code> - число строк, а <code>m</code> - средний размер строки."
+    }
+  ],
+  "solution": "package main\n\nfunc groupAnagrams(strs []string) [][]string {\n\tanagramGroups := make(map[[26]int][]string)\n\n\tfor _, anagram := range strs {\n\t\t// индекс - соответствует букве (0 - 'a', 1 - 'b', ...)\n\t\t// значение - сколько раз встретили букву\n\t\tcountChars := [26]int{}\n\t\tfor _, ch := range anagram {\n\t\t\tcountChars[ch-'a']++\n\t\t}\n\n\t\t// добавляем анаграмму в группу\n\t\tanagramGroups[countChars] = append(anagramGroups[countChars], anagram)\n\t}\n\n\tresult := make([][]string, 0, len(anagramGroups))\n\tfor _, group := range anagramGroups {\n\t\tresult = append(result, group)\n\t}\n\n\treturn result\n}\n",
+  "signature": {
+    "name": "groupAnagrams",
+    "params": [
+      {
+        "name": "strs",
+        "type": "[]string"
+      }
+    ],
+    "compare": "unordered",
+    "returns": "[][]string"
+  },
+  "tests": [
+    {
+      "name": "example 1",
+      "input": {
+        "strs": [
+          "ab",
+          "bat",
+          "ba",
+          "tab",
+          "ear",
+          "apt"
+        ]
+      },
+      "expected": [
+        [
+          "ab",
+          "ba"
+        ],
+        [
+          "bat",
+          "tab"
+        ],
+        [
+          "ear"
+        ],
+        [
+          "apt"
+        ]
+      ]
+    },
+    {
+      "name": "example 2",
+      "input": {
+        "strs": [
+          "hello"
+        ]
+      },
+      "expected": [
+        [
+          "hello"
+        ]
+      ]
+    },
+    {
+      "name": "empty list",
+      "input": {
+        "strs": []
+      },
+      "expected": []
+    },
+    {
+      "name": "no anagrams",
+      "input": {
+        "strs": [
+          "a",
+          "b",
+          "c"
+        ]
+      },
+      "expected": [
+        [
+          "a"
+        ],
+        [
+          "b"
+        ],
+        [
+          "c"
+        ]
+      ]
+    },
+    {
+      "name": "all anagrams",
+      "input": {
+        "strs": [
+          "abc",
+          "bca",
+          "cab",
+          "cba"
+        ]
+      },
+      "expected": [
+        [
+          "abc",
+          "bca",
+          "cab",
+          "cba"
+        ]
+      ]
+    },
+    {
+      "name": "duplicate words",
+      "input": {
+        "strs": [
+          "a",
+          "a",
+          "b"
+        ]
+      },
+      "expected": [
+        [
+          "a",
+          "a"
+        ],
+        [
+          "b"
+        ]
+      ]
+    },
+    {
+      "name": "different lengths are not anagrams",
+      "input": {
+        "strs": [
+          "aa",
+          "a",
+          "aaa"
+        ]
+      },
+      "expected": [
+        [
+          "aa"
+        ],
+        [
+          "a"
+        ],
+        [
+          "aaa"
+        ]
+      ]
+    },
+    {
+      "name": "classic",
+      "input": {
+        "strs": [
+          "eat",
+          "tea",
+          "tan",
+          "ate",
+          "nat",
+          "bat"
+        ]
+      },
+      "expected": [
+        [
+          "eat",
+          "tea",
+          "ate"
+        ],
+        [
+          "tan",
+          "nat"
+        ],
+        [
+          "bat"
+        ]
+      ]
+    },
+    {
+      "name": "same letters, different counts",
+      "input": {
+        "strs": [
+          "aab",
+          "abb",
+          "aba",
+          "bab"
+        ]
+      },
+      "expected": [
+        [
+          "aab",
+          "aba"
+        ],
+        [
+          "abb",
+          "bab"
+        ]
+      ]
+    },
+    {
+      "name": "two groups interleaved",
+      "input": {
+        "strs": [
+          "abc",
+          "xyz",
+          "cab",
+          "zyx",
+          "bac"
+        ]
+      },
+      "expected": [
+        [
+          "abc",
+          "cab",
+          "bac"
+        ],
+        [
+          "xyz",
+          "zyx"
+        ]
+      ]
+    }
+  ],
+  "complexity": {
+    "time": "O(n)",
+    "space": "O(n)"
+  },
+  "template": null
+}

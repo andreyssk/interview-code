@@ -1,0 +1,214 @@
+{
+  "slug": "reverse-string",
+  "title": "Разворот строки",
+  "difficulty": "easy",
+  "categories": [
+    "two-pointers"
+  ],
+  "companies": [
+    "ozon"
+  ],
+  "leetcodeUrl": null,
+  "description": [
+    {
+      "p": "Дан список символов <code>chars</code>. Нужно развернуть <code>chars</code> и вернуть измененный список в качестве ответа. Использовать встроенную функцию разворота нельзя."
+    },
+    {
+      "h": "Пример 1:"
+    },
+    {
+      "pre": "Ввод: chars = [\"p\",\"e\",\"r\",\"f\",\"e\",\"c\",\"t\",\"i\",\"o\",\"n\"]\nВывод: [\"n\",\"o\",\"i\",\"t\",\"c\",\"e\",\"f\",\"r\",\"e\",\"p\"]"
+    },
+    {
+      "h": "Пример 2:"
+    },
+    {
+      "pre": "Ввод: chars = [\"r\",\"e\",\"v\",\"e\",\"r\",\"s\",\"e\"]\nВывод: [\"e\",\"s\",\"r\",\"e\",\"v\",\"e\",\"r\"]"
+    },
+    {
+      "h": "Ограничения:"
+    },
+    {
+      "ul": [
+        "<code>len(chars) >= 0</code>",
+        "<code>chars</code> содержит только ascii символы"
+      ]
+    }
+  ],
+  "solutionNotes": [
+    {
+      "h": "Оценка сложности"
+    },
+    {
+      "ul": [
+        "Время: <code>O(n)</code>, где <code>n</code> - длина <code>chars</code>",
+        "Память: <code>O(1)</code>"
+      ]
+    }
+  ],
+  "solution": "package main\n\nfunc reverse(chars []rune) []rune {\n\tp1 := 0\n\tp2 := len(chars) - 1\n\tfor p1 < p2 {\n\t\tchars[p1], chars[p2] = chars[p2], chars[p1]\n\t\tp1++\n\t\tp2--\n\t}\n\treturn chars\n}\n",
+  "signature": {
+    "name": "reverse",
+    "params": [
+      {
+        "name": "chars",
+        "type": "[]rune"
+      }
+    ],
+    "returns": "[]rune"
+  },
+  "tests": [
+    {
+      "name": "example 1",
+      "input": {
+        "chars": [
+          "p",
+          "e",
+          "r",
+          "f",
+          "e",
+          "c",
+          "t",
+          "i",
+          "o",
+          "n"
+        ]
+      },
+      "expected": [
+        "n",
+        "o",
+        "i",
+        "t",
+        "c",
+        "e",
+        "f",
+        "r",
+        "e",
+        "p"
+      ]
+    },
+    {
+      "name": "example 2",
+      "input": {
+        "chars": [
+          "r",
+          "e",
+          "v",
+          "e",
+          "r",
+          "s",
+          "e"
+        ]
+      },
+      "expected": [
+        "e",
+        "s",
+        "r",
+        "e",
+        "v",
+        "e",
+        "r"
+      ]
+    },
+    {
+      "name": "empty list",
+      "input": {
+        "chars": []
+      },
+      "expected": []
+    },
+    {
+      "name": "single character",
+      "input": {
+        "chars": [
+          "a"
+        ]
+      },
+      "expected": [
+        "a"
+      ]
+    },
+    {
+      "name": "two characters",
+      "input": {
+        "chars": [
+          "a",
+          "b"
+        ]
+      },
+      "expected": [
+        "b",
+        "a"
+      ]
+    },
+    {
+      "name": "palindrome",
+      "input": {
+        "chars": [
+          "a",
+          "b",
+          "a"
+        ]
+      },
+      "expected": [
+        "a",
+        "b",
+        "a"
+      ]
+    },
+    {
+      "name": "digits and punctuation",
+      "input": {
+        "chars": [
+          "1",
+          "2",
+          "!",
+          "?"
+        ]
+      },
+      "expected": [
+        "?",
+        "!",
+        "2",
+        "1"
+      ]
+    },
+    {
+      "name": "mixed case",
+      "input": {
+        "chars": [
+          "H",
+          "e",
+          "L",
+          "l",
+          "o"
+        ]
+      },
+      "expected": [
+        "o",
+        "l",
+        "L",
+        "e",
+        "H"
+      ]
+    },
+    {
+      "name": "space character",
+      "input": {
+        "chars": [
+          " ",
+          "a"
+        ]
+      },
+      "expected": [
+        "a",
+        " "
+      ]
+    }
+  ],
+  "complexity": {
+    "time": "O(n)",
+    "space": "O(1)"
+  },
+  "template": null
+}

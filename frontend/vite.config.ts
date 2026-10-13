@@ -11,7 +11,8 @@ export default defineConfig({
   },
   server: {
     proxy: {
-      '/api': process.env.API_URL ?? 'http://127.0.0.1:8080',
+      // Keep the browser's Host header (changeOrigin: false): the backend refuses cross-origin writes by comparing Origin with Host.
+      '/api': { target: process.env.API_URL ?? 'http://127.0.0.1:8080', changeOrigin: false },
     },
   },
 })

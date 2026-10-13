@@ -19,9 +19,10 @@ export function LoginPage() {
 
   const submit = useMutation({
     mutationFn: () => (signingUp ? signup : login)({ username, password }),
-    onSuccess: () => {
-      queryClient.clear() // start from a clean cache for the new session
-      queryClient.invalidateQueries({ queryKey: queryKeys.me })
+    onSuccess: (user) => {
+      // Drop anything cached for a previous session, then hand AuthGate the signed-in user directly.
+      queryClient.removeQueries({ predicate: (q) => q.queryKey[0] !== queryKeys.me[0] })
+      queryClient.setQueryData(queryKeys.me, user)
     },
   })
 

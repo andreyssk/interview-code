@@ -1,0 +1,156 @@
+{
+  "sections": [
+    {
+      "slug": "algorithms",
+      "name": "Algorithms",
+      "position": 1
+    },
+    {
+      "slug": "golang",
+      "name": "Golang",
+      "position": 2
+    },
+    {
+      "slug": "sql",
+      "name": "SQL",
+      "position": 3
+    }
+  ],
+  "categories": [
+    {
+      "slug": "arrays",
+      "section": "algorithms",
+      "name": "Arrays",
+      "glyph": "[ ]",
+      "color": "var(--cyan)",
+      "jp": "配列",
+      "position": 1
+    },
+    {
+      "slug": "two-pointers",
+      "section": "algorithms",
+      "name": "Two Pointers",
+      "glyph": "⇄",
+      "color": "var(--pink)",
+      "jp": "二点",
+      "position": 2
+    },
+    {
+      "slug": "hash-map",
+      "section": "algorithms",
+      "name": "Hash Map",
+      "glyph": "{ }",
+      "color": "var(--amber)",
+      "jp": "ハッシュ",
+      "position": 3
+    },
+    {
+      "slug": "stack",
+      "section": "algorithms",
+      "name": "Stack",
+      "glyph": "▤",
+      "color": "var(--violet)",
+      "jp": "スタック",
+      "position": 4
+    },
+    {
+      "slug": "sliding-window",
+      "section": "algorithms",
+      "name": "Sliding Window",
+      "glyph": "▭",
+      "color": "var(--green)",
+      "jp": "窓",
+      "position": 5
+    },
+    {
+      "slug": "trees",
+      "section": "algorithms",
+      "name": "Trees",
+      "glyph": "⌥",
+      "color": "var(--blue)",
+      "jp": "木",
+      "position": 6
+    },
+    {
+      "slug": "graphs",
+      "section": "algorithms",
+      "name": "Graphs",
+      "glyph": "◉",
+      "color": "var(--pink)",
+      "jp": "グラフ",
+      "position": 7
+    },
+    {
+      "slug": "strings",
+      "section": "golang",
+      "name": "Strings",
+      "glyph": "“ ”",
+      "color": "var(--cyan)",
+      "jp": "文字列",
+      "position": 8
+    },
+    {
+      "slug": "concurrency",
+      "section": "golang",
+      "name": "Concurrency",
+      "glyph": "⇉",
+      "color": "var(--pink)",
+      "jp": "並行",
+      "position": 9
+    },
+    {
+      "slug": "slices",
+      "section": "golang",
+      "name": "Slices",
+      "glyph": "[:]",
+      "color": "var(--amber)",
+      "jp": "スライス",
+      "position": 10
+    },
+    {
+      "slug": "interfaces",
+      "section": "golang",
+      "name": "Interfaces",
+      "glyph": "◇",
+      "color": "var(--violet)",
+      "jp": "界面",
+      "position": 11
+    },
+    {
+      "slug": "sql",
+      "section": "sql",
+      "name": "SQL",
+      "glyph": "⛁",
+      "color": "var(--green)",
+      "jp": "SQL",
+      "position": 12
+    }
+  ],
+  "companies": [
+    {
+      "slug": "avito",
+      "name": "Avito",
+      "tone": "neon-green"
+    },
+    {
+      "slug": "ozon",
+      "name": "Ozon",
+      "tone": "neon-indigo"
+    },
+    {
+      "slug": "vk",
+      "name": "VK",
+      "tone": "neon-blue"
+    },
+    {
+      "slug": "yandex",
+      "name": "Yandex",
+      "tone": "neon-red"
+    },
+    {
+      "slug": "yellow-bank",
+      "name": "Yellow Bank",
+      "tone": "neon-yellow"
+    }
+  ]
+}

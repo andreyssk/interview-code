@@ -1,0 +1,154 @@
+{
+  "slug": "sorted-squares",
+  "title": "Сортировка элементов в квадрате",
+  "difficulty": "easy",
+  "categories": [
+    "two-pointers"
+  ],
+  "companies": [
+    "ozon",
+    "vk",
+    "yandex",
+    "yellow-bank"
+  ],
+  "leetcodeUrl": "https://leetcode.com/problems/squares-of-a-sorted-array/",
+  "description": [
+    {
+      "p": "Дан массив <code>nums</code>, отсортированный в неубывающем порядке. Нужно вернуть отсортированный массив, состоящий из всех элементов массива <code>nums</code>, возведенных в квадрат."
+    },
+    {
+      "h": "Пример 1:"
+    },
+    {
+      "pre": "Ввод: nums = [-3,-2,0,1,3,5]\nВывод: [0,1,4,9,9,25]"
+    },
+    {
+      "h": "Пример 2:"
+    },
+    {
+      "pre": "Ввод: nums = [-5,-3,-1]\nВывод: [1,9,25]"
+    },
+    {
+      "h": "Ограничения:"
+    },
+    {
+      "ul": [
+        "<code>len(nums) >= 1</code>"
+      ]
+    }
+  ],
+  "solutionNotes": null,
+  "solution": null,
+  "signature": {
+    "name": "sortedSquares",
+    "params": [
+      {
+        "name": "nums",
+        "type": "[]int"
+      }
+    ],
+    "returns": "[]int"
+  },
+  "tests": [
+    {
+      "name": "example 1",
+      "input": {
+        "nums": [
+          -3,
+          -2,
+          0,
+          1,
+          3,
+          5
+        ]
+      },
+      "expected": [
+        0,
+        1,
+        4,
+        9,
+        9,
+        25
+      ]
+    },
+    {
+      "name": "example 2",
+      "input": {
+        "nums": [
+          -5,
+          -3,
+          -1
+        ]
+      },
+      "expected": [
+        1,
+        9,
+        25
+      ]
+    },
+    {
+      "name": "single element",
+      "input": {
+        "nums": [
+          0
+        ]
+      },
+      "expected": [
+        0
+      ]
+    },
+    {
+      "name": "all non-negative",
+      "input": {
+        "nums": [
+          1,
+          2,
+          3
+        ]
+      },
+      "expected": [
+        1,
+        4,
+        9
+      ]
+    },
+    {
+      "name": "duplicates",
+      "input": {
+        "nums": [
+          -2,
+          -2,
+          2,
+          2
+        ]
+      },
+      "expected": [
+        4,
+        4,
+        4,
+        4
+      ]
+    },
+    {
+      "name": "mixed signs",
+      "input": {
+        "nums": [
+          -4,
+          -1,
+          0,
+          3,
+          10
+        ]
+      },
+      "expected": [
+        0,
+        1,
+        9,
+        16,
+        100
+      ]
+    }
+  ],
+  "complexity": null,
+  "template": null
+}
