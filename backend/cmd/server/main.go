@@ -43,7 +43,11 @@ func main() {
 
 	// Localhost only: this server executes arbitrary Go code.
 	addr := env("ADDR", "127.0.0.1:8080")
-	srv := &http.Server{Addr: addr, Handler: api.New(store.New(pool)).Handler(), ReadHeaderTimeout: 10 * time.Second}
+	app := api.New(store.New(pool))
+	if err := app.Bootstrap(ctx, os.Getenv("ADMIN_USERNAME"), os.Getenv("ADMIN_PASSWORD")); err != nil {
+		log.Fatalf("bootstrap admin: %v", err)
+	}
+	srv := &http.Server{Addr: addr, Handler: app.Handler(), ReadHeaderTimeout: 10 * time.Second}
 
 	go func() {
 		<-ctx.Done()

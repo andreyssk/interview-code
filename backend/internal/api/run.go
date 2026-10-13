@@ -58,15 +58,28 @@ func (b *limitedBuffer) Write(p []byte) (int, error) {
 	return len(p), nil
 }
 
-type API struct{ store *store.Store }
+type API struct {
+	store *store.Store
+	limit *limiter
+}
 
-func New(s *store.Store) *API { return &API{store: s} }
+func New(s *store.Store) *API { return &API{store: s, limit: newLimiter()} }
 
 func (a *API) Handler() http.Handler {
 	mux := http.NewServeMux()
 	mux.HandleFunc("GET /api/health", func(w http.ResponseWriter, r *http.Request) {
 		writeJSON(w, http.StatusOK, map[string]string{"status": "ok"})
 	})
+	mux.HandleFunc("GET /api/auth/config", a.authConfig)
+	mux.HandleFunc("POST /api/auth/signup", a.signup)
+	mux.HandleFunc("POST /api/auth/login", a.login)
+	mux.HandleFunc("POST /api/auth/logout", a.logout)
+	mux.HandleFunc("GET /api/auth/me", a.me)
+	mux.HandleFunc("POST /api/auth/password", a.changePassword)
+	mux.HandleFunc("GET /api/admin/users", a.adminListUsers)
+	mux.HandleFunc("POST /api/admin/users/{id}/reset-password", a.adminResetPassword)
+	mux.HandleFunc("GET /api/admin/settings", a.adminGetSettings)
+	mux.HandleFunc("PUT /api/admin/settings", a.adminSetSettings)
 	mux.HandleFunc("POST /api/run", a.run)
 	mux.HandleFunc("GET /api/content", a.content)
 	mux.HandleFunc("GET /api/stats", a.stats)
@@ -81,7 +94,7 @@ func (a *API) Handler() http.Handler {
 	mux.HandleFunc("POST /api/mistakes", a.addMistake)
 	mux.HandleFunc("PATCH /api/mistakes/{id}", a.moveMistake)
 	mux.HandleFunc("DELETE /api/mistakes/{id}", a.deleteMistake)
-	return mux
+	return a.protect(mux)
 }
 
 func writeJSON(w http.ResponseWriter, status int, v any) {
@@ -144,6 +157,7 @@ func (a *API) run(w http.ResponseWriter, r *http.Request) {
 			solveTime = req.SolveTimeMs
 		}
 		saved, err := a.store.AddAttempt(r.Context(), store.Attempt{
+			UserID:      currentUser(r).ID,
 			SolveTimeMs: solveTime,
 			TaskSlug:    req.TaskSlug,
 			Code:        req.Code,
@@ -175,7 +189,7 @@ func statusOf(r runResponse) string {
 }
 
 func (a *API) stats(w http.ResponseWriter, r *http.Request) {
-	stats, err := a.store.Stats(r.Context())
+	stats, err := a.store.Stats(r.Context(), currentUser(r).ID)
 	if err != nil {
 		log.Printf("stats: %v", err)
 		writeJSON(w, http.StatusInternalServerError, map[string]string{"error": "internal error"})
@@ -194,7 +208,7 @@ func (a *API) attempts(w http.ResponseWriter, r *http.Request) {
 	if n, err := strconv.Atoi(r.URL.Query().Get("limit")); err == nil && n > 0 && n <= 200 {
 		limit = n
 	}
-	list, err := a.store.Attempts(r.Context(), slug, limit)
+	list, err := a.store.Attempts(r.Context(), currentUser(r).ID, slug, limit)
 	if err != nil {
 		log.Printf("attempts: %v", err)
 		writeJSON(w, http.StatusInternalServerError, map[string]string{"error": "internal error"})
@@ -209,7 +223,7 @@ func (a *API) deleteAttempt(w http.ResponseWriter, r *http.Request) {
 		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "invalid id"})
 		return
 	}
-	switch err := a.store.DeleteAttempt(r.Context(), id); {
+	switch err := a.store.DeleteAttempt(r.Context(), currentUser(r).ID, id); {
 	case errors.Is(err, store.ErrNotFound):
 		writeJSON(w, http.StatusNotFound, map[string]string{"error": "not found"})
 	case err != nil:
@@ -226,7 +240,7 @@ func (a *API) clearSolveTime(w http.ResponseWriter, r *http.Request) {
 		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "invalid id"})
 		return
 	}
-	switch err := a.store.ClearSolveTime(r.Context(), id); {
+	switch err := a.store.ClearSolveTime(r.Context(), currentUser(r).ID, id); {
 	case errors.Is(err, store.ErrNotFound):
 		writeJSON(w, http.StatusNotFound, map[string]string{"error": "not found"})
 	case err != nil:

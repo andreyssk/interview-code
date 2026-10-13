@@ -16,6 +16,7 @@ type Store struct{ pool *pgxpool.Pool }
 func New(pool *pgxpool.Pool) *Store { return &Store{pool: pool} }
 
 type Attempt struct {
+	UserID     int64  `json:"-"`
 	ID         int64  `json:"id"`
 	TaskSlug   string `json:"taskSlug"`
 	Code       string `json:"code"`
@@ -38,19 +39,19 @@ type TaskStats struct {
 
 func (s *Store) AddAttempt(ctx context.Context, a Attempt) (Attempt, error) {
 	err := s.pool.QueryRow(ctx,
-		`INSERT INTO attempts (task_slug, code, status, output, duration_ms, solve_time_ms)
-		 VALUES ($1, $2, $3, $4, $5, $6) RETURNING id, created_at`,
-		a.TaskSlug, a.Code, a.Status, a.Output, a.DurationMs, a.SolveTimeMs).Scan(&a.ID, &a.CreatedAt)
+		`INSERT INTO attempts (user_id, task_slug, code, status, output, duration_ms, solve_time_ms)
+		 VALUES ($7, $1, $2, $3, $4, $5, $6) RETURNING id, created_at`,
+		a.TaskSlug, a.Code, a.Status, a.Output, a.DurationMs, a.SolveTimeMs, a.UserID).Scan(&a.ID, &a.CreatedAt)
 	return a, err
 }
 
-func (s *Store) Stats(ctx context.Context) ([]TaskStats, error) {
+func (s *Store) Stats(ctx context.Context, userID int64) ([]TaskStats, error) {
 	rows, err := s.pool.Query(ctx, `
 		SELECT task_slug,
 		       COUNT(*) FILTER (WHERE status = 'passed'),
 		       COUNT(*) FILTER (WHERE status <> 'passed'),
 		       MAX(created_at)
-		FROM attempts GROUP BY task_slug ORDER BY task_slug`)
+		FROM attempts WHERE user_id = $1 GROUP BY task_slug ORDER BY task_slug`, userID)
 	if err != nil {
 		return nil, err
 	}
@@ -67,13 +68,13 @@ func (s *Store) Stats(ctx context.Context) ([]TaskStats, error) {
 }
 
 // Attempts returns the newest attempts for a task, newest first.
-func (s *Store) Attempts(ctx context.Context, slug string, limit int) ([]Attempt, error) {
+func (s *Store) Attempts(ctx context.Context, userID int64, slug string, limit int) ([]Attempt, error) {
 	rows, err := s.pool.Query(ctx,
 		`SELECT a.id, a.task_slug, a.code, a.status, a.output, a.duration_ms, a.solve_time_ms, a.created_at, m.id, m.type_id, t.title
 		 FROM attempts a
 		 LEFT JOIN mistakes m ON m.attempt_id = a.id
 		 LEFT JOIN mistake_types t ON t.id = m.type_id
-		 WHERE a.task_slug = $1 ORDER BY a.created_at DESC, a.id DESC LIMIT $2`, slug, limit)
+		 WHERE a.user_id = $3 AND a.task_slug = $1 ORDER BY a.created_at DESC, a.id DESC LIMIT $2`, slug, limit, userID)
 	if err != nil {
 		return nil, err
 	}
@@ -94,8 +95,8 @@ func (s *Store) Attempts(ctx context.Context, slug string, limit int) ([]Attempt
 	return out, rows.Err()
 }
 
-func (s *Store) DeleteAttempt(ctx context.Context, id int64) error {
-	tag, err := s.pool.Exec(ctx, `DELETE FROM attempts WHERE id = $1`, id)
+func (s *Store) DeleteAttempt(ctx context.Context, userID, id int64) error {
+	tag, err := s.pool.Exec(ctx, `DELETE FROM attempts WHERE id = $1 AND user_id = $2`, id, userID)
 	if err != nil {
 		return err
 	}
@@ -106,8 +107,8 @@ func (s *Store) DeleteAttempt(ctx context.Context, id int64) error {
 }
 
 // ClearSolveTime discards the stopwatch reading of an attempt (the attempt itself stays).
-func (s *Store) ClearSolveTime(ctx context.Context, id int64) error {
-	tag, err := s.pool.Exec(ctx, `UPDATE attempts SET solve_time_ms = NULL WHERE id = $1`, id)
+func (s *Store) ClearSolveTime(ctx context.Context, userID, id int64) error {
+	tag, err := s.pool.Exec(ctx, `UPDATE attempts SET solve_time_ms = NULL WHERE id = $1 AND user_id = $2`, id, userID)
 	if err != nil {
 		return err
 	}

@@ -45,11 +45,12 @@ type MistakeTypeDetail struct {
 	Mistakes []Mistake `json:"mistakes"`
 }
 
-func (s *Store) ListMistakeTypes(ctx context.Context) ([]MistakeType, error) {
+func (s *Store) ListMistakeTypes(ctx context.Context, userID int64) ([]MistakeType, error) {
 	rows, err := s.pool.Query(ctx, `
 		SELECT t.id, t.title, t.description, t.created_at, COUNT(m.id)
 		FROM mistake_types t LEFT JOIN mistakes m ON m.type_id = t.id
-		GROUP BY t.id ORDER BY t.created_at DESC, t.id DESC`)
+		WHERE t.user_id = $1
+		GROUP BY t.id ORDER BY t.created_at DESC, t.id DESC`, userID)
 	if err != nil {
 		return nil, err
 	}
@@ -65,16 +66,16 @@ func (s *Store) ListMistakeTypes(ctx context.Context) ([]MistakeType, error) {
 	return out, rows.Err()
 }
 
-func (s *Store) CreateMistakeType(ctx context.Context, title, description string) (MistakeType, error) {
+func (s *Store) CreateMistakeType(ctx context.Context, userID int64, title, description string) (MistakeType, error) {
 	t := MistakeType{Title: title, Description: description}
 	err := s.pool.QueryRow(ctx,
-		`INSERT INTO mistake_types (title, description) VALUES ($1, $2) RETURNING id, created_at`,
-		title, description).Scan(&t.ID, &t.CreatedAt)
+		`INSERT INTO mistake_types (title, description, user_id) VALUES ($1, $2, $3) RETURNING id, created_at`,
+		title, description, userID).Scan(&t.ID, &t.CreatedAt)
 	return t, err
 }
 
-func (s *Store) DeleteMistakeType(ctx context.Context, id int64) error {
-	tag, err := s.pool.Exec(ctx, `DELETE FROM mistake_types WHERE id = $1`, id)
+func (s *Store) DeleteMistakeType(ctx context.Context, userID, id int64) error {
+	tag, err := s.pool.Exec(ctx, `DELETE FROM mistake_types WHERE id = $1 AND user_id = $2`, id, userID)
 	if err != nil {
 		return err
 	}
@@ -84,10 +85,10 @@ func (s *Store) DeleteMistakeType(ctx context.Context, id int64) error {
 	return nil
 }
 
-func (s *Store) GetMistakeType(ctx context.Context, id int64) (MistakeTypeDetail, error) {
+func (s *Store) GetMistakeType(ctx context.Context, userID, id int64) (MistakeTypeDetail, error) {
 	d := MistakeTypeDetail{Mistakes: []Mistake{}}
 	err := s.pool.QueryRow(ctx,
-		`SELECT id, title, description, created_at FROM mistake_types WHERE id = $1`, id).
+		`SELECT id, title, description, created_at FROM mistake_types WHERE id = $1 AND user_id = $2`, id, userID).
 		Scan(&d.ID, &d.Title, &d.Description, &d.CreatedAt)
 	if errors.Is(err, pgx.ErrNoRows) {
 		return d, ErrNotFound
@@ -114,9 +115,9 @@ func (s *Store) GetMistakeType(ctx context.Context, id int64) (MistakeTypeDetail
 }
 
 // AddMistake files a failed attempt under a type, copying its code and output.
-func (s *Store) AddMistake(ctx context.Context, attemptID, typeID int64) (Mistake, error) {
+func (s *Store) AddMistake(ctx context.Context, userID, attemptID, typeID int64) (Mistake, error) {
 	var status string
-	err := s.pool.QueryRow(ctx, `SELECT status FROM attempts WHERE id = $1`, attemptID).Scan(&status)
+	err := s.pool.QueryRow(ctx, `SELECT status FROM attempts WHERE id = $1 AND user_id = $2`, attemptID, userID).Scan(&status)
 	if errors.Is(err, pgx.ErrNoRows) {
 		return Mistake{}, ErrNotFound
 	}
@@ -130,9 +131,14 @@ func (s *Store) AddMistake(ctx context.Context, attemptID, typeID int64) (Mistak
 	var m Mistake
 	err = s.pool.QueryRow(ctx, `
 		INSERT INTO mistakes (type_id, attempt_id, task_slug, code, status, output)
-		SELECT $1, a.id, a.task_slug, a.code, a.status, a.output FROM attempts a WHERE a.id = $2
-		RETURNING id, type_id, attempt_id, task_slug, code, status, output, created_at`, typeID, attemptID).
+		SELECT t.id, a.id, a.task_slug, a.code, a.status, a.output
+		FROM attempts a JOIN mistake_types t ON t.id = $1 AND t.user_id = $3
+		WHERE a.id = $2 AND a.user_id = $3
+		RETURNING id, type_id, attempt_id, task_slug, code, status, output, created_at`, typeID, attemptID, userID).
 		Scan(&m.ID, &m.TypeID, &m.AttemptID, &m.TaskSlug, &m.Code, &m.Status, &m.Output, &m.CreatedAt)
+	if errors.Is(err, pgx.ErrNoRows) { // the type is not this user's (or does not exist)
+		return Mistake{}, ErrNotFound
+	}
 	var pgErr *pgconn.PgError
 	if errors.As(err, &pgErr) {
 		switch pgErr.Code {
@@ -145,8 +151,8 @@ func (s *Store) AddMistake(ctx context.Context, attemptID, typeID int64) (Mistak
 	return m, err
 }
 
-func (s *Store) DeleteMistake(ctx context.Context, id int64) error {
-	tag, err := s.pool.Exec(ctx, `DELETE FROM mistakes WHERE id = $1`, id)
+func (s *Store) DeleteMistake(ctx context.Context, userID, id int64) error {
+	tag, err := s.pool.Exec(ctx, `DELETE FROM mistakes m USING mistake_types t WHERE m.id = $1 AND t.id = m.type_id AND t.user_id = $2`, id, userID)
 	if err != nil {
 		return err
 	}
@@ -157,15 +163,15 @@ func (s *Store) DeleteMistake(ctx context.Context, id int64) error {
 }
 
 // UpdateMistakeType changes a type's title and description and returns it with its current count.
-func (s *Store) UpdateMistakeType(ctx context.Context, id int64, title, description string) (MistakeType, error) {
+func (s *Store) UpdateMistakeType(ctx context.Context, userID, id int64, title, description string) (MistakeType, error) {
 	var t MistakeType
 	err := s.pool.QueryRow(ctx, `
 		WITH updated AS (
-			UPDATE mistake_types SET title = $2, description = $3 WHERE id = $1
+			UPDATE mistake_types SET title = $2, description = $3 WHERE id = $1 AND user_id = $4
 			RETURNING id, title, description, created_at
 		)
 		SELECT u.id, u.title, u.description, u.created_at, (SELECT COUNT(*) FROM mistakes WHERE type_id = u.id)
-		FROM updated u`, id, title, description).
+		FROM updated u`, id, title, description, userID).
 		Scan(&t.ID, &t.Title, &t.Description, &t.CreatedAt, &t.Count)
 	if errors.Is(err, pgx.ErrNoRows) {
 		return t, ErrNotFound
@@ -174,11 +180,14 @@ func (s *Store) UpdateMistakeType(ctx context.Context, id int64, title, descript
 }
 
 // MoveMistake files an existing mistake under another type.
-func (s *Store) MoveMistake(ctx context.Context, id, typeID int64) (Mistake, error) {
+func (s *Store) MoveMistake(ctx context.Context, userID, id, typeID int64) (Mistake, error) {
 	var m Mistake
 	err := s.pool.QueryRow(ctx, `
-		UPDATE mistakes SET type_id = $2 WHERE id = $1
-		RETURNING id, type_id, attempt_id, task_slug, code, status, output, created_at`, id, typeID).
+		UPDATE mistakes m SET type_id = $2
+		WHERE m.id = $1
+		  AND EXISTS (SELECT 1 FROM mistake_types src WHERE src.id = m.type_id AND src.user_id = $3)
+		  AND EXISTS (SELECT 1 FROM mistake_types dst WHERE dst.id = $2 AND dst.user_id = $3)
+		RETURNING m.id, m.type_id, m.attempt_id, m.task_slug, m.code, m.status, m.output, m.created_at`, id, typeID, userID).
 		Scan(&m.ID, &m.TypeID, &m.AttemptID, &m.TaskSlug, &m.Code, &m.Status, &m.Output, &m.CreatedAt)
 	if errors.Is(err, pgx.ErrNoRows) {
 		return m, ErrNotFound

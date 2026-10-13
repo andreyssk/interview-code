@@ -50,7 +50,7 @@ func decode(w http.ResponseWriter, r *http.Request, v any) bool {
 }
 
 func (a *API) listMistakeTypes(w http.ResponseWriter, r *http.Request) {
-	types, err := a.store.ListMistakeTypes(r.Context())
+	types, err := a.store.ListMistakeTypes(r.Context(), currentUser(r).ID)
 	if err != nil {
 		fail(w, err, "list mistake types")
 		return
@@ -86,7 +86,7 @@ func (a *API) createMistakeType(w http.ResponseWriter, r *http.Request) {
 	if !ok {
 		return
 	}
-	t, err := a.store.CreateMistakeType(r.Context(), in.Title, in.Description)
+	t, err := a.store.CreateMistakeType(r.Context(), currentUser(r).ID, in.Title, in.Description)
 	if err != nil {
 		fail(w, err, "create mistake type")
 		return
@@ -103,7 +103,7 @@ func (a *API) updateMistakeType(w http.ResponseWriter, r *http.Request) {
 	if !ok {
 		return
 	}
-	t, err := a.store.UpdateMistakeType(r.Context(), id, in.Title, in.Description)
+	t, err := a.store.UpdateMistakeType(r.Context(), currentUser(r).ID, id, in.Title, in.Description)
 	if err != nil {
 		fail(w, err, "update mistake type")
 		return
@@ -116,7 +116,7 @@ func (a *API) getMistakeType(w http.ResponseWriter, r *http.Request) {
 	if !ok {
 		return
 	}
-	d, err := a.store.GetMistakeType(r.Context(), id)
+	d, err := a.store.GetMistakeType(r.Context(), currentUser(r).ID, id)
 	if err != nil {
 		fail(w, err, "get mistake type")
 		return
@@ -129,7 +129,7 @@ func (a *API) deleteMistakeType(w http.ResponseWriter, r *http.Request) {
 	if !ok {
 		return
 	}
-	if err := a.store.DeleteMistakeType(r.Context(), id); err != nil {
+	if err := a.store.DeleteMistakeType(r.Context(), currentUser(r).ID, id); err != nil {
 		fail(w, err, "delete mistake type")
 		return
 	}
@@ -148,7 +148,7 @@ func (a *API) addMistake(w http.ResponseWriter, r *http.Request) {
 		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "attemptId and typeId are required"})
 		return
 	}
-	m, err := a.store.AddMistake(r.Context(), in.AttemptID, in.TypeID)
+	m, err := a.store.AddMistake(r.Context(), currentUser(r).ID, in.AttemptID, in.TypeID)
 	if err != nil {
 		fail(w, err, "add mistake")
 		return
@@ -161,7 +161,7 @@ func (a *API) deleteMistake(w http.ResponseWriter, r *http.Request) {
 	if !ok {
 		return
 	}
-	if err := a.store.DeleteMistake(r.Context(), id); err != nil {
+	if err := a.store.DeleteMistake(r.Context(), currentUser(r).ID, id); err != nil {
 		fail(w, err, "delete mistake")
 		return
 	}
@@ -183,7 +183,7 @@ func (a *API) moveMistake(w http.ResponseWriter, r *http.Request) {
 		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "typeId is required"})
 		return
 	}
-	m, err := a.store.MoveMistake(r.Context(), id, in.TypeID)
+	m, err := a.store.MoveMistake(r.Context(), currentUser(r).ID, id, in.TypeID)
 	if err != nil {
 		fail(w, err, "move mistake")
 		return
