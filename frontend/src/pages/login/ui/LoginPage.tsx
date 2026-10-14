@@ -32,8 +32,8 @@ export function LoginPage() {
   }
 
   return (
-    <div className="mx-auto mt-16 w-[min(24rem,calc(100vw-2rem))]">
-      <div className="mb-4 flex items-center justify-between">
+    <div className="app">
+      <header className="topbar">
         <span className="logo">
           <span className="logo-mark">▲</span> INTERVIEW<span className="text-[var(--cyan)]">//</span>PREP
         </span>
@@ -41,8 +41,10 @@ export function LoginPage() {
           <ThemeSwitcher />
           <LanguageSwitcher />
         </span>
-      </div>
-      <form onSubmit={onSubmit} className="panel flex flex-col gap-3 p-6">
+      </header>
+      {/* Covers the whole viewport (the header floats above it), so the card sits in the true center. */}
+      <main className="absolute inset-0 grid place-items-center overflow-auto p-4">
+      <form onSubmit={onSubmit} className="panel flex w-[min(24rem,100%)] flex-col gap-3 p-6">
         <h1 className="neon-title text-2xl font-bold">{signingUp ? t('auth.signUp') : t('auth.signIn')}</h1>
         <input className="search" placeholder={t('auth.username')} autoComplete="username" value={username} onChange={(e) => setUsername(e.target.value)} autoFocus />
         <input
@@ -65,6 +67,7 @@ export function LoginPage() {
           <p className="text-xs text-[var(--muted)]">{t('auth.signupClosed')}</p>
         )}
       </form>
+      </main>
     </div>
   )
 }
