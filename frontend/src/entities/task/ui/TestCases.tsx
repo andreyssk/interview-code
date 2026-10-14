@@ -4,6 +4,7 @@ import type { TaskDef } from '../model/types'
 /** The cases the runner checks the solution against (same data the generated Go harness embeds). */
 export function TestCases({ task }: { task: TaskDef }) {
   const { t } = useTranslation()
+  if (task.tests.length === 0) return <p className="text-[var(--muted)]">{t('task.noTests')}</p>
   return (
     <>
       <p className="mb-4 text-sm text-[var(--muted)]">{t('task.testsHint', { count: task.tests.length })}</p>

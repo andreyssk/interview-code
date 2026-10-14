@@ -27,6 +27,7 @@ The server assigns the unique `number`; never put one in the file.
   "tests": [ { "name": "example 1", "input": { "nums": [-4, -1, 0, 3, 10] }, "expected": [0, 1, 9, 16, 100] } ],
   "solution": "package main\n…",
   "solutionNotes": [ { "h": "Оценка сложности" }, { "ul": ["Время: O(n)", "Память: O(1)"] } ],
+  "commonMistakes": [ { "ul": ["…"] } ],
   "complexity": { "time": "O(n)", "space": "O(1)" },
   "template": null
 }
@@ -68,10 +69,11 @@ curl -s -b /tmp/jar 127.0.0.1:8080/api/content | python3 -c "import json,sys;c=j
 - In-place tasks (the function returns nothing and modifies an argument): omit `returns` and set `"mutates": "<param name>"`; `expected` is then that parameter's final value.
 - When the statement says the answer may be returned in any order (e.g. groups of anagrams) add `"compare": "unordered"` to the signature.
 - `template` stays `null` (starter code is generated from the signature) unless the screenshot shows something different (e.g. named results).
-- **tests**: input keys must match the parameter names exactly (the server rejects missing or extra ones). Use the statement's examples first, then edge cases (minimum size, duplicates, negatives, extremes, empty values when the constraints allow them). Tests are public (shown on the Tests tab): keep them small and verify every `expected` by hand. Never put a backtick in test data.
+- **tests**: may be an empty list `[]` (then the task is visible but cannot be run or submitted until tests are added). When there are tests, input keys must match the parameter names exactly (the server rejects missing or extra ones). Use the statement's examples first, then edge cases (minimum size, duplicates, negatives, extremes, empty values when the constraints allow them). Tests are public (shown on the Tests tab): keep them small and verify every `expected` by hand. Never put a backtick in test data.
 - **solution**: only when the user provided one: their code **verbatim** (you may only `gofmt` it; keep its Russian comments; never "improve" it). Otherwise `null`, and also no `complexity` and no `solutionNotes`.
 - **solutionNotes**: only the text the user gave (typically «Оценка сложности» with its Время/Память bullets and any note after it), in the site's style, not extended with your own explanation. `complexity` comes from the same text.
-- **description / solutionNotes blocks**: `{ "p": "…" }`, `{ "h": "…" }`, `{ "pre": "line1\nline2" }`, `{ "ul": ["…"] }`, `{ "note": "…" }` (the site's blue box, e.g. «Частая ошибка: …»). Each block has exactly one key. Inline markup is limited to `<code>…</code>` and `<b>…</b>`; the text is **not HTML**: write `<`, `>` and `&` as plain characters, never `&lt;`.
+- **commonMistakes**: optional block list shown as its own «Типичные ошибки» section on the solution tab (works without a reference solution). Only the mistakes the user listed. Otherwise `null`.
+- **description / solutionNotes / commonMistakes blocks**: `{ "p": "…" }`, `{ "h": "…" }`, `{ "pre": "line1\nline2" }`, `{ "ul": ["…"] }`, `{ "note": "…" }` (the site's blue box, e.g. «Частая ошибка: …»). Each block has exactly one key. Inline markup is limited to `<code>…</code>` and `<b>…</b>`; the text is **not HTML**: write `<`, `>` and `&` as plain characters, never `&lt;`.
 - Copy text faithfully from the screenshots. Never invent constraints or examples.
 
 ## 5. Check

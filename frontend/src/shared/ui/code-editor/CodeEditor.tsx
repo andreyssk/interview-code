@@ -1,19 +1,21 @@
 import { useMemo } from 'react'
 import { autoEdit, type Edit } from '../../lib/editing'
-import { highlightGo } from '../../lib/highlight'
+import { highlight, type EditorLanguage } from '../../lib/highlight'
 
 interface Props {
   value: string
   onChange: (code: string) => void
   onRun?: () => void
   label?: string
+  /** Syntax highlighting; defaults to Go */
+  language?: EditorLanguage
 }
 
 // Lightweight editor: a transparent <textarea> on top of a highlighted <pre> with identical metrics.
 // The <pre> sizes the block; the outer wrapper scrolls both together.
-export function CodeEditor({ value, onChange, onRun, label }: Props) {
+export function CodeEditor({ value, onChange, onRun, label, language = 'go' }: Props) {
   const lines = value.split('\n').length
-  const highlighted = useMemo(() => highlightGo(value), [value])
+  const highlighted = useMemo(() => highlight(value, language), [value, language])
 
   const insert = (text: string) => document.execCommand('insertText', false, text) // keeps native undo
 

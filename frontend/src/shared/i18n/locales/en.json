@@ -69,7 +69,11 @@
     "statsFailed_other": "Failed {{count}} times",
     "resetTitle": "Reset code?",
     "resetAction": "Reset",
-    "solution": "Solution"
+    "solution": "Solution",
+    "language": "Language",
+    "javaNotRunnable": "Running Java isn't supported yet",
+    "noTests": "This task has no tests yet, so there is nothing to run your code against.",
+    "noTestsRun": "No tests yet: running and submitting are disabled"
   },
   "status": {
     "running": "Running…",
@@ -108,7 +112,8 @@
     "time": "Time",
     "space": "Space",
     "none": "No reference solution for this task yet.",
-    "notes": "Notes"
+    "notes": "Notes",
+    "commonMistakes": "Common mistakes"
   },
   "mistakes": {
     "title": "Mistakes journal",

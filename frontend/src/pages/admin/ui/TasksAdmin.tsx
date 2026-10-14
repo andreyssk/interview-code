@@ -21,6 +21,7 @@ const EXAMPLE = {
   tests: [{ name: 'example', input: { s: 'abc' }, expected: 'cba' }],
   solution: 'package main\n\nfunc reverseString(s string) string {\n\tr := []rune(s)\n\tfor i, j := 0, len(r)-1; i < j; i, j = i+1, j-1 {\n\t\tr[i], r[j] = r[j], r[i]\n\t}\n\treturn string(r)\n}\n',
   solutionNotes: null,
+  commonMistakes: null,
   complexity: { time: 'O(n)', space: 'O(n)' },
   template: null,
 }

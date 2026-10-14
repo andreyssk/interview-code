@@ -8,8 +8,14 @@ import { AttemptHistory } from '@/features/attempt-history'
 import { SolveTimer, useSolveTimer } from '@/features/solve-timer'
 import { RunOutput, statusTone, useRunCode } from '@/features/run-code'
 import { useAuth } from '@/shared/auth/AuthContext'
+import type { EditorLanguage } from '@/shared/lib/highlight'
 import { usePersistentState } from '@/shared/lib/storage'
 import { CodeEditor, ConfirmDialog, RichBlocks } from '@/shared/ui'
+
+const LANGUAGES: { id: EditorLanguage; label: string }[] = [
+  { id: 'go', label: 'Go' },
+  { id: 'java', label: 'Java' },
+]
 
 const TABS = ['description', 'tests', 'solution', 'attempts', 'output'] as const
 
@@ -21,7 +27,14 @@ export function TaskWorkspace({ task, editorActions }: { task: TaskDef; editorAc
   const { passed, failed } = counts(task.slug)
   const { user } = useAuth()
   // Drafts belong to the signed-in user; the admin also inherits drafts saved before accounts existed.
-  const [code, setCode] = usePersistentState(`u${user.id}:code:${task.slug}`, task.template, user.role === 'admin' ? `code:${task.slug}` : undefined)
+  const [language, setLanguage] = usePersistentState<EditorLanguage>(`u${user.id}:editor-language`, 'go')
+  // One draft per language; the Go key is unchanged so existing drafts are kept.
+  const [goCode, setGoCode] = usePersistentState(`u${user.id}:code:${task.slug}`, task.template, user.role === 'admin' ? `code:${task.slug}` : undefined)
+  const [javaCode, setJavaCode] = usePersistentState(`u${user.id}:code:java:${task.slug}`, task.javaTemplate)
+  const code = language === 'java' ? javaCode : goCode
+  const setCode = language === 'java' ? setJavaCode : setGoCode
+  const hasTests = task.tests.length > 0 // without tests there is nothing to check a solution against
+  const canRun = language === 'go' && hasTests // Java code cannot be run yet
   const requested = useSearchParams()[0].get('tab') // lets a tab be linked to, e.g. ?tab=attempts
   const [tab, setTab] = useState<(typeof TABS)[number]>(TABS.find((x) => x === requested) ?? 'description')
   const [resetting, setResetting] = useState(false)
@@ -29,6 +42,7 @@ export function TaskWorkspace({ task, editorActions }: { task: TaskDef; editorAc
   const timer = useSolveTimer(task.slug)
 
   const submit = () => {
+    if (!canRun) return
     setTab('output')
     // Only a running timer is attached; on a pass the backend stores it and the timer freezes at that reading.
     const solveTimeMs = timer.running ? timer.elapsed() : undefined
@@ -107,15 +121,21 @@ export function TaskWorkspace({ task, editorActions }: { task: TaskDef; editorAc
 
       <section className="panel flex min-h-0 flex-col">
         <div className="flex items-center gap-3 border-b border-[var(--border)] p-3">
-          <span className="btn-ghost cursor-default">Go</span>
+          <span className="flex gap-1" role="group" aria-label={t('task.language')}>
+            {LANGUAGES.map((l) => (
+              <button key={l.id} className={`chip ${language === l.id ? 'chip-active' : ''}`} aria-pressed={language === l.id} onClick={() => setLanguage(l.id)}>
+                {l.label}
+              </button>
+            ))}
+          </span>
           <button className="btn-ghost" onClick={() => setResetting(true)}>
             {t('task.reset')}
           </button>
           <div className="ml-auto flex items-center gap-3">
             {editorActions}
             <SolveTimer timer={timer} />
-            <span className="tip" data-tip={t('task.shortcut')}>
-              <button className="btn-run" onClick={submit} disabled={isPending}>
+            <span className="tip" data-tip={!hasTests ? t('task.noTestsRun') : canRun ? t('task.shortcut') : t('task.javaNotRunnable')}>
+              <button className="btn-run" onClick={submit} disabled={isPending || !canRun}>
                 {isPending && <span className="spinner" aria-hidden="true" />}
                 {isPending ? t('task.running') : t('task.run')}
               </button>
@@ -123,7 +143,7 @@ export function TaskWorkspace({ task, editorActions }: { task: TaskDef; editorAc
           </div>
         </div>
         <div className="min-h-0 flex-1">
-          <CodeEditor value={code} onChange={setCode} onRun={submit} label="Go" />
+          <CodeEditor value={code} onChange={setCode} onRun={submit} label={LANGUAGES.find((l) => l.id === language)?.label} language={language} />
         </div>
       </section>
       <ConfirmDialog
@@ -132,7 +152,7 @@ export function TaskWorkspace({ task, editorActions }: { task: TaskDef; editorAc
         message={t('task.resetConfirm')}
         confirmLabel={t('task.resetAction')}
         onConfirm={() => {
-          setCode(task.template)
+          setCode(language === 'java' ? task.javaTemplate : task.template)
           setResetting(false)
         }}
         onCancel={() => setResetting(false)}

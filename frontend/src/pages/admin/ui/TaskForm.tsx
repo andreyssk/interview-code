@@ -3,7 +3,7 @@ import { useMemo, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { buildHarness } from '@/entities/task'
 import { saveTask } from '@/shared/api/admin'
-import type { ApiTask, Difficulty, Signature, TestCase } from '@/shared/api/content'
+import { normalizeSignature, type ApiTask, type Difficulty, type Signature, type TestCase } from '@/shared/api/content'
 import { queryKeys } from '@/shared/api/queryKeys'
 import { runGo, type RunResult } from '@/shared/api/run'
 import { useContent } from '@/shared/content/ContentContext'
@@ -11,7 +11,7 @@ import type { Block } from '@/shared/ui'
 import { BlockEditor } from './BlockEditor'
 import { ChipPicker, Field } from './Field'
 
-const blank: Omit<ApiTask, 'number'> = {
+const blank: Initial = {
   slug: '',
   title: '',
   difficulty: 'easy',
@@ -20,11 +20,19 @@ const blank: Omit<ApiTask, 'number'> = {
   leetcodeUrl: null,
   description: [{ p: '' }],
   solutionNotes: null,
+  commonMistakes: null,
   solution: null,
   signature: { name: '', params: [{ name: '', type: '' }], returns: '' },
   tests: [],
   complexity: null,
   template: null,
+}
+
+/** Blank rows are dropped; an entirely empty signature is saved as {} (a task with no function to write). */
+function cleanSignature(sig: Signature): Partial<Signature> {
+  const params = sig.params.filter((p) => p.name.trim() || p.type.trim())
+  if (!sig.name && params.length === 0 && !sig.returns && !sig.mutates) return {}
+  return { ...sig, params, returns: sig.returns || undefined, mutates: sig.mutates || undefined, compare: sig.compare || undefined }
 }
 
 const TESTS_HINT = '[{ "name": "example 1", "input": { "param": value }, "expected": value }, …]'
@@ -35,10 +43,11 @@ export function TaskForm() {
   const { tasks, categories, companies, sections } = useContent()
   const existing = tasks.find((t) => t.slug === editing)
   if (editing && !existing) return <p className="text-[var(--pink)]">No such task.</p>
-  return <Form key={editing ?? 'new'} initial={existing ?? blank} isNew={!existing} categories={categories} companies={companies} sections={sections} />
+  return <Form key={editing ?? 'new'} initial={existing ? { ...existing, signature: normalizeSignature(existing.signature) } : blank} isNew={!existing} categories={categories} companies={companies} sections={sections} />
 }
 
-type Initial = Omit<ApiTask, 'number'>
+/** What the form edits: like a stored task, but the signature is always complete. */
+type Initial = Omit<ApiTask, 'number' | 'signature'> & { signature: Signature }
 
 function Form({ initial, isNew, categories, companies, sections }: { initial: Initial; isNew: boolean } & Pick<ReturnType<typeof useContent>, 'categories' | 'companies' | 'sections'>) {
   const navigate = useNavigate()
@@ -59,15 +68,16 @@ function Form({ initial, isNew, categories, companies, sections }: { initial: In
     }
   }, [testsText])
 
-  const payload = (): Initial => ({
+  const payload = (): Omit<ApiTask, 'number'> => ({
     ...t,
     tests: parsed.tests ?? [],
     leetcodeUrl: t.leetcodeUrl?.trim() || null,
     solution: t.solution?.trim() ? t.solution : null,
     solutionNotes: t.solutionNotes && t.solutionNotes.length > 0 ? t.solutionNotes : null,
+    commonMistakes: t.commonMistakes && t.commonMistakes.length > 0 ? t.commonMistakes : null,
     complexity: t.complexity && (t.complexity.time || t.complexity.space) ? t.complexity : null,
     template: t.template?.trim() ? t.template : null,
-    signature: { ...t.signature, returns: t.signature.returns || undefined, mutates: t.signature.mutates || undefined, compare: t.signature.compare || undefined },
+    signature: cleanSignature(t.signature),
   })
 
   const save = useMutation({
@@ -83,7 +93,7 @@ function Form({ initial, isNew, categories, companies, sections }: { initial: In
     if (!t.solution?.trim() || !parsed.tests) return
     setVerify('running')
     try {
-      setVerify(await runGo('', t.solution, buildHarness(payload().signature, parsed.tests)))
+      setVerify(await runGo('', t.solution, buildHarness(normalizeSignature(payload().signature), parsed.tests)))
     } catch (e) {
       setVerify(e instanceof Error ? e.message : 'failed')
     }
@@ -190,7 +200,13 @@ function Form({ initial, isNew, categories, companies, sections }: { initial: In
 
       <Field label="Tests (JSON)" hint={TESTS_HINT}>
         <textarea className="search font-mono text-sm" rows={10} value={testsText} onChange={(e) => setTestsText(e.target.value)} spellCheck={false} />
-        {parsed.error ? <span className="text-sm text-[var(--pink)]">{parsed.error}</span> : <span className="text-sm text-[var(--green)]">{parsed.tests?.length} test(s)</span>}
+        {parsed.error ? (
+          <span className="text-sm text-[var(--pink)]">{parsed.error}</span>
+        ) : parsed.tests?.length ? (
+          <span className="text-sm text-[var(--green)]">{parsed.tests.length} test(s)</span>
+        ) : (
+          <span className="text-sm text-[var(--amber)]">No tests: users will see the task but cannot run or submit code until you add some.</span>
+        )}
       </Field>
 
       <fieldset className="panel flex flex-col gap-3 p-4">
@@ -209,8 +225,11 @@ function Form({ initial, isNew, categories, companies, sections }: { initial: In
         <Field label="Notes shown under the solution">
           <BlockEditor initial={initial.solutionNotes ?? []} onChange={(b) => set('solutionNotes', b)} />
         </Field>
+        <Field label="Common mistakes (separate block on the solution tab)">
+          <BlockEditor initial={initial.commonMistakes ?? []} onChange={(b) => set('commonMistakes', b)} />
+        </Field>
         <div className="flex flex-wrap items-center gap-3">
-          <button type="button" className="btn-ghost" disabled={!t.solution?.trim() || !!parsed.error || verify === 'running'} onClick={runVerify}>
+          <button type="button" className="btn-ghost" disabled={!t.solution?.trim() || !!parsed.error || !parsed.tests?.length || verify === 'running'} onClick={runVerify}>
             Verify solution against tests
           </button>
           {verify === 'running' && <span className="text-sm text-[var(--cyan)]">Running…</span>}

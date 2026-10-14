@@ -20,6 +20,9 @@ export interface Signature {
   compare?: 'exact' | 'unordered'
 }
 
+/** A signature as stored may be {} (a task with no function to write); this fills the gaps. */
+export const normalizeSignature = (raw: Partial<Signature> | null | undefined): Signature => ({ ...raw, name: raw?.name ?? '', params: raw?.params ?? [] })
+
 export interface TestCase {
   name?: string
   /** Argument values keyed by parameter name */
@@ -64,9 +67,12 @@ export interface ApiTask {
   leetcodeUrl: string | null
   description: Block[]
   solutionNotes: Block[] | null
+  /** Typical mistakes, shown as their own block on the solution tab */
+  commonMistakes: Block[] | null
   /** Reference solution (Go) */
   solution: string | null
-  signature: Signature
+  /** Empty ({}) for tasks that are not "write a function" (SQL, code review, …) */
+  signature: Partial<Signature>
   tests: TestCase[]
   complexity: { time: string; space: string } | null
   /** Overrides the generated starter code */

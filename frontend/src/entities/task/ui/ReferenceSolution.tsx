@@ -7,10 +7,10 @@ import type { TaskDef } from '../model/types'
 /** The interview-ready answer with complexity and notes. Hidden until asked for, to avoid spoiling yourself. */
 export function ReferenceSolution({ task }: { task: TaskDef }) {
   const { t } = useTranslation()
-  const { solutionNotes } = task
+  const { solutionNotes, commonMistakes } = task
   const [revealed, setRevealed] = useState(false)
 
-  if (!task.solution) return <p className="text-[var(--muted)]">{t('solution.none')}</p>
+  if (!task.solution && commonMistakes.length === 0) return <p className="text-[var(--muted)]">{t('solution.none')}</p>
 
   if (!revealed) {
     return (
@@ -25,7 +25,7 @@ export function ReferenceSolution({ task }: { task: TaskDef }) {
 
   return (
     <>
-      {task.complexity && (
+      {task.complexity && task.solution && (
         <div className="mb-4 flex flex-wrap gap-2">
           <span className="tag neon-cyan">
             {t('solution.time')}: {task.complexity.time}
@@ -35,8 +35,14 @@ export function ReferenceSolution({ task }: { task: TaskDef }) {
           </span>
         </div>
       )}
-      <pre className="code-block mb-6">{highlightGo(task.solution)}</pre>
+      {task.solution && <pre className="code-block mb-6">{highlightGo(task.solution)}</pre>}
       {solutionNotes.length > 0 && <RichBlocks blocks={solutionNotes} />}
+      {commonMistakes.length > 0 && (
+        <section className="mt-6">
+          <h3 className="mb-2 font-semibold">{t('solution.commonMistakes')}</h3>
+          <RichBlocks blocks={commonMistakes} />
+        </section>
+      )}
     </>
   )
 }

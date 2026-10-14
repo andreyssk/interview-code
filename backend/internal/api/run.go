@@ -116,6 +116,19 @@ func (a *API) run(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// A task without tests cannot be run or submitted (a slug-less run, used to verify solutions in the admin form, is fine).
+	if req.TaskSlug != "" {
+		n, found, err := a.store.TaskTestCount(r.Context(), req.TaskSlug)
+		if err != nil {
+			fail(w, err, "task tests")
+			return
+		}
+		if found && n == 0 {
+			writeJSON(w, http.StatusConflict, map[string]string{"error": "this task has no tests yet, so it cannot be run"})
+			return
+		}
+	}
+
 	dir, err := os.MkdirTemp("", "gorun-*")
 	if err != nil {
 		writeJSON(w, http.StatusInternalServerError, map[string]string{"error": err.Error()})

@@ -12,9 +12,11 @@ import (
 )
 
 var (
-	slugRe  = regexp.MustCompile(`^[a-z0-9]+(-[a-z0-9]+)*$`)
-	identRe = regexp.MustCompile(`^[A-Za-z_][A-Za-z0-9_]*$`)
-	typeRe  = regexp.MustCompile(`^[A-Za-z0-9_\[\]*. ]+$`)
+	slugRe = regexp.MustCompile(`^[a-z0-9]+(-[a-z0-9]+)*$`)
+	// Names and types are not tied to one language: Go and Java identifiers (letters, digits, _ and $), and types such as
+	// []int, map[string][]int, int[], List<Integer> or Map<String, List<Integer>>.
+	identRe = regexp.MustCompile(`^[\p{L}_$][\p{L}\p{N}_$]*$`)
+	typeRe  = regexp.MustCompile(`^[\p{L}\p{N}_$\[\]*.<>,? ]+$`)
 	toneRe  = regexp.MustCompile(`^neon-[a-z]+$`)
 )
 
@@ -108,6 +110,9 @@ func validateTask(t *store.Task) error {
 	if err := validateBlocks("solutionNotes", t.SolutionNotes, false); err != nil {
 		return err
 	}
+	if err := validateBlocks("commonMistakes", t.CommonMistakes, false); err != nil {
+		return err
+	}
 	if t.Solution != nil && len(*t.Solution) > maxSolution {
 		return fmt.Errorf("solution is too long")
 	}
@@ -150,10 +155,45 @@ func validateTask(t *store.Task) error {
 			return fmt.Errorf("complexity must be {\"time\": \"…\", \"space\": \"…\"}")
 		}
 	}
-	return validateSignatureAndTests(t.Signature, t.Tests)
+	return validateSignatureAndTests(&t.Signature, &t.Tests)
 }
 
-func validateSignatureAndTests(sigRaw, testsRaw json.RawMessage) error {
+// validateSignatureAndTests checks the function signature and the test cases.
+//
+// Both are optional: a task that is not "write a function" (a SQL question, a code review, a free-form exercise) has
+// neither, stored as {} and []. Such a task is shown but cannot be run. Tests need a signature, which names the parameters.
+func validateSignatureAndTests(sigRaw, testsRaw *json.RawMessage) error {
+	if len(*testsRaw) == 0 || string(*testsRaw) == "null" {
+		*testsRaw = json.RawMessage("[]")
+	}
+	var probe struct {
+		Name    string            `json:"name"`
+		Params  []json.RawMessage `json:"params"`
+		Returns string            `json:"returns"`
+		Mutates string            `json:"mutates"`
+		Compare string            `json:"compare"`
+	}
+	if len(*sigRaw) == 0 || string(*sigRaw) == "null" {
+		*sigRaw = json.RawMessage("{}")
+	}
+	if err := json.Unmarshal(*sigRaw, &probe); err != nil {
+		return fmt.Errorf("signature must be an object: {name, params:[{name,type}], returns?, mutates?, compare?}")
+	}
+	if probe.Name == "" && len(probe.Params) == 0 && probe.Returns == "" && probe.Mutates == "" && probe.Compare == "" {
+		*sigRaw = json.RawMessage("{}")
+		var tests []json.RawMessage
+		if json.Unmarshal(*testsRaw, &tests) != nil {
+			return fmt.Errorf("tests must be an array of {name?, input, expected}")
+		}
+		if len(tests) > 0 {
+			return fmt.Errorf("tests need a signature: add signature.name and params so the test inputs have parameters to fill")
+		}
+		return nil
+	}
+	return checkSignatureAndTests(*sigRaw, *testsRaw)
+}
+
+func checkSignatureAndTests(sigRaw, testsRaw json.RawMessage) error {
 	var sig struct {
 		Name    string                        `json:"name"`
 		Params  []struct{ Name, Type string } `json:"params"`
@@ -165,12 +205,12 @@ func validateSignatureAndTests(sigRaw, testsRaw json.RawMessage) error {
 		return fmt.Errorf("signature is required: {name, params:[{name,type}], returns?, mutates?, compare?}")
 	}
 	if !identRe.MatchString(sig.Name) {
-		return fmt.Errorf("signature.name must be a Go identifier")
+		return fmt.Errorf("signature.name %q must be an identifier: letters, digits, _ or $, not starting with a digit", sig.Name)
 	}
 	names := map[string]bool{}
 	for _, p := range sig.Params {
 		if !identRe.MatchString(p.Name) || names[p.Name] {
-			return fmt.Errorf("signature.params: %q is not a unique Go identifier", p.Name)
+			return fmt.Errorf("signature.params: %q is not a unique identifier (letters, digits, _ or $)", p.Name)
 		}
 		if p.Type == "" || len(p.Type) > 100 || !typeRe.MatchString(p.Type) {
 			return fmt.Errorf("signature.params: invalid type %q", p.Type)
@@ -178,7 +218,7 @@ func validateSignatureAndTests(sigRaw, testsRaw json.RawMessage) error {
 		names[p.Name] = true
 	}
 	if sig.Returns != "" && (len(sig.Returns) > 100 || !typeRe.MatchString(sig.Returns)) {
-		return fmt.Errorf("signature.returns: invalid type")
+		return fmt.Errorf("signature.returns: invalid type %q", sig.Returns)
 	}
 	if sig.Mutates != "" && !names[sig.Mutates] {
 		return fmt.Errorf("signature.mutates must name one of the params")
@@ -191,11 +231,12 @@ func validateSignatureAndTests(sigRaw, testsRaw json.RawMessage) error {
 	}
 
 	var tests []map[string]json.RawMessage
-	if json.Unmarshal(testsRaw, &tests) != nil || len(testsRaw) == 0 {
+	if json.Unmarshal(testsRaw, &tests) != nil {
 		return fmt.Errorf("tests must be an array of {name?, input, expected}")
 	}
-	if len(tests) == 0 || len(tests) > maxTestCases {
-		return fmt.Errorf("tests: between 1 and %d cases", maxTestCases)
+	// A task may have no tests yet; it just cannot be run or submitted until it has some.
+	if len(tests) > maxTestCases {
+		return fmt.Errorf("tests: at most %d cases", maxTestCases)
 	}
 	for i, tc := range tests {
 		exp, ok := tc["expected"]
