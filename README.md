@@ -93,6 +93,13 @@ The frontend sends `{taskSlug, code, harness}` (the generated harness embeds the
 runs `go build` (30 s limit) then the binary (5 s limit, 64 KB output cap), saves the attempt and returns the output.
 It executes arbitrary code with your user's permissions, so it binds to localhost only.
 
+## Run limits
+
+A run has two limits, set in `backend/internal/api/run.go`: compiling may take 30 s, and the program itself may run for **5 s by default**,
+with output cut at 64 KB. The run limit can be set per task (**Time limit per run** under *Advanced* in the task form, or
+`timeLimitSec`, 1-30, in the upload JSON). It is enforced by the server, shown to users on the task page ("Time limit: 5 s"), and a timeout
+says which limit applied.
+
 ## Accounts
 
 Everything except the login screen needs an account (username + password). Attempts and the mistakes journal are per user.

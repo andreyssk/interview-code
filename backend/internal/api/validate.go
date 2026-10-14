@@ -113,6 +113,9 @@ func validateTask(t *store.Task) error {
 	if err := validateBlocks("commonMistakes", t.CommonMistakes, false); err != nil {
 		return err
 	}
+	if t.TimeLimitSec != nil && (*t.TimeLimitSec < 1 || *t.TimeLimitSec > maxRunSeconds) {
+		return fmt.Errorf("timeLimitSec must be between 1 and %d seconds (or empty for the default of %d)", maxRunSeconds, defaultRunSeconds)
+	}
 	if t.Solution != nil && len(*t.Solution) > maxSolution {
 		return fmt.Errorf("solution is too long")
 	}
@@ -161,7 +164,7 @@ func validateTask(t *store.Task) error {
 // validateSignatureAndTests checks the function signature and the test cases.
 //
 // Both are optional: a task that is not "write a function" (a SQL question, a code review, a free-form exercise) has
-// neither, stored as {} and []. Such a task is shown but cannot be run. Tests need a signature, which names the parameters.
+// neither, stored as {} and []. Such a task is shown and its code can be run, but not submitted. Tests need a signature, which names the parameters.
 func validateSignatureAndTests(sigRaw, testsRaw *json.RawMessage) error {
 	if len(*testsRaw) == 0 || string(*testsRaw) == "null" {
 		*testsRaw = json.RawMessage("[]")
@@ -234,7 +237,7 @@ func checkSignatureAndTests(sigRaw, testsRaw json.RawMessage) error {
 	if json.Unmarshal(testsRaw, &tests) != nil {
 		return fmt.Errorf("tests must be an array of {name?, input, expected}")
 	}
-	// A task may have no tests yet; it just cannot be run or submitted until it has some.
+	// A task may have no tests yet; its code can be run but not submitted until it has some.
 	if len(tests) > maxTestCases {
 		return fmt.Errorf("tests: at most %d cases", maxTestCases)
 	}

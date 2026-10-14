@@ -2,6 +2,7 @@ package api
 
 import (
 	"encoding/json"
+	"github.com/app/interview-prep/internal/store"
 	"strings"
 	"testing"
 )
@@ -80,5 +81,24 @@ func TestPartialSignatureStillRejected(t *testing.T) {
 	sig, tests := json.RawMessage(`{"name":"","params":[{"name":"s","type":"string"}],"returns":"int"}`), json.RawMessage(`[]`)
 	if err := validateSignatureAndTests(&sig, &tests); err == nil || !strings.Contains(err.Error(), "signature.name") {
 		t.Fatalf("want a signature.name error, got %v", err)
+	}
+}
+
+func TestTimeLimitBounds(t *testing.T) {
+	task := func(limit *int) *store.Task {
+		return &store.Task{
+			Slug: "t", Title: "T", Difficulty: "easy",
+			Description: json.RawMessage(`[{"p":"x"}]`), TimeLimitSec: limit,
+		}
+	}
+	n := func(v int) *int { return &v }
+	for _, c := range []struct {
+		limit *int
+		ok    bool
+	}{{nil, true}, {n(1), true}, {n(5), true}, {n(30), true}, {n(0), false}, {n(-3), false}, {n(31), false}} {
+		err := validateTask(task(c.limit))
+		if (err == nil) != c.ok {
+			t.Errorf("limit %v: ok=%v, got error %v", c.limit, c.ok, err)
+		}
 	}
 }

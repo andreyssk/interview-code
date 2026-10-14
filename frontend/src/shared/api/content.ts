@@ -77,6 +77,8 @@ export interface ApiTask {
   complexity: { time: string; space: string } | null
   /** Overrides the generated starter code */
   template: string | null
+  /** How long a run may take, in seconds; null = the server default (`Content.defaultTimeLimitSec`) */
+  timeLimitSec: number | null
 }
 
 export interface ApiArticle {
@@ -117,6 +119,8 @@ export interface Content {
   articles: ApiArticle[]
   questionCategories: QuestionCategory[]
   questions: Question[]
+  /** The run limit of tasks that do not set their own */
+  defaultTimeLimitSec: number
 }
 
 /**
@@ -133,5 +137,6 @@ export const fetchContent = () =>
       articles: c.articles ?? [],
       questionCategories: c.questionCategories ?? [],
       questions: c.questions ?? [],
+      defaultTimeLimitSec: c.defaultTimeLimitSec ?? 5,
     }),
   )

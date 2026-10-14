@@ -61,7 +61,7 @@ export function RunConsole({ status, result, open, onOpenChange }: Props) {
       : status === 'error'
         ? t('task.runnerError')
         : result
-          ? t(`status.${status}`, { ms: result.durationMs })
+          ? t(`status.${status}`, { ms: result.durationMs, sec: result.timeLimitSec })
           : ''
 
   return (

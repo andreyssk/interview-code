@@ -12,12 +12,15 @@ export interface RunResult {
   exitCode: number
   timedOut: boolean
   durationMs: number
+  /** The run limit that applied, in seconds */
+  timeLimitSec?: number
 }
 
 /** Runs the solution; the backend records the attempt under `taskSlug` (and `solveTimeMs` if it passes). */
 /** `dryRun`: run and show the output without recording an attempt (the editor's Run; Submit records). */
-export const runGo = (taskSlug: string, code: string, harness: string, solveTimeMs?: number, dryRun?: boolean) =>
-  request<RunResult>('/api/run', jsonInit('POST', { taskSlug, code, harness, solveTimeMs, dryRun }))
+/** `timeLimitSec` is only honored for admins running without a task (verifying a solution in the task form). */
+export const runGo = (taskSlug: string, code: string, harness: string, solveTimeMs?: number, dryRun?: boolean, timeLimitSec?: number) =>
+  request<RunResult>('/api/run', jsonInit('POST', { taskSlug, code, harness, solveTimeMs, dryRun, timeLimitSec }))
 
 /** Stores code as a "saved" submission without running it. */
 export const saveSolution = (taskSlug: string, code: string, language: string) =>

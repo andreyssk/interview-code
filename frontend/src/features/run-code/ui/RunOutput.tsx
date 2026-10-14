@@ -9,7 +9,7 @@ export function RunOutput({ status, result }: { status: RunStatus; result?: RunR
   if (!result) return <p className="text-[var(--muted)]">{t('task.emptyOutput')}</p>
   return (
     <>
-      <div className={`mb-3 text-lg font-semibold ${statusTone[status]}`}>{t(`status.${status}`, { ms: result.durationMs })}</div>
+      <div className={`mb-3 text-lg font-semibold ${statusTone[status]}`}>{t(`status.${status}`, { ms: result.durationMs, sec: result.timeLimitSec })}</div>
       <pre className="output">{result.output || t('task.noOutput')}</pre>
     </>
   )

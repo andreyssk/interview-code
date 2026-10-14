@@ -20,16 +20,20 @@ import (
 
 const (
 	buildTimeout = 30 * time.Second
-	runTimeout   = 5 * time.Second
-	maxOutput    = 64 << 10
-	maxBody      = 1 << 20
-	maxSlug      = 100
+	// How long the user's program may run when its task sets no limit of its own, and the most any task may allow.
+	defaultRunSeconds = 5
+	maxRunSeconds     = 30
+	maxOutput         = 64 << 10
+	maxBody           = 1 << 20
+	maxSlug           = 100
 )
 
 type runRequest struct {
 	TaskSlug string `json:"taskSlug"` // when set, the attempt is saved under this task
 	Code     string `json:"code"`     // user's solution (package main)
 	Harness  string `json:"harness"`  // optional extra file with main() that exercises the solution
+	// TimeLimitSec is honored only for admins running without a task (verifying a solution in the task form).
+	TimeLimitSec int `json:"timeLimitSec"`
 	// DryRun runs the code and returns the output without recording an attempt (the editor's Run button; Submit records).
 	DryRun bool `json:"dryRun"`
 	// Stopwatch reading at submit time; stored only when the attempt passes.
@@ -45,6 +49,8 @@ type runResponse struct {
 	ExitCode   int    `json:"exitCode"`
 	TimedOut   bool   `json:"timedOut"`
 	DurationMs int64  `json:"durationMs"`
+	// TimeLimitSec is the run limit that applied, so a timeout can say how long the program was allowed.
+	TimeLimitSec int `json:"timeLimitSec"`
 }
 
 // limitedBuffer keeps at most maxOutput bytes and drops the rest.
@@ -123,18 +129,27 @@ func (a *API) run(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// A task without tests cannot be run or submitted (a slug-less run, used to verify solutions in the admin form, is fine).
+	// The task decides how long the program may run, and whether a submission is possible at all.
+	limitSec := defaultRunSeconds
 	if req.TaskSlug != "" {
-		n, found, err := a.store.TaskTestCount(r.Context(), req.TaskSlug)
+		info, found, err := a.store.TaskRunInfo(r.Context(), req.TaskSlug)
 		if err != nil {
-			fail(w, err, "task tests")
+			fail(w, err, "task run info")
 			return
 		}
-		if found && n == 0 {
-			writeJSON(w, http.StatusConflict, map[string]string{"error": "this task has no tests yet, so it cannot be run"})
+		if found && info.TimeLimitSec != nil {
+			limitSec = *info.TimeLimitSec
+		}
+		// A task without tests cannot be submitted: there is nothing to check the code against. A dry run (the editor's
+		// Run) just executes the code and is always fine.
+		if found && info.TestCount == 0 && !req.DryRun {
+			writeJSON(w, http.StatusConflict, map[string]string{"error": "this task has no tests yet, so it cannot be submitted (running the code still works)"})
 			return
 		}
+	} else if req.TimeLimitSec > 0 && currentUser(r).Role == "admin" {
+		limitSec = req.TimeLimitSec // an admin verifying a reference solution against the limit being set in the task form
 	}
+	limitSec = max(1, min(limitSec, maxRunSeconds))
 
 	dir, err := os.MkdirTemp("", "gorun-*")
 	if err != nil {
@@ -158,7 +173,7 @@ func (a *API) run(w http.ResponseWriter, r *http.Request) {
 	}
 
 	start := time.Now()
-	resp := runResponse{Stage: "build"}
+	resp := runResponse{Stage: "build", TimeLimitSec: limitSec}
 	bin := filepath.Join(dir, "prog")
 
 	out, code, timedOut := execute(r.Context(), buildTimeout, dir, "go", "build", "-o", bin, ".")
@@ -166,7 +181,7 @@ func (a *API) run(w http.ResponseWriter, r *http.Request) {
 		resp.Output, resp.ExitCode, resp.TimedOut = out, code, timedOut
 	} else {
 		resp.Stage = "run"
-		resp.Output, resp.ExitCode, resp.TimedOut = execute(r.Context(), runTimeout, dir, bin)
+		resp.Output, resp.ExitCode, resp.TimedOut = execute(r.Context(), time.Duration(limitSec)*time.Second, dir, bin)
 		resp.OK = resp.ExitCode == 0 && !resp.TimedOut
 	}
 	resp.DurationMs = time.Since(start).Milliseconds()

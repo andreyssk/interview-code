@@ -1,11 +1,12 @@
 import type { Signature } from '../model/types'
 
 /** Empty Go function matching the signature, as shown in the editor at the start. */
-export function buildTemplate({ name, params, returns, mutates }: Signature): string {
+export function buildTemplate({ name, params, returns, mutates }: Signature, withMain = false): string {
   if (!name) return 'package main\n\nfunc main() {\n\n}\n' // a task without a function to write
   const args = params.map((p) => `${p.name} ${p.type}`).join(', ')
   const ret = returns && !mutates ? ` ${returns}` : ''
-  return `package main\n\nfunc ${name}(${args})${ret} {\n\n}\n`
+  // With tests the generated harness supplies main(); without them the user needs one to run anything.
+  return `package main\n\nfunc ${name}(${args})${ret} {\n\n}\n${withMain ? '\nfunc main() {\n\n}\n' : ''}`
 }
 
 const JAVA_PRIMITIVES: Record<string, [string, string]> = {

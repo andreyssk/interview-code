@@ -23,6 +23,7 @@ const blank: Initial = {
   tests: [],
   complexity: null,
   template: null,
+  timeLimitSec: null,
 }
 
 /** Blank rows are dropped; an entirely empty signature is saved as {} (a task with no function to write). */
@@ -76,6 +77,7 @@ function Form({
   compact,
 }: { initial: Initial; isNew: boolean } & Pick<ReturnType<typeof useContent>, 'categories' | 'sections'> & Pick<Props, 'onDone' | 'onCancel' | 'compact'>) {
   const queryClient = useQueryClient()
+  const { defaultTimeLimitSec } = useContent()
   const [t, setT] = useState(initial)
   const [testsText, setTestsText] = useState(() => JSON.stringify(initial.tests, null, 2))
   const [verify, setVerify] = useState<RunResult | 'running' | string | null>(null)
@@ -117,7 +119,8 @@ function Form({
     if (!t.solution?.trim() || !parsed.tests) return
     setVerify('running')
     try {
-      setVerify(await runGo('', t.solution, buildHarness(normalizeSignature(payload().signature), parsed.tests)))
+      // verify against the limit being set in this form, so a slow solution is caught here and not by a user
+      setVerify(await runGo('', t.solution, buildHarness(normalizeSignature(payload().signature), parsed.tests), undefined, false, t.timeLimitSec ?? defaultTimeLimitSec))
     } catch (e) {
       setVerify(e instanceof Error ? e.message : 'failed')
     }
@@ -231,7 +234,7 @@ function Form({
         ) : parsed.tests?.length ? (
           <span className="text-sm text-[var(--green)]">{parsed.tests.length} test(s)</span>
         ) : (
-          <span className="text-sm text-[var(--amber)]">No tests: users will see the task but cannot run or submit code until you add some.</span>
+          <span className="text-sm text-[var(--amber)]">No tests: users can run their code but cannot submit it until you add some.</span>
         )}
       </Field>
 
@@ -268,8 +271,20 @@ function Form({
       </fieldset>
 
       <details className="panel p-4">
-        <summary className="cursor-pointer text-sm text-[var(--muted)]">Advanced: custom starter code</summary>
-        <div className="mt-3">
+        <summary className="cursor-pointer text-sm text-[var(--muted)]">Advanced: time limit and custom starter code</summary>
+        <div className="mt-3 flex flex-col gap-4">
+          <Field label="Time limit per run (seconds)" hint={`Empty = the default of ${defaultTimeLimitSec} s. Between 1 and 30. Shown to users on the task page.`}>
+            <input
+              className="search search-sm"
+              type="number"
+              min={1}
+              max={30}
+              step={1}
+              placeholder={`default (${defaultTimeLimitSec})`}
+              value={t.timeLimitSec ?? ''}
+              onChange={(e) => set('timeLimitSec', e.target.value === '' ? null : Math.max(1, Math.min(30, Math.round(Number(e.target.value)))))}
+            />
+          </Field>
           <Field label="Starter code (leave empty to generate it from the signature)">
             <textarea className="search font-mono text-sm" rows={8} value={t.template ?? ''} onChange={(e) => set('template', e.target.value)} spellCheck={false} />
           </Field>

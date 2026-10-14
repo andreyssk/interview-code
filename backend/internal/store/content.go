@@ -17,6 +17,8 @@ type Content struct {
 	Companies  []Company  `json:"companies"`
 	Tasks      []Task     `json:"tasks"`
 	Articles   []Article  `json:"articles"`
+	// DefaultTimeLimitSec is the run limit of tasks that do not set their own.
+	DefaultTimeLimitSec int `json:"defaultTimeLimitSec"`
 	// Interview questions and their categories.
 	QuestionCategories []QuestionCategory `json:"questionCategories"`
 	Questions          []Question         `json:"questions"`
@@ -61,6 +63,8 @@ type Task struct {
 	Tests          json.RawMessage `json:"tests"`
 	Complexity     json.RawMessage `json:"complexity"`
 	Template       *string         `json:"template"`
+	// TimeLimitSec caps how long the program may run; nil means the server default (see Content.DefaultTimeLimitSec).
+	TimeLimitSec *int `json:"timeLimitSec"`
 	// Section is only read on save: where to put categories this task mentions that do not exist yet.
 	Section string `json:"section,omitempty"`
 }
@@ -135,7 +139,7 @@ func (s *Store) Content(ctx context.Context) (Content, error) {
 
 	rows, err = s.pool.Query(ctx, `
 		SELECT t.slug, t.number, t.title, t.difficulty, t.leetcode_url, t.description, t.solution_notes, t.common_mistakes, t.solution,
-		       t.signature, t.tests, t.complexity, t.template,
+		       t.signature, t.tests, t.complexity, t.template, t.time_limit_sec,
 		       COALESCE((SELECT array_agg(category_slug ORDER BY category_slug) FROM task_categories WHERE task_id = t.id), '{}'),
 		       COALESCE((SELECT array_agg(company_slug ORDER BY company_slug) FROM task_companies WHERE task_id = t.id), '{}')
 		FROM tasks t ORDER BY t.number`)
@@ -145,7 +149,7 @@ func (s *Store) Content(ctx context.Context) (Content, error) {
 	for rows.Next() {
 		var x Task
 		if err := rows.Scan(&x.Slug, &x.Number, &x.Title, &x.Difficulty, &x.LeetcodeURL, &x.Description, &x.SolutionNotes, &x.CommonMistakes, &x.Solution,
-			&x.Signature, &x.Tests, &x.Complexity, &x.Template, &x.Categories, &x.Companies); err != nil {
+			&x.Signature, &x.Tests, &x.Complexity, &x.Template, &x.TimeLimitSec, &x.Categories, &x.Companies); err != nil {
 			rows.Close()
 			return c, err
 		}
@@ -216,16 +220,16 @@ func (s *Store) UpsertTask(ctx context.Context, t Task) error {
 		}
 		var id int64
 		err := tx.QueryRow(ctx, `
-			INSERT INTO tasks (slug, number, title, difficulty, description, solution_notes, common_mistakes, solution, signature, tests, complexity, leetcode_url, template)
-			VALUES ($1, COALESCE($2::int, nextval('tasks_number_seq')), $3, $4, $5, $6, $13, $7, $8, $9, $10, $11, $12)
+			INSERT INTO tasks (slug, number, title, difficulty, description, solution_notes, common_mistakes, solution, signature, tests, complexity, leetcode_url, template, time_limit_sec)
+			VALUES ($1, COALESCE($2::int, nextval('tasks_number_seq')), $3, $4, $5, $6, $13, $7, $8, $9, $10, $11, $12, $14)
 			ON CONFLICT (slug) DO UPDATE SET
 			  number = COALESCE($2::int, tasks.number), title = EXCLUDED.title, difficulty = EXCLUDED.difficulty,
 			  description = EXCLUDED.description, solution_notes = EXCLUDED.solution_notes, common_mistakes = EXCLUDED.common_mistakes, solution = EXCLUDED.solution,
 			  signature = EXCLUDED.signature, tests = EXCLUDED.tests, complexity = EXCLUDED.complexity,
-			  leetcode_url = EXCLUDED.leetcode_url, template = EXCLUDED.template, updated_at = now()
+			  leetcode_url = EXCLUDED.leetcode_url, template = EXCLUDED.template, time_limit_sec = EXCLUDED.time_limit_sec, updated_at = now()
 			RETURNING id`,
 			t.Slug, number, t.Title, t.Difficulty, t.Description, nilIfNull(t.SolutionNotes), t.Solution, t.Signature, t.Tests,
-			nilIfNull(t.Complexity), t.LeetcodeURL, t.Template, nilIfNull(t.CommonMistakes)).Scan(&id)
+			nilIfNull(t.Complexity), t.LeetcodeURL, t.Template, nilIfNull(t.CommonMistakes), t.TimeLimitSec).Scan(&id)
 		if err != nil {
 			return err
 		}
@@ -378,11 +382,17 @@ func (s *Store) TaskExists(ctx context.Context, slug string) (bool, error) {
 	return ok, err
 }
 
-// TaskTestCount returns how many tests a task has; ok is false when no such task exists.
-func (s *Store) TaskTestCount(ctx context.Context, slug string) (n int, ok bool, err error) {
-	err = s.pool.QueryRow(ctx, `SELECT jsonb_array_length(tests) FROM tasks WHERE slug = $1`, slug).Scan(&n)
+// TaskRunInfo is what a run needs to know about a task.
+type TaskRunInfo struct {
+	TestCount    int
+	TimeLimitSec *int // nil = default
+}
+
+// TaskRunInfo looks a task up by slug; found is false when there is no such task.
+func (s *Store) TaskRunInfo(ctx context.Context, slug string) (info TaskRunInfo, found bool, err error) {
+	err = s.pool.QueryRow(ctx, `SELECT jsonb_array_length(tests), time_limit_sec FROM tasks WHERE slug = $1`, slug).Scan(&info.TestCount, &info.TimeLimitSec)
 	if errors.Is(err, pgx.ErrNoRows) {
-		return 0, false, nil
+		return info, false, nil
 	}
-	return n, err == nil, err
+	return info, err == nil, err
 }

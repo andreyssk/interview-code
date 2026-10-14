@@ -75,8 +75,8 @@
     "solution": "Solution",
     "language": "Language",
     "javaNotRunnable": "Running Java isn't supported yet",
-    "noTests": "This task has no tests yet, so there is nothing to run your code against.",
-    "noTestsRun": "No tests yet: running and submitting are disabled",
+    "noTests": "This task has no tests yet, so there is nothing to submit your code against. You can still run it.",
+    "noTestsRun": "No tests yet: you can run the code, but not submit it",
     "save": "Save",
     "saved": "Saved ✓",
     "saveFailed": "Not saved: retry",
@@ -88,12 +88,14 @@
     "console": "Console",
     "consoleEmpty": "Run the code to see its output here.",
     "consoleClose": "Close the console",
-    "consoleResize": "Resize the console"
+    "consoleResize": "Resize the console",
+    "timeLimit": "Time limit: {{sec}} s",
+    "timeLimitHint": "Each run of your code is stopped after this long"
   },
   "status": {
     "running": "Running…",
     "passed": "Passed · {{ms}} ms",
-    "timeout": "Time limit exceeded",
+    "timeout": "Time limit exceeded ({{sec}} s)",
     "compile": "Compile error",
     "failed": "Failed",
     "error": "Error",

@@ -34,7 +34,9 @@ export function TaskWorkspace({ task, editorActions, adminActions }: { task: Tas
   const code = language === 'java' ? javaCode : goCode
   const setCode = language === 'java' ? setJavaCode : setGoCode
   const hasTests = task.tests.length > 0 // without tests there is nothing to check a solution against
-  const canRun = language === 'go' && hasTests // Java code cannot be run yet
+  const isGo = language === 'go' // there is no Java runner yet
+  const canRun = isGo // Run only executes the code, so it needs no tests
+  const canSubmit = isGo && hasTests
   const requested = useSearchParams()[0].get('tab') // lets a tab be linked to, e.g. ?tab=attempts
   const [tab, setTab] = useState<(typeof TABS)[number]>(TABS.find((x) => x === requested) ?? 'description')
   const [resetting, setResetting] = useState(false)
@@ -47,7 +49,7 @@ export function TaskWorkspace({ task, editorActions, adminActions }: { task: Tas
   const saver = useSaveSolution(task.slug)
   const [justSaved, setJustSaved] = useState(false)
 
-  // For code that cannot be run (no tests yet, or Java): keep it as a "saved" submission instead.
+  // For code that cannot be submitted (no tests yet, or Java): keep it as a "saved" submission instead.
   const save = () => {
     if (!code.trim() || saver.isPending) return
     saver.mutate(
@@ -68,7 +70,7 @@ export function TaskWorkspace({ task, editorActions, adminActions }: { task: Tas
   }
 
   const submit = () => {
-    if (!canRun || busy) return
+    if (!canSubmit || busy) return
     setTab('output')
     // Only a running timer is attached; on a pass the backend stores it and the timer freezes at that reading.
     const solveTimeMs = timer.running ? timer.elapsed() : undefined
@@ -113,6 +115,9 @@ export function TaskWorkspace({ task, editorActions, adminActions }: { task: Tas
               <div className="mb-5 flex flex-wrap gap-2">
                 <DifficultyTag difficulty={task.difficulty} />
                 {isSolved(task.slug) && <SolvedTag />}
+                <span className="tag tag-cat" title={t('task.timeLimitHint')}>
+                  {t('task.timeLimit', { sec: task.timeLimitSec })}
+                </span>
                 {task.categories.map((c) => (
                   <CategoryTag key={c} slug={c} />
                 ))}
@@ -165,19 +170,19 @@ export function TaskWorkspace({ task, editorActions, adminActions }: { task: Tas
           <div className="ml-auto flex flex-wrap items-center justify-end gap-x-3 gap-y-2">
             {editorActions}
             <SolveTimer timer={timer} />
-            {!canRun && (
+            {!canSubmit && (
               <button className="btn-ghost" onClick={save} disabled={saver.isPending || !code.trim()} title={t('task.saveHint')}>
                 {justSaved ? t('task.saved') : saver.isError ? t('task.saveFailed') : t('task.save')}
               </button>
             )}
-            <span className="tip" data-tip={!hasTests ? t('task.noTestsRun') : canRun ? t('task.runHint') : t('task.javaNotRunnable')}>
+            <span className="tip" data-tip={canRun ? t('task.runHint') : t('task.javaNotRunnable')}>
               <button className="btn-ghost" onClick={runOnly} disabled={busy || !canRun}>
                 {dry.isPending && <span className="spinner" aria-hidden="true" />}
                 {dry.isPending ? t('task.running') : t('task.run')}
               </button>
             </span>
-            <span className="tip" data-tip={!hasTests ? t('task.noTestsRun') : canRun ? t('task.submitHint') : t('task.javaNotRunnable')}>
-              <button className="btn-run" onClick={submit} disabled={busy || !canRun}>
+            <span className="tip" data-tip={!isGo ? t('task.javaNotRunnable') : !hasTests ? t('task.noTestsRun') : t('task.submitHint')}>
+              <button className="btn-run" onClick={submit} disabled={busy || !canSubmit}>
                 {isPending && <span className="spinner" aria-hidden="true" />}
                 {isPending ? t('task.submitting') : t('task.submit')}
               </button>
@@ -189,7 +194,7 @@ export function TaskWorkspace({ task, editorActions, adminActions }: { task: Tas
             value={code}
             onChange={setCode}
             onRun={canRun ? runOnly : save}
-            onSubmit={canRun ? submit : undefined}
+            onSubmit={canSubmit ? submit : undefined}
             label={LANGUAGES.find((l) => l.id === language)?.label}
             language={language}
           />

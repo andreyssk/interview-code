@@ -4,7 +4,9 @@ import type { ApiTask, Difficulty, Param, Signature, TestCase } from '@/shared/a
 export type { Difficulty, Param, Signature, TestCase }
 
 /** A task ready for the UI: the stored definition plus the generated starter code and Go test harness. */
-export interface TaskDef extends Omit<ApiTask, 'leetcodeUrl' | 'solutionNotes' | 'commonMistakes' | 'solution' | 'complexity' | 'template' | 'signature'> {
+export interface TaskDef extends Omit<ApiTask, 'leetcodeUrl' | 'solutionNotes' | 'commonMistakes' | 'solution' | 'complexity' | 'template' | 'signature' | 'timeLimitSec'> {
+  /** Seconds a run may take: the task's own limit, or the server default */
+  timeLimitSec: number
   /** Name is empty for tasks without a function to write */
   signature: Signature
   leetcodeUrl?: string

@@ -7,7 +7,7 @@ import type { TaskDef } from './types'
 
 /** All tasks, ordered by number, with the starter code and test harness generated from signature + tests. */
 export function useTasks(): TaskDef[] {
-  const { tasks } = useContent()
+  const { tasks, defaultTimeLimitSec } = useContent()
   return useMemo(
     () =>
       tasks.map((t) => {
@@ -15,18 +15,19 @@ export function useTasks(): TaskDef[] {
         return {
           ...t,
           signature,
+          timeLimitSec: t.timeLimitSec ?? defaultTimeLimitSec,
           leetcodeUrl: t.leetcodeUrl ?? undefined,
           solutionNotes: t.solutionNotes ?? [],
           commonMistakes: t.commonMistakes ?? [],
           solution: t.solution ?? undefined,
           complexity: t.complexity ?? undefined,
-          template: t.template ?? buildTemplate(signature),
+          template: t.template ?? buildTemplate(signature, t.tests.length === 0),
           javaTemplate: buildJavaTemplate(signature),
           // Nothing to run without tests (or without a function to call).
           harness: signature.name && t.tests.length > 0 ? buildHarness(signature, t.tests) : '',
         }
       }),
-    [tasks],
+    [tasks, defaultTimeLimitSec],
   )
 }
 

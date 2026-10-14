@@ -13,5 +13,6 @@ func (a *API) content(w http.ResponseWriter, r *http.Request) {
 		writeJSON(w, http.StatusInternalServerError, map[string]string{"error": "internal error"})
 		return
 	}
+	c.DefaultTimeLimitSec = defaultRunSeconds
 	writeJSON(w, http.StatusOK, c)
 }
