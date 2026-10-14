@@ -123,6 +123,11 @@ func validateTask(t *store.Task) error {
 	if t.Template != nil && strings.TrimSpace(*t.Template) == "" {
 		t.Template = nil
 	}
+	if t.Section != "" {
+		if err := checkSlug("section", t.Section); err != nil {
+			return err
+		}
+	}
 	if t.Categories == nil {
 		t.Categories = []string{}
 	}
@@ -244,8 +249,23 @@ func validateArticle(a *store.Article) error {
 	if a.SourceURL != nil && !validURL(*a.SourceURL) {
 		return fmt.Errorf("sourceUrl must be an http(s) link")
 	}
+	if a.Section != "" {
+		if err := checkSlug("section", a.Section); err != nil {
+			return err
+		}
+	}
 	if a.Category != nil && *a.Category == "" {
 		a.Category = nil
+	}
+	if a.Category != nil {
+		if err := checkSlug("category", *a.Category); err != nil {
+			return err
+		}
+	}
+	for _, c := range a.Categories {
+		if err := checkSlug("category", c); err != nil {
+			return err
+		}
 	}
 	if a.Categories == nil {
 		a.Categories = []string{}

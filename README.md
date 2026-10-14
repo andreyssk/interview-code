@@ -53,7 +53,7 @@ written in. Managed in the **admin panel** (`/admin`, admins only):
   existing slug is replaced). The form can verify a reference solution against the tests by running it in the sandbox.
   Task numbers (`#N`) come from a database sequence: unique, starting at 1, never reused. The `add-task` and `add-article` skills
   produce these upload files (versioned copies go in `content/tasks/` and `content/articles/`).
-- **Sections & categories**: Algorithms / Golang / SQL, their categories and the company tags.
+- **Sections & categories** and **Companies**: Algorithms / Golang / SQL, their categories, and the company tags. A task or article uploaded with a category, section (optional top-level `"section"` field) or company that does not exist creates it automatically, with a name derived from the slug and a stable pseudo-random glyph/color; new categories go to `other` unless `section` is given.
 - **Users & access**: the sign-up switch and password resets.
 
 The starter code and the Go test harness of a task are generated in the browser from its `signature` + `tests`

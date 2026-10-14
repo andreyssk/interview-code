@@ -29,7 +29,7 @@ copy of what was added). The user imports it with **Admin → Articles → Uploa
 ## 1. Collect what the article needs
 
 From the user's message (ask for anything missing, never guess it):
-- **Category.** One slug of an existing category (list them in step 2); it decides the section (Algorithms, Golang, SQL) the article is listed under and where its "Practice" button leads. "Big category: Golang, sub category: Strings" means the slug `strings`. If the category does not exist, ask before adding it: categories (and their section) are created in **Admin → Sections & categories**.
+- **Category.** One slug of an existing category (list them in step 2); it decides the section (Algorithms, Golang, SQL) the article is listed under and where its "Practice" button leads. "Big category: Golang, sub category: Strings" means the slug `strings`. If the category does not exist it is created automatically on import (name from the slug) in the section given by an optional top-level `"section"` in the JSON, or in `other`; ask the user which section they want for a new category.
 - **Title** (given by the user, keep it exactly) and the **text**.
 - **Source**, e.g. `algocode.io`. Ask if the user did not give one; leave it out only if they say there is none. A bare domain gets the url `https://<domain>`; mention that you did this.
 - **Links to tasks** (optional): extra categories (`categories`) or individual tasks (`tasks`, task slugs from `/api/content`) the article should be suggested on. The main category is always included automatically. Do not invent links; only add what the user asked for.

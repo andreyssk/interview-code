@@ -57,6 +57,8 @@ type Task struct {
 	Tests         json.RawMessage `json:"tests"`
 	Complexity    json.RawMessage `json:"complexity"`
 	Template      *string         `json:"template"`
+	// Section is only read on save: where to put categories this task mentions that do not exist yet.
+	Section string `json:"section,omitempty"`
 }
 
 type Article struct {
@@ -69,6 +71,8 @@ type Article struct {
 	Category   *string         `json:"category"`
 	Categories []string        `json:"categories"`
 	Tasks      []string        `json:"tasks"`
+	// Section is only read on save: where to put categories this article mentions that do not exist yet.
+	Section string `json:"section,omitempty"`
 }
 
 func (s *Store) Content(ctx context.Context) (Content, error) {
@@ -212,6 +216,9 @@ func (s *Store) UpsertTask(ctx context.Context, t Task) error {
 		if err != nil {
 			return err
 		}
+		if err := ensureTaxonomy(ctx, tx, t.Section, t.Categories, t.Companies); err != nil {
+			return err
+		}
 		if _, err := tx.Exec(ctx, `DELETE FROM task_categories WHERE task_id = $1`, id); err != nil {
 			return err
 		}
@@ -233,6 +240,13 @@ func (s *Store) UpsertTask(ctx context.Context, t Task) error {
 // UpsertArticle creates or replaces an article by slug.
 func (s *Store) UpsertArticle(ctx context.Context, a Article) error {
 	return pgx.BeginFunc(ctx, s.pool, func(tx pgx.Tx) error {
+		cats := a.Categories
+		if a.Category != nil {
+			cats = append([]string{*a.Category}, cats...)
+		}
+		if err := ensureTaxonomy(ctx, tx, a.Section, cats, nil); err != nil {
+			return err
+		}
 		var id int64
 		err := tx.QueryRow(ctx, `
 			INSERT INTO articles (slug, title, summary, content, source_name, source_url, category_slug)

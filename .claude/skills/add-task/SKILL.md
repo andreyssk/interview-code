@@ -58,8 +58,8 @@ cd backend && curl -s -c /tmp/jar -X POST 127.0.0.1:8080/api/auth/login -H 'Cont
 curl -s -b /tmp/jar 127.0.0.1:8080/api/content | python3 -c "import json,sys;c=json.load(sys.stdin);print([x['slug'] for x in c['categories']],[x['slug'] for x in c['companies']])"
 ```
 
-- **Companies** (`# вк`, `# яндекс`, …): map each tag to an existing slug (вк → `vk`, яндекс → `yandex`, желтый банк → `yellow-bank`, озон → `ozon`, авито → `avito`). Ignore `# решено`. A company that does not exist yet is added in **Admin → Sections & categories** (name + tag color; ask the user which color).
-- **Categories**: never choose or infer one yourself. Use only what the input says (the user's message, or a category/course name visible in the screenshots or pasted text). If the input gives none, ask before creating the file. A category that does not exist is added in the admin panel (ask the user first; it also needs a section).
+- **Companies** (`# вк`, `# яндекс`, …): map each tag to an existing slug (вк → `vk`, яндекс → `yandex`, желтый банк → `yellow-bank`, озон → `ozon`, авито → `avito`). Ignore `# решено`. A company, category or section that does not exist yet is **created automatically on import** (name derived from the slug, e.g. `hash-map` → "Hash Map", random glyph/color); the user can polish it later in the admin panel.
+- **Categories**: never choose or infer one yourself. Use only what the input says (the user's message, or a category/course name visible in the screenshots or pasted text). If the input gives none, ask before creating the file. A new category goes into the section named by an optional top-level `"section": "<slug>"` in the JSON (created if missing), or into `other` when there is none; ask the user which section they want for a new category.
 
 ## 4. Build the JSON
 
