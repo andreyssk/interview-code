@@ -123,9 +123,9 @@ function Crud<T extends { slug: string }>({
   )
 }
 
-/** Sections (Algorithms, Golang, …), their categories, and the company tags. */
+/** Sections (Algorithms, Golang, …) and their categories. */
 export function TaxonomyAdmin() {
-  const { sections, categories, companies } = useContent()
+  const { sections, categories } = useContent()
   const sectionName = (slug: string) => sections.find((s) => s.slug === slug)?.name ?? slug
 
   return (
@@ -192,30 +192,37 @@ export function TaxonomyAdmin() {
           </>
         )}
       />
-      <Crud<Company>
-        title="Companies"
-        items={companies}
-        blank={{ slug: '', name: '', tone: 'neon-violet' }}
-        describe={(c) => `${c.name} (${c.slug})`}
-        save={saveCompany}
-        remove={deleteCompany}
-        renderForm={(d, set) => (
-          <div className="grid gap-3 sm:grid-cols-2">
-            <Field label="Name">
-              <input className="search" value={d.name} onChange={(e) => set({ name: e.target.value })} />
-            </Field>
-            <Field label="Tag color">
-              <select className="search" value={d.tone} onChange={(e) => set({ tone: e.target.value })}>
-                {TONES.map((t) => (
-                  <option key={t} value={t}>
-                    {t.replace('neon-', '')}
-                  </option>
-                ))}
-              </select>
-            </Field>
-          </div>
-        )}
-      />
     </div>
+  )
+}
+
+/** Companies: the tags shown on tasks (name and color). */
+export function CompaniesAdmin() {
+  const { companies } = useContent()
+  return (
+    <Crud<Company>
+      title="Companies"
+      items={companies}
+      blank={{ slug: '', name: '', tone: 'neon-violet' }}
+      describe={(c) => `${c.name} (${c.slug})`}
+      save={saveCompany}
+      remove={deleteCompany}
+      renderForm={(d, set) => (
+        <div className="grid gap-3 sm:grid-cols-2">
+          <Field label="Name">
+            <input className="search" value={d.name} onChange={(e) => set({ name: e.target.value })} />
+          </Field>
+          <Field label="Tag color">
+            <select className="search" value={d.tone} onChange={(e) => set({ tone: e.target.value })}>
+              {TONES.map((t) => (
+                <option key={t} value={t}>
+                  {t.replace('neon-', '')}
+                </option>
+              ))}
+            </select>
+          </Field>
+        </div>
+      )}
+    />
   )
 }

@@ -4,13 +4,14 @@ import { ArticleForm } from './ArticleForm'
 import { ArticlesAdmin } from './ArticlesAdmin'
 import { TaskForm } from './TaskForm'
 import { TasksAdmin } from './TasksAdmin'
-import { TaxonomyAdmin } from './TaxonomyAdmin'
+import { CompaniesAdmin, TaxonomyAdmin } from './TaxonomyAdmin'
 import { UsersAdmin } from './UsersAdmin'
 
 const TABS = [
   ['tasks', 'Tasks'],
   ['articles', 'Articles'],
   ['taxonomy', 'Sections & categories'],
+  ['companies', 'Companies'],
   ['users', 'Users & access'],
 ] as const
 
@@ -38,6 +39,7 @@ export function AdminPage() {
         <Route path="articles/new" element={<ArticleForm />} />
         <Route path="articles/edit/:slug" element={<ArticleForm />} />
         <Route path="taxonomy" element={<TaxonomyAdmin />} />
+        <Route path="companies" element={<CompaniesAdmin />} />
         <Route path="users" element={<UsersAdmin />} />
         <Route path="*" element={<Navigate to="tasks" replace />} />
       </Routes>
