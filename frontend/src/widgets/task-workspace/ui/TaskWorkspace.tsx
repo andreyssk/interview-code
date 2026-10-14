@@ -6,7 +6,7 @@ import { CompanyTag, DifficultyTag, ReferenceSolution, SolvedTag, TestCases, use
 import { AddToMistakes } from '@/features/add-to-mistakes'
 import { AttemptHistory } from '@/features/attempt-history'
 import { SolveTimer, useSolveTimer } from '@/features/solve-timer'
-import { RunOutput, statusTone, useRunCode } from '@/features/run-code'
+import { RunConsole, RunOutput, statusTone, useRunCode, useSaveSolution } from '@/features/run-code'
 import { useAuth } from '@/shared/auth/AuthContext'
 import type { EditorLanguage } from '@/shared/lib/highlight'
 import { usePersistentState } from '@/shared/lib/storage'
@@ -20,7 +20,7 @@ const LANGUAGES: { id: EditorLanguage; label: string }[] = [
 const TABS = ['description', 'tests', 'solution', 'attempts', 'output'] as const
 
 /** LeetCode-style split view: statement and output on the left, editor on the right. */
-export function TaskWorkspace({ task, editorActions }: { task: TaskDef; editorActions?: ReactNode }) {
+export function TaskWorkspace({ task, editorActions, adminActions }: { task: TaskDef; editorActions?: ReactNode; adminActions?: ReactNode }) {
   const { t } = useTranslation()
   const { title, description } = task
   const { isSolved, counts } = useTaskStats()
@@ -38,15 +38,41 @@ export function TaskWorkspace({ task, editorActions }: { task: TaskDef; editorAc
   const requested = useSearchParams()[0].get('tab') // lets a tab be linked to, e.g. ?tab=attempts
   const [tab, setTab] = useState<(typeof TABS)[number]>(TABS.find((x) => x === requested) ?? 'description')
   const [resetting, setResetting] = useState(false)
-  const { run, status, result, isPending } = useRunCode(task.slug)
+  // Submit records an attempt (and the timer, stats, Output tab); Run only runs the code and prints into the console.
+  const { run: submitRun, status, result, isPending } = useRunCode(task.slug)
+  const dry = useRunCode(task.slug, { dryRun: true })
+  const [consoleOpen, setConsoleOpen] = useState(false)
+  const busy = isPending || dry.isPending
   const timer = useSolveTimer(task.slug)
+  const saver = useSaveSolution(task.slug)
+  const [justSaved, setJustSaved] = useState(false)
+
+  // For code that cannot be run (no tests yet, or Java): keep it as a "saved" submission instead.
+  const save = () => {
+    if (!code.trim() || saver.isPending) return
+    saver.mutate(
+      { code, language },
+      {
+        onSuccess: () => {
+          setJustSaved(true)
+          setTimeout(() => setJustSaved(false), 2000)
+        },
+      },
+    )
+  }
+
+  const runOnly = () => {
+    if (!canRun || busy) return
+    // The console opens by itself when the output is in.
+    dry.run({ code, harness: task.harness }, { onSettled: () => setConsoleOpen(true) })
+  }
 
   const submit = () => {
-    if (!canRun) return
+    if (!canRun || busy) return
     setTab('output')
     // Only a running timer is attached; on a pass the backend stores it and the timer freezes at that reading.
     const solveTimeMs = timer.running ? timer.elapsed() : undefined
-    run(
+    submitRun(
       { code, harness: task.harness, solveTimeMs },
       { onSuccess: (r) => r.status === 'passed' && solveTimeMs !== undefined && timer.finish(solveTimeMs) },
     )
@@ -71,11 +97,14 @@ export function TaskWorkspace({ task, editorActions }: { task: TaskDef; editorAc
                 <Link to="/problems" className="text-[var(--muted)] hover:text-[var(--cyan)]">
                   {t('task.back')}
                 </Link>
-                {task.leetcodeUrl && (
-                  <a href={task.leetcodeUrl} target="_blank" rel="noopener noreferrer" className="text-[var(--amber)] hover:underline">
-                    {t('task.leetcode')}
-                  </a>
-                )}
+                <span className="flex items-center gap-3">
+                  {adminActions}
+                  {task.leetcodeUrl && (
+                    <a href={task.leetcodeUrl} target="_blank" rel="noopener noreferrer" className="text-[var(--amber)] hover:underline">
+                      {t('task.leetcode')}
+                    </a>
+                  )}
+                </span>
               </div>
               <h1 className="neon-title mb-3 text-2xl font-bold">
                 <span className="mr-2 text-[var(--muted)]">#{task.number}</span>
@@ -108,8 +137,10 @@ export function TaskWorkspace({ task, editorActions }: { task: TaskDef; editorAc
             <AttemptHistory
               taskSlug={task.slug}
               renderActions={(attempt) => <AddToMistakes attempt={attempt} />}
-              onRestore={(old) => {
-                setCode(old)
+              onRestore={(old, lang) => {
+                setLanguage(lang) // the code goes back into the editor it was written in
+                if (lang === 'java') setJavaCode(old)
+                else setGoCode(old)
                 setTab('description')
               }}
             />
@@ -120,7 +151,7 @@ export function TaskWorkspace({ task, editorActions }: { task: TaskDef; editorAc
       </section>
 
       <section className="panel flex min-h-0 flex-col">
-        <div className="flex items-center gap-3 border-b border-[var(--border)] p-3">
+        <div className="flex flex-wrap items-center gap-x-3 gap-y-2 border-b border-[var(--border)] p-3">
           <span className="flex gap-1" role="group" aria-label={t('task.language')}>
             {LANGUAGES.map((l) => (
               <button key={l.id} className={`chip ${language === l.id ? 'chip-active' : ''}`} aria-pressed={language === l.id} onClick={() => setLanguage(l.id)}>
@@ -131,20 +162,39 @@ export function TaskWorkspace({ task, editorActions }: { task: TaskDef; editorAc
           <button className="btn-ghost" onClick={() => setResetting(true)}>
             {t('task.reset')}
           </button>
-          <div className="ml-auto flex items-center gap-3">
+          <div className="ml-auto flex flex-wrap items-center justify-end gap-x-3 gap-y-2">
             {editorActions}
             <SolveTimer timer={timer} />
-            <span className="tip" data-tip={!hasTests ? t('task.noTestsRun') : canRun ? t('task.shortcut') : t('task.javaNotRunnable')}>
-              <button className="btn-run" onClick={submit} disabled={isPending || !canRun}>
+            {!canRun && (
+              <button className="btn-ghost" onClick={save} disabled={saver.isPending || !code.trim()} title={t('task.saveHint')}>
+                {justSaved ? t('task.saved') : saver.isError ? t('task.saveFailed') : t('task.save')}
+              </button>
+            )}
+            <span className="tip" data-tip={!hasTests ? t('task.noTestsRun') : canRun ? t('task.runHint') : t('task.javaNotRunnable')}>
+              <button className="btn-ghost" onClick={runOnly} disabled={busy || !canRun}>
+                {dry.isPending && <span className="spinner" aria-hidden="true" />}
+                {dry.isPending ? t('task.running') : t('task.run')}
+              </button>
+            </span>
+            <span className="tip" data-tip={!hasTests ? t('task.noTestsRun') : canRun ? t('task.submitHint') : t('task.javaNotRunnable')}>
+              <button className="btn-run" onClick={submit} disabled={busy || !canRun}>
                 {isPending && <span className="spinner" aria-hidden="true" />}
-                {isPending ? t('task.running') : t('task.run')}
+                {isPending ? t('task.submitting') : t('task.submit')}
               </button>
             </span>
           </div>
         </div>
         <div className="min-h-0 flex-1">
-          <CodeEditor value={code} onChange={setCode} onRun={submit} label={LANGUAGES.find((l) => l.id === language)?.label} language={language} />
+          <CodeEditor
+            value={code}
+            onChange={setCode}
+            onRun={canRun ? runOnly : save}
+            onSubmit={canRun ? submit : undefined}
+            label={LANGUAGES.find((l) => l.id === language)?.label}
+            language={language}
+          />
         </div>
+        <RunConsole status={dry.status} result={dry.result} open={consoleOpen} onOpenChange={setConsoleOpen} />
       </section>
       <ConfirmDialog
         open={resetting}

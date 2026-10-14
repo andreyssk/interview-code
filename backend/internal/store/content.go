@@ -17,6 +17,9 @@ type Content struct {
 	Companies  []Company  `json:"companies"`
 	Tasks      []Task     `json:"tasks"`
 	Articles   []Article  `json:"articles"`
+	// Interview questions and their categories.
+	QuestionCategories []QuestionCategory `json:"questionCategories"`
+	Questions          []Question         `json:"questions"`
 }
 
 type Section struct {
@@ -77,7 +80,7 @@ type Article struct {
 }
 
 func (s *Store) Content(ctx context.Context) (Content, error) {
-	c := Content{Sections: []Section{}, Categories: []Category{}, Companies: []Company{}, Tasks: []Task{}, Articles: []Article{}}
+	c := Content{Sections: []Section{}, Categories: []Category{}, Companies: []Company{}, Tasks: []Task{}, Articles: []Article{}, QuestionCategories: []QuestionCategory{}, Questions: []Question{}}
 
 	rows, err := s.pool.Query(ctx, `SELECT slug, name, position FROM sections ORDER BY position, slug`)
 	if err != nil {
@@ -169,7 +172,16 @@ func (s *Store) Content(ctx context.Context) (Content, error) {
 		}
 		c.Articles = append(c.Articles, x)
 	}
-	return c, rows.Err()
+	if err := rows.Err(); err != nil {
+		return c, err
+	}
+	rows.Close()
+
+	if c.QuestionCategories, err = s.QuestionCategories(ctx); err != nil {
+		return c, err
+	}
+	c.Questions, err = s.Questions(ctx)
+	return c, err
 }
 
 func (s *Store) UpsertSection(ctx context.Context, x Section) error {
@@ -298,7 +310,7 @@ func refError(err error) error {
 	case "23503": // foreign key violation
 		c := pgErr.ConstraintName
 		switch {
-		case strings.Contains(c, "category") || strings.Contains(c, "section"):
+		case strings.Contains(c, "question_categories") || strings.Contains(c, "category") || strings.Contains(c, "section"):
 			if strings.HasPrefix(pgErr.Message, "update or delete") {
 				return ErrInUse
 			}

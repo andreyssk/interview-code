@@ -1,15 +1,12 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useMemo, useState } from 'react'
-import { Link, useNavigate, useParams } from 'react-router-dom'
 import { buildHarness } from '@/entities/task'
 import { saveTask } from '@/shared/api/admin'
 import { normalizeSignature, type ApiTask, type Difficulty, type Signature, type TestCase } from '@/shared/api/content'
 import { queryKeys } from '@/shared/api/queryKeys'
 import { runGo, type RunResult } from '@/shared/api/run'
 import { useContent } from '@/shared/content/ContentContext'
-import type { Block } from '@/shared/ui'
-import { BlockEditor } from './BlockEditor'
-import { ChipPicker, Field } from './Field'
+import { BlockEditor, ChipPicker, CompanyPicker, Field, type Block } from '@/shared/ui'
 
 const blank: Initial = {
   slug: '',
@@ -37,20 +34,47 @@ function cleanSignature(sig: Signature): Partial<Signature> {
 
 const TESTS_HINT = '[{ "name": "example 1", "input": { "param": value }, "expected": value }, …]'
 
-/** Create (/admin/tasks/new) or edit (/admin/tasks/edit/:slug) a task. */
-export function TaskForm() {
-  const { slug: editing } = useParams()
-  const { tasks, categories, companies, sections } = useContent()
-  const existing = tasks.find((t) => t.slug === editing)
-  if (editing && !existing) return <p className="text-[var(--pink)]">No such task.</p>
-  return <Form key={editing ?? 'new'} initial={existing ? { ...existing, signature: normalizeSignature(existing.signature) } : blank} isNew={!existing} categories={categories} companies={companies} sections={sections} />
+interface Props {
+  /** The task to edit; omit to create a new one */
+  slug?: string
+  /** Called after a successful save */
+  onDone: () => void
+  onCancel: () => void
+  /** Inside a dialog that already has a title: no heading and no top Cancel button */
+  compact?: boolean
+}
+
+/** Create or edit a task. Used as an admin page and as a dialog on the task page. */
+export function TaskForm({ slug, onDone, onCancel, compact }: Props) {
+  const { tasks, categories, sections } = useContent()
+  const existing = tasks.find((t) => t.slug === slug)
+  if (slug && !existing) return <p className="text-[var(--pink)]">No such task.</p>
+  return (
+    <Form
+      key={slug ?? 'new'}
+      initial={existing ? { ...existing, signature: normalizeSignature(existing.signature) } : blank}
+      isNew={!existing}
+      categories={categories}
+      sections={sections}
+      onDone={onDone}
+      onCancel={onCancel}
+      compact={compact}
+    />
+  )
 }
 
 /** What the form edits: like a stored task, but the signature is always complete. */
 type Initial = Omit<ApiTask, 'number' | 'signature'> & { signature: Signature }
 
-function Form({ initial, isNew, categories, companies, sections }: { initial: Initial; isNew: boolean } & Pick<ReturnType<typeof useContent>, 'categories' | 'companies' | 'sections'>) {
-  const navigate = useNavigate()
+function Form({
+  initial,
+  isNew,
+  categories,
+  sections,
+  onDone,
+  onCancel,
+  compact,
+}: { initial: Initial; isNew: boolean } & Pick<ReturnType<typeof useContent>, 'categories' | 'sections'> & Pick<Props, 'onDone' | 'onCancel' | 'compact'>) {
   const queryClient = useQueryClient()
   const [t, setT] = useState(initial)
   const [testsText, setTestsText] = useState(() => JSON.stringify(initial.tests, null, 2))
@@ -84,7 +108,7 @@ function Form({ initial, isNew, categories, companies, sections }: { initial: In
     mutationFn: () => saveTask(payload()),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.content })
-      navigate('/admin/tasks')
+      onDone()
     },
   })
 
@@ -110,12 +134,14 @@ function Form({ initial, isNew, categories, companies, sections }: { initial: In
         if (canSave) save.mutate()
       }}
     >
-      <div className="flex items-center justify-between gap-3">
-        <h2 className="text-xl font-semibold">{isNew ? 'New task' : `Edit ${initial.slug}`}</h2>
-        <Link to="/admin/tasks" className="btn-ghost">
-          Cancel
-        </Link>
-      </div>
+      {!compact && (
+        <div className="flex items-center justify-between gap-3">
+          <h2 className="text-xl font-semibold">{isNew ? 'New task' : `Edit ${initial.slug}`}</h2>
+          <button type="button" className="btn-ghost" onClick={onCancel}>
+            Cancel
+          </button>
+        </div>
+      )}
 
       <div className="grid gap-4 md:grid-cols-2">
         <Field label="Slug" hint={isNew ? 'lowercase-with-dashes; used in the URL and by saved attempts' : 'cannot be changed'}>
@@ -136,18 +162,18 @@ function Form({ initial, isNew, categories, companies, sections }: { initial: In
         </Field>
       </div>
 
-      <Field label="Categories">
+      <Field label="Categories" group>
         <ChipPicker
           options={categories.map((c) => ({ value: c.slug, label: `${sectionName(c.section)} · ${c.name}` }))}
           value={t.categories}
           onChange={(v) => set('categories', v)}
         />
       </Field>
-      <Field label="Companies">
-        <ChipPicker options={companies.map((c) => ({ value: c.slug, label: c.name }))} value={t.companies} onChange={(v) => set('companies', v)} />
+      <Field label="Companies" group>
+        <CompanyPicker value={t.companies} onChange={(v) => set('companies', v)} />
       </Field>
 
-      <Field label="Statement">
+      <Field label="Statement" group>
         <BlockEditor initial={initial.description} onChange={(b: Block[]) => set('description', b)} />
       </Field>
 
@@ -222,10 +248,10 @@ function Form({ initial, isNew, categories, companies, sections }: { initial: In
             <input className="search" value={t.complexity?.space ?? ''} onChange={(e) => set('complexity', { time: t.complexity?.time ?? '', space: e.target.value })} placeholder="O(1)" />
           </Field>
         </div>
-        <Field label="Notes shown under the solution">
+        <Field label="Notes shown under the solution" group>
           <BlockEditor initial={initial.solutionNotes ?? []} onChange={(b) => set('solutionNotes', b)} />
         </Field>
-        <Field label="Common mistakes (separate block on the solution tab)">
+        <Field label="Common mistakes (separate block on the solution tab)" group>
           <BlockEditor initial={initial.commonMistakes ?? []} onChange={(b) => set('commonMistakes', b)} />
         </Field>
         <div className="flex flex-wrap items-center gap-3">
@@ -255,9 +281,9 @@ function Form({ initial, isNew, categories, companies, sections }: { initial: In
         <button type="submit" className="btn-run" disabled={!canSave}>
           {save.isPending ? 'Saving…' : 'Save task'}
         </button>
-        <Link to="/admin/tasks" className="btn-ghost">
+        <button type="button" className="btn-ghost" onClick={onCancel}>
           Cancel
-        </Link>
+        </button>
       </div>
     </form>
   )

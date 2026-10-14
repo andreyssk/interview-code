@@ -1,4 +1,4 @@
-import type { ApiArticle, ApiTask, Category, Company, Section } from './content'
+import type { ApiArticle, ApiTask, Category, Company, Question, QuestionCategory, Section } from './content'
 import { jsonInit, request } from './http'
 
 export interface AdminUser {
@@ -24,6 +24,13 @@ export const saveCategory = (c: Category) => put<Category>(`/api/admin/categorie
 export const deleteCategory = (slug: string) => del(`/api/admin/categories/${slug}`)
 export const saveCompany = (c: Company) => put<Company>(`/api/admin/companies/${c.slug}`, c)
 export const deleteCompany = (slug: string) => del(`/api/admin/companies/${slug}`)
+
+export const saveQuestionCategory = (c: QuestionCategory) => put<QuestionCategory>(`/api/admin/question-categories/${c.slug}`, c)
+export const deleteQuestionCategory = (slug: string) => del(`/api/admin/question-categories/${slug}`)
+/** Creates a question (no id yet) or replaces an existing one. */
+export const saveQuestion = (q: Omit<Question, 'id'> & { id?: number }) =>
+  q.id ? put<Question>(`/api/admin/questions/${q.id}`, q) : request<Question>('/api/admin/questions', jsonInit('POST', q))
+export const deleteQuestion = (id: number) => del(`/api/admin/questions/${id}`)
 
 export const fetchUsers = () => request<AdminUser[]>('/api/admin/users')
 export const resetPassword = (id: number) => request<{ password: string }>(`/api/admin/users/${id}/reset-password`, jsonInit('POST'))

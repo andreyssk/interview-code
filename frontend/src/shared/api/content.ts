@@ -94,12 +94,44 @@ export interface ApiArticle {
   tasks: string[]
 }
 
+export interface QuestionCategory {
+  slug: string
+  name: string
+  position: number
+}
+
+/** An interview question with its rich-text answer. The category is optional. */
+export interface Question {
+  id: number
+  title: string
+  category: string | null
+  companies: string[]
+  answer: Block[]
+}
+
 export interface Content {
   sections: Section[]
   categories: Category[]
   companies: Company[]
   tasks: ApiTask[]
   articles: ApiArticle[]
+  questionCategories: QuestionCategory[]
+  questions: Question[]
 }
 
-export const fetchContent = () => request<Content>('/api/content')
+/**
+ * Every list defaults to empty, so a backend that does not send a field yet (an older build that was not restarted)
+ * degrades to "nothing there" instead of crashing the pages that read it.
+ */
+export const fetchContent = () =>
+  request<Partial<Content>>('/api/content').then(
+    (c): Content => ({
+      sections: c.sections ?? [],
+      categories: c.categories ?? [],
+      companies: c.companies ?? [],
+      tasks: c.tasks ?? [],
+      articles: c.articles ?? [],
+      questionCategories: c.questionCategories ?? [],
+      questions: c.questions ?? [],
+    }),
+  )

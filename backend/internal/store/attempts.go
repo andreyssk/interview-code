@@ -20,9 +20,10 @@ type Attempt struct {
 	ID         int64  `json:"id"`
 	TaskSlug   string `json:"taskSlug"`
 	Code       string `json:"code"`
-	Status     string `json:"status"` // passed | failed | compile | timeout
+	Status     string `json:"status"` // passed | failed | compile | timeout | saved (code stored without running)
 	Output     string `json:"output"`
 	DurationMs int    `json:"durationMs"`
+	Language   string `json:"language"` // go | java; what the code is written in
 	// Time on the user's own stopwatch when a passing attempt was submitted; nil when not timed or discarded.
 	SolveTimeMs *int64    `json:"solveTimeMs"`
 	CreatedAt   time.Time `json:"createdAt"`
@@ -39,9 +40,9 @@ type TaskStats struct {
 
 func (s *Store) AddAttempt(ctx context.Context, a Attempt) (Attempt, error) {
 	err := s.pool.QueryRow(ctx,
-		`INSERT INTO attempts (user_id, task_slug, code, status, output, duration_ms, solve_time_ms)
-		 VALUES ($7, $1, $2, $3, $4, $5, $6) RETURNING id, created_at`,
-		a.TaskSlug, a.Code, a.Status, a.Output, a.DurationMs, a.SolveTimeMs, a.UserID).Scan(&a.ID, &a.CreatedAt)
+		`INSERT INTO attempts (user_id, task_slug, code, status, output, duration_ms, solve_time_ms, language)
+		 VALUES ($7, $1, $2, $3, $4, $5, $6, COALESCE(NULLIF($8, ''), 'go')) RETURNING id, created_at`,
+		a.TaskSlug, a.Code, a.Status, a.Output, a.DurationMs, a.SolveTimeMs, a.UserID, a.Language).Scan(&a.ID, &a.CreatedAt)
 	return a, err
 }
 
@@ -49,7 +50,7 @@ func (s *Store) Stats(ctx context.Context, userID int64) ([]TaskStats, error) {
 	rows, err := s.pool.Query(ctx, `
 		SELECT task_slug,
 		       COUNT(*) FILTER (WHERE status = 'passed'),
-		       COUNT(*) FILTER (WHERE status <> 'passed'),
+		       COUNT(*) FILTER (WHERE status NOT IN ('passed', 'saved')), -- saved code was never run, so it is not a failure
 		       MAX(created_at)
 		FROM attempts WHERE user_id = $1 GROUP BY task_slug ORDER BY task_slug`, userID)
 	if err != nil {
@@ -70,7 +71,7 @@ func (s *Store) Stats(ctx context.Context, userID int64) ([]TaskStats, error) {
 // Attempts returns the newest attempts for a task, newest first.
 func (s *Store) Attempts(ctx context.Context, userID int64, slug string, limit int) ([]Attempt, error) {
 	rows, err := s.pool.Query(ctx,
-		`SELECT a.id, a.task_slug, a.code, a.status, a.output, a.duration_ms, a.solve_time_ms, a.created_at, m.id, m.type_id, t.title
+		`SELECT a.id, a.task_slug, a.code, a.status, a.output, a.duration_ms, a.solve_time_ms, a.language, a.created_at, m.id, m.type_id, t.title
 		 FROM attempts a
 		 LEFT JOIN mistakes m ON m.attempt_id = a.id
 		 LEFT JOIN mistake_types t ON t.id = m.type_id
@@ -84,7 +85,7 @@ func (s *Store) Attempts(ctx context.Context, userID int64, slug string, limit i
 		var a Attempt
 		var mID, mType *int64
 		var mTitle *string
-		if err := rows.Scan(&a.ID, &a.TaskSlug, &a.Code, &a.Status, &a.Output, &a.DurationMs, &a.SolveTimeMs, &a.CreatedAt, &mID, &mType, &mTitle); err != nil {
+		if err := rows.Scan(&a.ID, &a.TaskSlug, &a.Code, &a.Status, &a.Output, &a.DurationMs, &a.SolveTimeMs, &a.Language, &a.CreatedAt, &mID, &mType, &mTitle); err != nil {
 			return nil, err
 		}
 		if mID != nil && mType != nil && mTitle != nil {

@@ -1,5 +1,5 @@
-import { useState } from 'react'
-import type { Block } from '@/shared/ui'
+import { useRef, useState } from 'react'
+import type { Block } from '../rich-blocks/RichBlocks'
 
 type Kind = 'p' | 'h' | 'pre' | 'note' | 'ul'
 interface Row {
@@ -40,6 +40,22 @@ function toBlocks(rows: Row[]): Block[] {
  */
 export function BlockEditor({ initial, onChange }: { initial: Block[]; onChange: (blocks: Block[]) => void }) {
   const [rows, setRows] = useState<Row[]>(() => toRows(initial))
+  const fields = useRef(new Map<number, HTMLTextAreaElement>())
+
+  // Wraps the selected text of a block in <b>…</b> or <code>…</code> (or inserts an empty pair at the caret).
+  const wrap = (id: number, tag: 'b' | 'code') => {
+    const ta = fields.current.get(id)
+    if (!ta) return
+    const { selectionStart: a, selectionEnd: z, value } = ta
+    const open = `<${tag}>`
+    const close = `</${tag}>`
+    const text = value.slice(0, a) + open + value.slice(a, z) + close + value.slice(z)
+    patch(id, { text })
+    requestAnimationFrame(() => {
+      ta.focus()
+      ta.setSelectionRange(a + open.length, z + open.length)
+    })
+  }
 
   const update = (next: Row[]) => {
     setRows(next)
@@ -66,6 +82,16 @@ export function BlockEditor({ initial, onChange }: { initial: Block[]; onChange:
                 </option>
               ))}
             </select>
+            {r.kind !== 'pre' && r.kind !== 'h' && (
+              <span className="flex gap-1">
+                <button type="button" className="chip" title="Bold: wrap the selection in <b>" onMouseDown={(e) => e.preventDefault()} onClick={() => wrap(r.id, 'b')}>
+                  <b>B</b>
+                </button>
+                <button type="button" className="chip font-mono" title="Code: wrap the selection in <code>" onMouseDown={(e) => e.preventDefault()} onClick={() => wrap(r.id, 'code')}>
+                  {'</>'}
+                </button>
+              </span>
+            )}
             {r.kind === 'ul' && <span className="text-xs text-[var(--muted)]">one item per line</span>}
             <span className="ml-auto flex gap-1">
               <button type="button" className="btn-ghost" onClick={() => move(i, -1)} disabled={i === 0} aria-label="Move up">
@@ -80,6 +106,10 @@ export function BlockEditor({ initial, onChange }: { initial: Block[]; onChange:
             </span>
           </div>
           <textarea
+            ref={(el) => {
+              if (el) fields.current.set(r.id, el)
+              else fields.current.delete(r.id)
+            }}
             className="search font-mono text-sm"
             rows={r.kind === 'pre' ? 6 : r.kind === 'h' ? 1 : 3}
             value={r.text}

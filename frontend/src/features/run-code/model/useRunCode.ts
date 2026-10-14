@@ -4,12 +4,14 @@ import { queryKeys } from '@/shared/api/queryKeys'
 
 export type RunStatus = 'idle' | 'running' | 'error' | AttemptStatus
 
-export function useRunCode(taskSlug: string) {
+/** `dryRun`: just run and report; nothing is recorded, so counters and the submissions list stay as they are. */
+export function useRunCode(taskSlug: string, { dryRun = false }: { dryRun?: boolean } = {}) {
   const queryClient = useQueryClient()
   const mutation = useMutation({
-    mutationFn: (v: { code: string; harness: string; solveTimeMs?: number }) => runGo(taskSlug, v.code, v.harness, v.solveTimeMs),
+    mutationFn: (v: { code: string; harness: string; solveTimeMs?: number }) => runGo(taskSlug, v.code, v.harness, v.solveTimeMs, dryRun),
     // The backend saved the attempt; refresh the counters and the submissions list.
     onSuccess: () => {
+      if (dryRun) return
       queryClient.invalidateQueries({ queryKey: queryKeys.stats })
       queryClient.invalidateQueries({ queryKey: queryKeys.attempts(taskSlug) })
     },
@@ -29,4 +31,5 @@ export const statusTone: Record<RunStatus, string> = {
   timeout: 'text-[var(--pink)]',
   compile: 'text-[var(--pink)]',
   failed: 'text-[var(--pink)]',
+  saved: 'text-[var(--cyan)]',
 }

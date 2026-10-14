@@ -316,3 +316,30 @@ func validateArticle(a *store.Article) error {
 	}
 	return nil
 }
+
+func validateQuestion(q *store.Question) error {
+	q.Title = strings.TrimSpace(q.Title)
+	if err := checkText("title", q.Title, maxTitleLen); err != nil {
+		return err
+	}
+	if err := validateBlocks("answer", q.Answer, true); err != nil {
+		return err
+	}
+	if q.Category != nil && *q.Category == "" {
+		q.Category = nil
+	}
+	if q.Category != nil {
+		if err := checkSlug("category", *q.Category); err != nil {
+			return err
+		}
+	}
+	if q.Companies == nil {
+		q.Companies = []string{}
+	}
+	for _, c := range q.Companies {
+		if err := checkSlug("company", c); err != nil {
+			return err
+		}
+	}
+	return nil
+}

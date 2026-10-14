@@ -5,6 +5,7 @@ import { deleteTask, saveTask } from '@/shared/api/admin'
 import type { ApiTask } from '@/shared/api/content'
 import { queryKeys } from '@/shared/api/queryKeys'
 import { useContent } from '@/shared/content/ContentContext'
+import { usePersistentState } from '@/shared/lib/storage'
 import { ConfirmDialog } from '@/shared/ui'
 import { downloadJson } from '../lib/download'
 import { UploadJson } from './UploadJson'
@@ -27,7 +28,7 @@ const EXAMPLE = {
 }
 
 export function TasksAdmin() {
-  const { tasks, categories } = useContent()
+  const { tasks, categories, companies } = useContent()
   const queryClient = useQueryClient()
   const [removing, setRemoving] = useState<ApiTask | null>(null)
   const remove = useMutation({
@@ -38,6 +39,16 @@ export function TasksAdmin() {
     },
   })
   const categoryName = (slug: string) => categories.find((c) => c.slug === slug)?.name ?? slug
+  const companyName = (slug: string) => companies.find((c) => c.slug === slug)?.name ?? slug
+
+  // Kept across navigation, so after editing a task you land back on the same search.
+  const [query, setQuery] = usePersistentState('admin:tasks:search', '')
+  // Every word must match somewhere in: number, slug, title, difficulty, category names, company names.
+  const words = query.toLowerCase().replace(/#/g, '').split(/\s+/).filter(Boolean)
+  const shown = words.length === 0 ? tasks : tasks.filter((t) => {
+    const hay = [String(t.number), t.slug, t.title, t.difficulty, ...t.categories.map(categoryName), ...t.companies.map(companyName)].join(' ').toLowerCase()
+    return words.every((w) => hay.includes(w))
+  })
 
   return (
     <div className="flex flex-col gap-4">
@@ -53,9 +64,25 @@ export function TasksAdmin() {
         save={(item) => saveTask(item as unknown as Omit<ApiTask, 'number'>)}
         example={EXAMPLE as never}
       />
+      <div className="flex items-center gap-3">
+        <input
+          className="search"
+          type="search"
+          placeholder="Search tasks by title, number, slug, category or company…"
+          aria-label="Search tasks"
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+        />
+        {words.length > 0 && (
+          <span className="shrink-0 text-sm text-[var(--muted)]">
+            {shown.length} of {tasks.length}
+          </span>
+        )}
+      </div>
       {remove.isError && <p className="text-sm text-[var(--pink)]">{remove.error.message}</p>}
       <ul className="flex flex-col gap-1.5">
-        {tasks.map((t) => (
+        {shown.length === 0 && <li className="panel p-4 text-[var(--muted)]">No tasks match “{query.trim()}”.</li>}
+        {shown.map((t) => (
           <li key={t.slug} className="panel flex flex-wrap items-center gap-x-3 gap-y-1 px-4 py-2">
             <span className="w-10 shrink-0 text-sm tabular-nums text-[var(--muted)]">#{t.number}</span>
             <span className="min-w-0 flex-1 basis-60">

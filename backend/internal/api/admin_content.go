@@ -188,7 +188,74 @@ func (a *API) adminPutArticle(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusNoContent)
 }
 
+// ---- questions
+
+func (a *API) adminPutQuestionCategory(w http.ResponseWriter, r *http.Request) {
+	slug, ok := slugOf(w, r)
+	if !ok {
+		return
+	}
+	var in store.QuestionCategory
+	if !decode(w, r, &in) {
+		return
+	}
+	in.Slug, in.Name = slug, strings.TrimSpace(in.Name)
+	if err := checkText("name", in.Name, 60); err != nil {
+		badRequest(w, err.Error())
+		return
+	}
+	if err := a.store.SaveQuestionCategory(r.Context(), in); err != nil {
+		saveFail(w, err, "save question category")
+		return
+	}
+	writeJSON(w, http.StatusOK, in)
+}
+
+// adminSaveQuestion creates (POST) or replaces (PUT /{id}) a question and returns it with its id.
+func (a *API) adminSaveQuestion(w http.ResponseWriter, r *http.Request) {
+	var in store.Question
+	if !decode(w, r, &in) {
+		return
+	}
+	in.ID = 0
+	if r.Method == http.MethodPut {
+		id, ok := pathID(w, r, "id")
+		if !ok {
+			return
+		}
+		in.ID = id
+	}
+	if err := validateQuestion(&in); err != nil {
+		badRequest(w, err.Error())
+		return
+	}
+	id, err := a.store.SaveQuestion(r.Context(), in)
+	if err != nil {
+		saveFail(w, err, "save question")
+		return
+	}
+	in.ID = id
+	writeJSON(w, http.StatusOK, in)
+}
+
+func (a *API) adminDeleteQuestion(w http.ResponseWriter, r *http.Request) {
+	id, ok := pathID(w, r, "id")
+	if !ok {
+		return
+	}
+	if err := a.store.DeleteQuestion(r.Context(), id); err != nil {
+		saveFail(w, err, "delete question")
+		return
+	}
+	w.WriteHeader(http.StatusNoContent)
+}
+
 func (a *API) registerAdminContent(mux *http.ServeMux) {
+	mux.HandleFunc("PUT /api/admin/question-categories/{slug}", a.adminPutQuestionCategory)
+	mux.HandleFunc("DELETE /api/admin/question-categories/{slug}", a.adminDeleter(a.store.DeleteQuestionCategory, "delete question category"))
+	mux.HandleFunc("POST /api/admin/questions", a.adminSaveQuestion)
+	mux.HandleFunc("PUT /api/admin/questions/{id}", a.adminSaveQuestion)
+	mux.HandleFunc("DELETE /api/admin/questions/{id}", a.adminDeleteQuestion)
 	mux.HandleFunc("PUT /api/admin/sections/{slug}", a.adminPutSection)
 	mux.HandleFunc("PUT /api/admin/categories/{slug}", a.adminPutCategory)
 	mux.HandleFunc("PUT /api/admin/companies/{slug}", a.adminPutCompany)

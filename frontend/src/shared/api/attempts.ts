@@ -15,6 +15,8 @@ export interface Attempt {
   status: AttemptStatus
   output: string
   durationMs: number
+  /** What the code is written in; decides the highlighting and which editor a restore goes to */
+  language: 'go' | 'java'
   /** Stopwatch reading recorded with a passing attempt; null when not timed or discarded */
   solveTimeMs: number | null
   createdAt: string

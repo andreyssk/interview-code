@@ -818,6 +818,8 @@ body::before {
   transition: color .15s, background-color .15s, border-color .15s, box-shadow .15s, transform .15s, opacity .15s;
 }
 .btn-icon { padding-left: 0.65rem; padding-right: 0.65rem; }
+/* Button labels never wrap; a crowded toolbar wraps its buttons onto another row instead. */
+.btn-ghost, .btn-run, .btn-danger, .btn-danger-solid { white-space: nowrap; }
 button.btn-ghost:hover { border-color: var(--violet); box-shadow: var(--ghost-hover-glow); }
 
 /* Stopwatch: the play/stop icon and the reading share one bordered pill; the icon itself is unframed. */
@@ -885,6 +887,12 @@ button.btn-ghost:hover { border-color: var(--violet); box-shadow: var(--ghost-ho
 }
 
 /* ---------- code editor ---------- */
+/* Console under the editor: a drag handle on its top edge, and monospace output that wraps. */
+.console-grip { flex: none; height: 6px; margin-top: -3px; cursor: row-resize; touch-action: none; position: relative; z-index: 2; }
+.console-grip::after { content: ""; position: absolute; left: 0; right: 0; top: 2px; height: 2px; background: transparent; transition: background-color .15s; }
+.console-grip:hover::after, .console-grip:focus-visible::after, .console-grip-active::after { background: var(--accent-line); }
+.console-grip:focus-visible { outline: none; }
+.console-output { margin: 0; white-space: pre-wrap; word-break: break-word; font: 0.85rem/1.5 "JetBrains Mono", ui-monospace, monospace; color: var(--text); }
 .code-scroll { display: flex; height: 100%; overflow: auto; background: var(--editor-bg); }
 .code-gutter {
   position: sticky; left: 0; z-index: 1; flex: none; align-self: flex-start; min-height: 100%; min-width: 3rem; padding: 0.75rem 0.7rem 0.75rem 0.9rem;
@@ -941,6 +949,14 @@ code, pre, .code-text, .code-gutter, .output, .prose-task code, .prose-task pre 
   width: 100%; padding: 0.7rem 1rem; border-radius: 0.7rem; outline: none; color: var(--text);
   background: var(--input-bg); border: 1px solid var(--border); transition: color .15s, background-color .15s, border-color .15s, box-shadow .15s, transform .15s, opacity .15s;
 }
+/* Native select arrows hug the right border; draw our own chevron with padding, in the theme's muted color. */
+select.search {
+  appearance: none; -webkit-appearance: none; padding-right: 2.5rem;
+  background-image: linear-gradient(45deg, transparent 50%, var(--muted) 50%), linear-gradient(135deg, var(--muted) 50%, transparent 50%);
+  background-position: calc(100% - 1.15rem) 55%, calc(100% - 0.8rem) 55%;
+  background-size: 0.36rem 0.36rem, 0.36rem 0.36rem; background-repeat: no-repeat;
+}
+select.search-sm { padding-right: 2rem; background-position: calc(100% - 0.95rem) 55%, calc(100% - 0.6rem) 55%; }
 .search-sm { width: auto; padding: 0.3rem 0.7rem; border-radius: 0.5rem; }
 .search::placeholder { color: var(--muted); }
 .search:focus { border-color: var(--accent-line); box-shadow: var(--focus-glow); }
@@ -996,6 +1012,7 @@ code, pre, .code-text, .code-gutter, .output, .prose-task code, .prose-task pre 
 /* ---------- forms in modals ---------- */
 .modal-wide { width: min(34rem, calc(100vw - 2rem)); }
 .modal-code { width: min(46rem, calc(100vw - 2rem)); }
+.modal-form { width: min(60rem, calc(100vw - 2rem)); max-height: calc(100vh - 2rem); overflow-y: auto; }
 .field { display: flex; flex-direction: column; gap: 0.35rem; font-size: 0.85rem; color: var(--muted); }
 textarea.search { resize: vertical; line-height: 1.5; font-family: inherit; }
 .choice {

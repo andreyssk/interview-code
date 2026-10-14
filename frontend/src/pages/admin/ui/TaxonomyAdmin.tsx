@@ -4,14 +4,13 @@ import { deleteCategory, deleteCompany, deleteSection, saveCategory, saveCompany
 import type { Category, Company, Section } from '@/shared/api/content'
 import { queryKeys } from '@/shared/api/queryKeys'
 import { useContent } from '@/shared/content/ContentContext'
-import { ConfirmDialog, Modal } from '@/shared/ui'
-import { Field } from './Field'
+import { ConfirmDialog, Field, Modal } from '@/shared/ui'
 
 const TONES = ['neon-cyan', 'neon-pink', 'neon-amber', 'neon-green', 'neon-blue', 'neon-red', 'neon-yellow', 'neon-indigo', 'neon-violet']
 const COLORS = ['cyan', 'pink', 'amber', 'violet', 'green', 'blue', 'red', 'yellow']
 
 /** Generic list + create/edit modal + delete confirmation for one kind of entity. */
-function Crud<T extends { slug: string }>({
+export function Crud<T extends { slug: string }>({
   title,
   items,
   blank,

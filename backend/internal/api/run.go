@@ -12,6 +12,7 @@ import (
 	"os/exec"
 	"path/filepath"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/app/interview-prep/internal/store"
@@ -29,6 +30,8 @@ type runRequest struct {
 	TaskSlug string `json:"taskSlug"` // when set, the attempt is saved under this task
 	Code     string `json:"code"`     // user's solution (package main)
 	Harness  string `json:"harness"`  // optional extra file with main() that exercises the solution
+	// DryRun runs the code and returns the output without recording an attempt (the editor's Run button; Submit records).
+	DryRun bool `json:"dryRun"`
 	// Stopwatch reading at submit time; stored only when the attempt passes.
 	SolveTimeMs *int64 `json:"solveTimeMs"`
 }
@@ -80,7 +83,11 @@ func (a *API) Handler() http.Handler {
 	mux.HandleFunc("POST /api/admin/users/{id}/reset-password", a.adminResetPassword)
 	mux.HandleFunc("GET /api/admin/settings", a.adminGetSettings)
 	mux.HandleFunc("PUT /api/admin/settings", a.adminSetSettings)
+	mux.HandleFunc("GET /api/recent-tasks", a.listRecentTasks)
+	mux.HandleFunc("POST /api/recent-tasks", a.recordRecentTask)
+	mux.HandleFunc("DELETE /api/recent-tasks", a.clearRecentTasks)
 	mux.HandleFunc("POST /api/run", a.run)
+	mux.HandleFunc("POST /api/tasks/{slug}/saved", a.saveSolution)
 	mux.HandleFunc("GET /api/content", a.content)
 	mux.HandleFunc("GET /api/stats", a.stats)
 	mux.HandleFunc("GET /api/tasks/{slug}/attempts", a.attempts)
@@ -165,7 +172,7 @@ func (a *API) run(w http.ResponseWriter, r *http.Request) {
 	resp.DurationMs = time.Since(start).Milliseconds()
 	resp.Status = statusOf(resp)
 
-	if req.TaskSlug != "" {
+	if req.TaskSlug != "" && !req.DryRun {
 		var solveTime *int64
 		if resp.Status == "passed" && req.SolveTimeMs != nil && *req.SolveTimeMs >= 0 {
 			solveTime = req.SolveTimeMs
@@ -286,4 +293,40 @@ func execute(parent context.Context, timeout time.Duration, dir, name string, ar
 		return err.Error(), -1, false
 	}
 	return buf.String(), 0, false
+}
+
+// saveSolution stores the user's code as a "saved" attempt without running it: for tasks that have no tests yet and for
+// languages that cannot be run. It is not a pass or a failure and does not touch the timer.
+func (a *API) saveSolution(w http.ResponseWriter, r *http.Request) {
+	slug := r.PathValue("slug")
+	if slug == "" || len(slug) > maxSlug {
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "invalid slug"})
+		return
+	}
+	var in struct {
+		Code     string `json:"code"`
+		Language string `json:"language"`
+	}
+	if !decode(w, r, &in) {
+		return
+	}
+	if strings.TrimSpace(in.Code) == "" {
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "code is required"})
+		return
+	}
+	if in.Language == "" {
+		in.Language = "go"
+	}
+	if in.Language != "go" && in.Language != "java" {
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "language must be go or java"})
+		return
+	}
+	saved, err := a.store.AddAttempt(r.Context(), store.Attempt{
+		UserID: currentUser(r).ID, TaskSlug: slug, Code: in.Code, Status: "saved", Language: in.Language,
+	})
+	if err != nil {
+		fail(w, err, "save solution")
+		return
+	}
+	writeJSON(w, http.StatusOK, saved)
 }

@@ -35,7 +35,7 @@ export function AddToMistakes({ attempt }: { attempt: Attempt }) {
     },
   })
 
-  if (attempt.status === 'passed') return null
+  if (attempt.status === 'passed' || attempt.status === 'saved') return null
 
   if (attempt.mistake) {
     return (

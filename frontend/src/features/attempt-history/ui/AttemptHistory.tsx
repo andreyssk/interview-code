@@ -4,14 +4,14 @@ import { useTranslation } from 'react-i18next'
 import { clearSolveTime, deleteAttempt, fetchAttempts, type Attempt } from '@/shared/api/attempts'
 import { queryKeys } from '@/shared/api/queryKeys'
 import { formatDuration } from '@/shared/lib/formatDuration'
-import { highlightGo } from '@/shared/lib/highlight'
+import { highlight } from '@/shared/lib/highlight'
 import type { ReactNode } from 'react'
 import { ConfirmDialog, Spinner, StatusTag } from '@/shared/ui'
 
 interface Props {
   taskSlug: string
   /** Called with a past solution's code when the user wants it back in the editor */
-  onRestore: (code: string) => void
+  onRestore: (code: string, language: Attempt['language']) => void
   /** Extra actions per attempt, supplied by the caller (keeps features independent of each other) */
   renderActions?: (attempt: Attempt) => ReactNode
 }
@@ -52,7 +52,8 @@ export function AttemptHistory({ taskSlug, onRestore, renderActions }: Props) {
           <div className="flex flex-wrap items-center gap-3">
             <StatusTag status={a.status} />
             <span className="text-[var(--muted)]">{new Date(a.createdAt).toLocaleString(i18n.language)}</span>
-            <span className="text-[var(--muted)]">{a.durationMs} ms</span>
+            {a.language === 'java' && <span className="tag neon-amber">Java</span>}
+            {a.status !== 'saved' && <span className="text-[var(--muted)]">{a.durationMs} ms</span>}
             {a.solveTimeMs !== null && (
               <span className="flex items-center gap-1.5">
                 <span className="tag neon-cyan" title={t('timer.solveTime')}>
@@ -84,14 +85,14 @@ export function AttemptHistory({ taskSlug, onRestore, renderActions }: Props) {
           </div>
           {open === a.id && (
             <div className="mt-3">
-              <pre className="attempt-code">{highlightGo(a.code)}</pre>
+              <pre className="attempt-code">{highlight(a.code, a.language)}</pre>
               {a.status !== 'passed' && a.output && (
                 <>
                   <div className="mb-1 mt-3 text-xs uppercase tracking-wide text-[var(--muted)]">{t('attempts.output')}</div>
                   <pre className="attempt-output">{a.output}</pre>
                 </>
               )}
-              <button className="btn-ghost mt-3" onClick={() => onRestore(a.code)}>
+              <button className="btn-ghost mt-3" onClick={() => onRestore(a.code, a.language)}>
                 {t('attempts.restore')}
               </button>
             </div>

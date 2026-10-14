@@ -3,7 +3,8 @@
     "theory": "Theory",
     "problems": "Problems",
     "mistakes": "Mistakes",
-    "admin": "Admin"
+    "admin": "Admin",
+    "questions": "Questions"
   },
   "language": {
     "label": "Language of the interface and tasks"
@@ -11,7 +12,9 @@
   "counts": {
     "task_one": "{{count}} task",
     "task_other": "{{count}} tasks",
-    "solved": "{{count}} solved"
+    "solved": "{{count}} solved",
+    "question_one": "{{count}} question",
+    "question_other": "{{count}} questions"
   },
   "difficulty": {
     "easy": "easy",
@@ -73,7 +76,19 @@
     "language": "Language",
     "javaNotRunnable": "Running Java isn't supported yet",
     "noTests": "This task has no tests yet, so there is nothing to run your code against.",
-    "noTestsRun": "No tests yet: running and submitting are disabled"
+    "noTestsRun": "No tests yet: running and submitting are disabled",
+    "save": "Save",
+    "saved": "Saved ✓",
+    "saveFailed": "Not saved: retry",
+    "saveHint": "Store this code as a submission without running it",
+    "submit": "Submit",
+    "submitting": "Submitting…",
+    "runHint": "Run the code and show the output in the console (not recorded): ⌘/Ctrl + Enter",
+    "submitHint": "Check the solution against the tests and record the attempt: ⌘/Ctrl + Shift + Enter",
+    "console": "Console",
+    "consoleEmpty": "Run the code to see its output here.",
+    "consoleClose": "Close the console",
+    "consoleResize": "Resize the console"
   },
   "status": {
     "running": "Running…",
@@ -95,7 +110,8 @@
       "passed": "Passed",
       "failed": "Failed",
       "compile": "Compile error",
-      "timeout": "Time limit exceeded"
+      "timeout": "Time limit exceeded",
+      "saved": "Saved"
     },
     "delete": "Delete",
     "deleteConfirm": "Solved and failed counts will change. This can't be undone.",
@@ -198,5 +214,27 @@
     "mismatch": "Passwords do not match",
     "mustChangeTitle": "Choose a new password",
     "mustChangeHint": "An admin reset your password. Enter the temporary one as the current password, then pick your own."
+  },
+  "questions": {
+    "title": "Questions",
+    "all": "All questions",
+    "uncategorized": "Uncategorized",
+    "allCategories": "← All categories",
+    "none": "No questions found.",
+    "searchPlaceholder": "Search by question or company…",
+    "unknownCategory": "Unknown category."
+  },
+  "errors": {
+    "title": "Something went wrong",
+    "hint": "This part of the page failed to load. The rest of the app still works.",
+    "retry": "Try again",
+    "reload": "Reload the page",
+    "home": "Go to the start page"
+  },
+  "recent": {
+    "label": "Recently viewed tasks",
+    "title": "Recently viewed",
+    "empty": "No tasks viewed yet.",
+    "clear": "Clear history"
   }
 }

@@ -1,13 +1,25 @@
 import type { ReactNode } from 'react'
 
-/** Labelled form row. */
-export function Field({ label, hint, children }: { label: string; hint?: string; children: ReactNode }) {
-  return (
-    <label className="flex flex-col gap-1.5">
-      <span className="text-xs uppercase tracking-wider text-[var(--muted)]">{label}</span>
+const LABEL = 'text-xs uppercase tracking-wider text-[var(--muted)]'
+
+/**
+ * Labelled form row. A `<label>` is right for a single input, but a label also passes its :hover to its first
+ * control, so a row that holds several buttons (chips, block editors) must be a plain group instead.
+ */
+export function Field({ label, hint, group, children }: { label: string; hint?: string; group?: boolean; children: ReactNode }) {
+  const body = (
+    <>
+      <span className={LABEL}>{label}</span>
       {children}
       {hint && <span className="text-xs text-[var(--muted)]">{hint}</span>}
-    </label>
+    </>
+  )
+  return group ? (
+    <div className="flex flex-col gap-1.5" role="group" aria-label={label}>
+      {body}
+    </div>
+  ) : (
+    <label className="flex flex-col gap-1.5">{body}</label>
   )
 }
 

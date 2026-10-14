@@ -5,7 +5,10 @@ import { highlight, type EditorLanguage } from '../../lib/highlight'
 interface Props {
   value: string
   onChange: (code: string) => void
+  /** Cmd/Ctrl+Enter */
   onRun?: () => void
+  /** Cmd/Ctrl+Shift+Enter */
+  onSubmit?: () => void
   label?: string
   /** Syntax highlighting; defaults to Go */
   language?: EditorLanguage
@@ -13,7 +16,7 @@ interface Props {
 
 // Lightweight editor: a transparent <textarea> on top of a highlighted <pre> with identical metrics.
 // The <pre> sizes the block; the outer wrapper scrolls both together.
-export function CodeEditor({ value, onChange, onRun, label, language = 'go' }: Props) {
+export function CodeEditor({ value, onChange, onRun, onSubmit, label, language = 'go' }: Props) {
   const lines = value.split('\n').length
   const highlighted = useMemo(() => highlight(value, language), [value, language])
 
@@ -30,7 +33,8 @@ export function CodeEditor({ value, onChange, onRun, label, language = 'go' }: P
   const onKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {
       e.preventDefault()
-      onRun?.()
+      if (e.shiftKey) onSubmit?.()
+      else onRun?.()
       return
     }
     if (e.key === 'Tab') {

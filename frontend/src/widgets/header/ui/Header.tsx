@@ -1,5 +1,6 @@
 import { useTranslation } from 'react-i18next'
 import { Link, NavLink } from 'react-router-dom'
+import { RecentTasksPopover } from '@/features/recent-tasks'
 import { LanguageSwitcher } from '@/features/switch-language'
 import { ThemeSwitcher } from '@/features/switch-theme'
 import { UserMenu } from '@/features/user-menu'
@@ -7,6 +8,7 @@ import { UserMenu } from '@/features/user-menu'
 const LINKS = [
   ['/theory', 'nav.theory'],
   ['/problems', 'nav.problems'],
+  ['/questions', 'nav.questions'],
   ['/mistakes', 'nav.mistakes'],
 ] as const
 
@@ -24,6 +26,7 @@ export function Header() {
           </NavLink>
         ))}
         <span className="ml-2 flex items-center gap-3">
+          <RecentTasksPopover />
           <ThemeSwitcher />
           <LanguageSwitcher />
           <UserMenu />

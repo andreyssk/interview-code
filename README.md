@@ -53,6 +53,7 @@ written in. Managed in the **admin panel** (`/admin`, admins only):
   existing slug is replaced). The form can verify a reference solution against the tests by running it in the sandbox.
   Task numbers (`#N`) come from a database sequence: unique, starting at 1, never reused. The `add-task` and `add-article` skills
   produce these upload files (versioned copies go in `content/tasks/` and `content/articles/`).
+- **Questions** and **Question categories**: interview questions (title, companies, a rich-text answer, optional category). Users browse them on the **Questions** page (category tiles, search, company filter, answers open in place). Deleting a category keeps its questions; they become uncategorized.
 - **Sections & categories** and **Companies**: Algorithms / Golang / SQL, their categories, and the company tags. A task or article uploaded with a category, section (optional top-level `"section"` field) or company that does not exist creates it automatically, with a name derived from the slug and a stable pseudo-random glyph/color; new categories go to `other` unless `section` is given.
 - **Users & access**: the sign-up switch and password resets.
 
@@ -81,9 +82,9 @@ the submission it came from.
 - `GET /api/mistake-types/{id}`: one type with its mistakes; `PATCH` changes its title and description; `DELETE` removes it and its mistakes
 - `POST /api/mistakes {attemptId, typeId}`: file a failed attempt under a type (copies its code and output); `PATCH /api/mistakes/{id} {typeId}` moves it to another type; `DELETE /api/mistakes/{id}`
 
-- `GET /api/content`: sections, categories, companies, tasks and articles
+- `GET /api/content`: sections, categories, companies, tasks, articles, question categories and questions
 - `POST /api/auth/{signup,login,logout,password}`, `GET /api/auth/{me,config}`: accounts (see Accounts below)
-- `PUT|DELETE /api/admin/{tasks,articles,sections,categories,companies}/{slug}`: content management (admin only)
+- `PUT|DELETE /api/admin/{tasks,articles,sections,categories,companies,question-categories}/{slug}`, `POST /api/admin/questions`, `PUT|DELETE /api/admin/questions/{id}`: content management (admin only)
 - `GET /api/admin/users`, `POST /api/admin/users/{id}/reset-password`, `GET|PUT /api/admin/settings`: users and the sign-up switch (admin only)
 
 ## How running works

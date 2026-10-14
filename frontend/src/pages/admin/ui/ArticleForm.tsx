@@ -5,8 +5,7 @@ import { saveArticle } from '@/shared/api/admin'
 import type { ApiArticle } from '@/shared/api/content'
 import { queryKeys } from '@/shared/api/queryKeys'
 import { useContent } from '@/shared/content/ContentContext'
-import { BlockEditor } from './BlockEditor'
-import { ChipPicker, Field } from './Field'
+import { BlockEditor, ChipPicker, Field } from '@/shared/ui'
 
 const blank: ApiArticle = { slug: '', title: '', summary: '', content: [{ p: '' }], sourceName: null, sourceUrl: null, category: null, categories: [], tasks: [] }
 
@@ -77,13 +76,13 @@ function Form({ initial, isNew }: { initial: ApiArticle; isNew: boolean }) {
           ))}
         </select>
       </Field>
-      <Field label="Also suggest on tasks of these categories">
+      <Field label="Also suggest on tasks of these categories" group>
         <ChipPicker options={categories.map((c) => ({ value: c.slug, label: c.name }))} value={a.categories} onChange={(v) => set('categories', v)} />
       </Field>
-      <Field label="Also suggest on these tasks">
+      <Field label="Also suggest on these tasks" group>
         <ChipPicker options={tasks.map((t) => ({ value: t.slug, label: `#${t.number} ${t.title}` }))} value={a.tasks} onChange={(v) => set('tasks', v)} />
       </Field>
-      <Field label="Content">
+      <Field label="Content" group>
         <BlockEditor initial={initial.content} onChange={(b) => set('content', b)} />
       </Field>
       {save.isError && <p className="text-sm text-[var(--pink)]">{save.error.message}</p>}

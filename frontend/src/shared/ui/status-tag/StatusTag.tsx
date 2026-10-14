@@ -6,9 +6,10 @@ const TONE: Record<AttemptStatus, string> = {
   failed: 'neon-pink',
   compile: 'neon-pink',
   timeout: 'neon-amber',
+  saved: 'neon-blue',
 }
 
-/** Result of a run: passed, failed, compile error or timeout. */
+/** Result of a run: passed, failed, compile error or timeout; or "saved" for code that was stored without running. */
 export function StatusTag({ status }: { status: AttemptStatus }) {
   const { t } = useTranslation()
   return <span className={`tag ${TONE[status]}`}>{t(`attempts.status.${status}`)}</span>

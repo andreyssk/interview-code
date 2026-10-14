@@ -7,17 +7,20 @@ import { restoreTheme } from '@/shared/lib/theme'
 import { AuthGate } from '@/app/providers/AuthGate'
 import { Providers } from '@/app/providers/Providers'
 import { ContentProvider } from '@/shared/content/ContentProvider'
+import { ErrorBoundary } from '@/shared/ui'
 
 restoreTheme()
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <Providers>
-      <AuthGate>
-        <ContentProvider>
-          <App />
-        </ContentProvider>
-      </AuthGate>
-    </Providers>
+    <ErrorBoundary level="app">
+      <Providers>
+        <AuthGate>
+          <ContentProvider>
+            <App />
+          </ContentProvider>
+        </AuthGate>
+      </Providers>
+    </ErrorBoundary>
   </StrictMode>,
 )

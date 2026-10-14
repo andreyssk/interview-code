@@ -124,7 +124,7 @@ func (s *Store) AddMistake(ctx context.Context, userID, attemptID, typeID int64)
 	if err != nil {
 		return Mistake{}, err
 	}
-	if status == "passed" {
+	if status == "passed" || status == "saved" { // only attempts that ran and failed belong in the journal
 		return Mistake{}, ErrAttemptPassed
 	}
 
