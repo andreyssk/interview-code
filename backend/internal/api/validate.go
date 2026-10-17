@@ -66,7 +66,7 @@ func validateBlocks(what string, raw json.RawMessage, required bool) error {
 	}
 	for i, b := range blocks {
 		if len(b) != 1 {
-			return fmt.Errorf("%s block %d: exactly one of p, h, pre, ul, note", what, i+1)
+			return fmt.Errorf("%s block %d: exactly one of p, h, pre, ul, ol, note", what, i+1)
 		}
 		for k, v := range b {
 			switch k {
@@ -75,10 +75,10 @@ func validateBlocks(what string, raw json.RawMessage, required bool) error {
 				if json.Unmarshal(v, &s) != nil {
 					return fmt.Errorf("%s block %d (%s) must be a string", what, i+1, k)
 				}
-			case "ul":
+			case "ul", "ol":
 				var items []string
 				if json.Unmarshal(v, &items) != nil {
-					return fmt.Errorf("%s block %d (ul) must be an array of strings", what, i+1)
+					return fmt.Errorf("%s block %d (%s) must be an array of strings", what, i+1, k)
 				}
 			default:
 				return fmt.Errorf("%s block %d: unknown block type %q", what, i+1, k)

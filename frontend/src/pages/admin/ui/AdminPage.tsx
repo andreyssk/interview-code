@@ -1,5 +1,6 @@
 import { NavLink, Navigate, Route, Routes } from 'react-router-dom'
 import { useAuth } from '@/shared/auth/AuthContext'
+import { ADMIN_TABS } from '@/shared/lib/adminTabs'
 import { ArticleForm } from './ArticleForm'
 import { ArticlesAdmin } from './ArticlesAdmin'
 import { TaskFormPage } from './TaskFormPage'
@@ -9,26 +10,15 @@ import { QuestionForm } from './QuestionForm'
 import { CompaniesAdmin, TaxonomyAdmin } from './TaxonomyAdmin'
 import { UsersAdmin } from './UsersAdmin'
 
-const TABS = [
-  ['tasks', 'Tasks'],
-  ['articles', 'Articles'],
-  ['questions', 'Questions'],
-  ['question-categories', 'Question categories'],
-  ['taxonomy', 'Sections & categories'],
-  ['companies', 'Companies'],
-  ['users', 'Users & access'],
-] as const
-
 /** Admin panel (admins only): content management and access control. */
 export function AdminPage() {
   const { user } = useAuth()
   if (user.role !== 'admin') return <Navigate to="/" replace />
 
   return (
-    <div>
-      <h1 className="neon-title mb-4 text-3xl font-bold">Admin</h1>
+    <div className="admin-page">
       <nav className="mb-5 flex flex-wrap gap-1 border-b border-[var(--border)] pb-3">
-        {TABS.map(([path, label]) => (
+        {ADMIN_TABS.map(([path, label]) => (
           <NavLink key={path} to={`/admin/${path}`} className={({ isActive }) => `navlink ${isActive ? 'navlink-active' : ''}`}>
             {label}
           </NavLink>

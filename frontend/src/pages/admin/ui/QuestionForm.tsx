@@ -5,7 +5,7 @@ import { saveQuestion } from '@/shared/api/admin'
 import type { Question } from '@/shared/api/content'
 import { queryKeys } from '@/shared/api/queryKeys'
 import { useContent } from '@/shared/content/ContentContext'
-import { BlockEditor, CompanyPicker, Field } from '@/shared/ui'
+import { CompanyPicker, Field, RichTextEditor } from '@/shared/ui'
 
 type Draft = Omit<Question, 'id'> & { id?: number }
 const blank: Draft = { title: '', category: null, companies: [], answer: [{ p: '' }] }
@@ -24,7 +24,6 @@ function Form({ initial }: { initial: Draft }) {
   const queryClient = useQueryClient()
   const { questionCategories } = useContent()
   const [q, setQ] = useState(initial)
-  const isNew = !initial.id
 
   const save = useMutation({
     mutationFn: () => saveQuestion({ ...q, title: q.title.trim() }),
@@ -37,45 +36,45 @@ function Form({ initial }: { initial: Draft }) {
 
   return (
     <form
-      className="flex flex-col gap-5"
+      className="fit-form flex flex-col gap-5"
       onSubmit={(e) => {
         e.preventDefault()
         if (canSave) save.mutate()
       }}
     >
-      <div className="flex items-center justify-between gap-3">
-        <h2 className="text-xl font-semibold">{isNew ? 'New question' : `Edit question #${initial.id}`}</h2>
-        <Link to="/admin/questions" className="btn-ghost">
+      <div className="grid gap-5 lg:min-h-0 lg:flex-1 lg:grid-cols-2 lg:grid-rows-[minmax(0,1fr)] lg:gap-8">
+        <div className="flex flex-col gap-5 lg:min-h-0 lg:overflow-y-auto">
+          <Field label="Question">
+            <input className="search" value={q.title} onChange={(e) => setQ({ ...q, title: e.target.value })} autoFocus />
+          </Field>
+          <Field label="Category (optional)">
+            <select className="search" value={q.category ?? ''} onChange={(e) => setQ({ ...q, category: e.target.value || null })}>
+              <option value="">none</option>
+              {questionCategories.map((c) => (
+                <option key={c.slug} value={c.slug}>
+                  {c.name}
+                </option>
+              ))}
+            </select>
+          </Field>
+          <Field label="Companies" group>
+            <CompanyPicker value={q.companies} onChange={(v) => setQ({ ...q, companies: v })} />
+          </Field>
+        </div>
+        <div className="flex min-h-0 flex-col [&>*]:min-h-0 [&>*]:flex-1">
+          <Field label="Answer" group>
+            <RichTextEditor initial={initial.answer} onChange={(b) => setQ((p) => ({ ...p, answer: b }))} />
+          </Field>
+        </div>
+      </div>
+      {save.isError && <p className="text-sm text-[var(--pink)]">{save.error.message}</p>}
+      <div className="flex justify-end gap-3">
+        <Link to="/admin/questions" className="btn-ghost btn-lg">
           Cancel
         </Link>
-      </div>
-      <Field label="Question">
-        <input className="search" value={q.title} onChange={(e) => setQ({ ...q, title: e.target.value })} autoFocus />
-      </Field>
-      <Field label="Category (optional)">
-        <select className="search" value={q.category ?? ''} onChange={(e) => setQ({ ...q, category: e.target.value || null })}>
-          <option value="">none</option>
-          {questionCategories.map((c) => (
-            <option key={c.slug} value={c.slug}>
-              {c.name}
-            </option>
-          ))}
-        </select>
-      </Field>
-      <Field label="Companies" group>
-        <CompanyPicker value={q.companies} onChange={(v) => setQ({ ...q, companies: v })} />
-      </Field>
-      <Field label="Answer" hint="Use the B and </> buttons to mark the selected text as bold or code." group>
-        <BlockEditor initial={initial.answer} onChange={(b) => setQ((p) => ({ ...p, answer: b }))} />
-      </Field>
-      {save.isError && <p className="text-sm text-[var(--pink)]">{save.error.message}</p>}
-      <div className="flex gap-2">
-        <button type="submit" className="btn-run" disabled={!canSave}>
+        <button type="submit" className="btn-run btn-lg" disabled={!canSave}>
           {save.isPending ? 'Saving…' : 'Save question'}
         </button>
-        <Link to="/admin/questions" className="btn-ghost">
-          Cancel
-        </Link>
       </div>
     </form>
   )

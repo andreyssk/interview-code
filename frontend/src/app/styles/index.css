@@ -763,6 +763,12 @@ body::before {
   .workspace { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); grid-auto-rows: auto; }
 }
 .main:has(.workspace) { overflow: auto; }
+/* Full-height form pages (question editor): nothing scrolls except the panes inside the form. */
+@media (min-width: 1024px) {
+  .main:has(.fit-form) { display: flex; flex-direction: column; overflow: hidden; }
+  .main:has(.fit-form) .admin-page { display: flex; min-height: 0; flex: 1; flex-direction: column; }
+  .fit-form { min-height: 0; flex: 1; }
+}
 
 /* Page with a side column (filters / stats / mistakes); stacks below 1024px. */
 .with-sidebar { display: grid; gap: 1rem; grid-template-columns: minmax(0, 1fr); align-items: start; }
@@ -835,6 +841,8 @@ button.btn-ghost:hover { border-color: var(--violet); box-shadow: var(--ghost-ho
   transition: color .15s, background-color .15s, border-color .15s, box-shadow .15s, transform .15s, opacity .15s;
 }
 .btn-run:hover:not(:disabled) { box-shadow: var(--run-glow-hover); transform: translateY(-1px); }
+/* Larger variant for a form's primary action row; goes after .btn-ghost / .btn-run so it wins over their padding. */
+.btn-lg { padding: 0.8rem 2.2rem; font-size: 1.05rem; }
 .btn-run:disabled { opacity: 0.6; cursor: wait; }
 
 .btn-danger {
@@ -877,8 +885,16 @@ button.btn-ghost:hover { border-color: var(--violet); box-shadow: var(--ghost-ho
   background: var(--example-bg); border: 1px solid var(--border); border-left: 3px solid var(--accent-bar);
 }
 .prose-task ul { margin: 0 0 1rem; padding-left: 1.4rem; list-style: disc; }
+.prose-task ol { margin: 0 0 1rem; padding-left: 1.4rem; list-style: decimal; }
+.prose-task i { font-style: italic; }
 .prose-task b { color: var(--text); }
 .prose-task li::marker { color: var(--marker); }
+
+/* rich text editor (Tiptap) */
+.rte { padding: 0; }
+.rte .rte-body { min-height: 10rem; padding: 0.8rem 1rem; outline: none; }
+.rte .rte-body > :last-child { margin-bottom: 0; }
+.rte .rte-body li > p { margin: 0; }
 
 .output {
   margin: 0; padding: 1rem; border-radius: 0.7rem; overflow: auto; white-space: pre-wrap;
