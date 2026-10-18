@@ -6,6 +6,8 @@ import { ArticlesAdmin } from './ArticlesAdmin'
 import { TaskFormPage } from './TaskFormPage'
 import { TasksAdmin } from './TasksAdmin'
 import { QuestionCategoriesAdmin, QuestionsAdmin } from './QuestionsAdmin'
+import { QuizForm } from './QuizForm'
+import { QuizzesAdmin } from './QuizzesAdmin'
 import { CompaniesAdmin, TaxonomyAdmin } from './TaxonomyAdmin'
 import { UsersAdmin } from './UsersAdmin'
 
@@ -32,6 +34,9 @@ export function AdminPage() {
         <Route path="articles/new" element={<ArticleForm />} />
         <Route path="articles/edit/:slug" element={<ArticleForm />} />
         <Route path="questions" element={<QuestionsAdmin />} />
+        <Route path="quizzes" element={<QuizzesAdmin />} />
+        <Route path="quizzes/new" element={<QuizForm />} />
+        <Route path="quizzes/edit/:id" element={<QuizForm />} />
         <Route path="question-categories" element={<QuestionCategoriesAdmin />} />
         <Route path="taxonomy" element={<TaxonomyAdmin />} />
         <Route path="companies" element={<CompaniesAdmin />} />

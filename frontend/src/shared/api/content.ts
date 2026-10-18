@@ -123,6 +123,22 @@ export interface Question {
   answer: Block[]
 }
 
+/** A code snippet and what it prints / does; the answer is hidden behind a spoiler until the reader clicks it. */
+export interface Quiz {
+  id: number
+  /** Optional prompt, e.g. "What will be printed?" */
+  title: string
+  language: 'go' | 'java'
+  code: string
+  /** Plain text: the output, or what happens */
+  answer: string
+  /** Optional short why */
+  explanation: string
+  /** One of the task categories */
+  category: string | null
+  companies: string[]
+}
+
 export interface Content {
   sections: Section[]
   categories: Category[]
@@ -132,6 +148,7 @@ export interface Content {
   questionCategories: QuestionCategory[]
   questionSubcategories: QuestionSubcategory[]
   questions: Question[]
+  quizzes: Quiz[]
   /** The run limit of tasks that do not set their own */
   defaultTimeLimitSec: number
 }
@@ -151,6 +168,7 @@ export const fetchContent = () =>
       questionCategories: c.questionCategories ?? [],
       questionSubcategories: c.questionSubcategories ?? [],
       questions: c.questions ?? [],
+      quizzes: c.quizzes ?? [],
       defaultTimeLimitSec: c.defaultTimeLimitSec ?? 5,
     }),
   )

@@ -3,6 +3,7 @@ export const ADMIN_TABS = [
   ['tasks', 'Tasks'],
   ['articles', 'Articles'],
   ['questions', 'Questions'],
+  ['quizzes', 'Quizzes'],
   ['question-categories', 'Question categories'],
   ['taxonomy', 'Sections & categories'],
   ['companies', 'Companies'],

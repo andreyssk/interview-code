@@ -357,3 +357,47 @@ func validateQuestion(q *store.Question) error {
 	}
 	return nil
 }
+
+func validateQuiz(q *store.Quiz) error {
+	q.Title = strings.TrimSpace(q.Title)
+	if q.Title != "" {
+		if err := checkText("title", q.Title, maxTitleLen); err != nil {
+			return err
+		}
+	}
+	switch q.Language {
+	case "go", "java":
+	default:
+		return fmt.Errorf("language must be go or java")
+	}
+	if err := checkText("code", q.Code, maxTextLen); err != nil {
+		return err
+	}
+	q.Answer = strings.TrimRight(q.Answer, " \t\r\n")
+	if err := checkText("answer", q.Answer, maxTextLen); err != nil {
+		return err
+	}
+	q.Explanation = strings.TrimSpace(q.Explanation)
+	if q.Explanation != "" {
+		if err := checkText("explanation", q.Explanation, 2000); err != nil {
+			return err
+		}
+	}
+	if q.Category != nil && *q.Category == "" {
+		q.Category = nil
+	}
+	if q.Category != nil {
+		if err := checkSlug("category", *q.Category); err != nil {
+			return err
+		}
+	}
+	if q.Companies == nil {
+		q.Companies = []string{}
+	}
+	for _, c := range q.Companies {
+		if err := checkSlug("company", c); err != nil {
+			return err
+		}
+	}
+	return nil
+}

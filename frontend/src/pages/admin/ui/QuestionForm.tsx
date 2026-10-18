@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useState } from 'react'
-import { Link, Navigate, useNavigate, useParams } from 'react-router-dom'
+import { Link, Navigate, useLocation, useNavigate, useParams } from 'react-router-dom'
 import { saveQuestion } from '@/shared/api/admin'
 import type { Question } from '@/shared/api/content'
 import { queryKeys } from '@/shared/api/queryKeys'
@@ -11,7 +11,14 @@ import { CompanyMultiSelect, Field, RichTextEditor } from '@/shared/ui'
 type Draft = Omit<Question, 'id'> & { id?: number }
 const blank: Draft = { title: '', category: null, subcategory: null, companies: [], answer: [{ p: '' }] }
 
-const BACK = '/admin/questions'
+/** Where Back and a successful save lead when the editor was not opened from somewhere specific. */
+const DEFAULT_BACK = '/admin/questions'
+
+/** The page the editor was opened from (an "edit" icon passes it in the router state), else the admin list. */
+function useBackTo() {
+  const from = (useLocation().state as { from?: unknown } | null)?.from
+  return typeof from === 'string' && from.startsWith('/') ? from : DEFAULT_BACK
+}
 
 /**
  * Create (/admin/questions/new) or edit (/admin/questions/edit/:id) a question.
@@ -19,6 +26,7 @@ const BACK = '/admin/questions'
  */
 export function QuestionForm() {
   const { user } = useAuth()
+  const back = useBackTo()
   const { id } = useParams()
   const { questions } = useContent()
   if (user.role !== 'admin') return <Navigate to="/" replace />
@@ -26,7 +34,7 @@ export function QuestionForm() {
   if (id && !existing) {
     return (
       <div className="flex flex-col items-start gap-3 p-5">
-        <Link to={BACK} className="btn-ghost">
+        <Link to={back} className="btn-ghost">
           ← Back
         </Link>
         <p className="text-[var(--pink)]">No such question.</p>
@@ -38,6 +46,7 @@ export function QuestionForm() {
 
 function Form({ initial }: { initial: Draft }) {
   const navigate = useNavigate()
+  const back = useBackTo()
   const queryClient = useQueryClient()
   const { questionCategories, questionSubcategories } = useContent()
   const [q, setQ] = useState(initial)
@@ -47,7 +56,7 @@ function Form({ initial }: { initial: Draft }) {
     mutationFn: () => saveQuestion({ ...q, title: q.title.trim() }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.content })
-      navigate(BACK)
+      navigate(back)
     },
   })
   const canSave = q.title.trim() !== '' && !save.isPending
@@ -60,7 +69,7 @@ function Form({ initial }: { initial: Draft }) {
         if (canSave) save.mutate()
       }}
     >
-      <Link to={BACK} className="btn-ghost fab fixed top-3 left-4 z-30">
+      <Link to={back} className="btn-ghost fab fixed top-3 left-4 z-30">
         ← Back
       </Link>
       <aside className="flex flex-col gap-5 p-4 pt-16 lg:min-h-0 lg:overflow-y-auto lg:border-r lg:border-[var(--border)]">

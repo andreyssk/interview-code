@@ -23,6 +23,7 @@ type Content struct {
 	QuestionCategories []QuestionCategory    `json:"questionCategories"`
 	QuestionSubcats    []QuestionSubcategory `json:"questionSubcategories"`
 	Questions          []Question            `json:"questions"`
+	Quizzes            []Quiz                `json:"quizzes"`
 }
 
 type Section struct {
@@ -85,7 +86,7 @@ type Article struct {
 }
 
 func (s *Store) Content(ctx context.Context) (Content, error) {
-	c := Content{Sections: []Section{}, Categories: []Category{}, Companies: []Company{}, Tasks: []Task{}, Articles: []Article{}, QuestionCategories: []QuestionCategory{}, QuestionSubcats: []QuestionSubcategory{}, Questions: []Question{}}
+	c := Content{Sections: []Section{}, Categories: []Category{}, Companies: []Company{}, Tasks: []Task{}, Articles: []Article{}, QuestionCategories: []QuestionCategory{}, QuestionSubcats: []QuestionSubcategory{}, Questions: []Question{}, Quizzes: []Quiz{}}
 
 	rows, err := s.pool.Query(ctx, `SELECT slug, name, position FROM sections ORDER BY position, slug`)
 	if err != nil {
@@ -188,7 +189,10 @@ func (s *Store) Content(ctx context.Context) (Content, error) {
 	if c.QuestionSubcats, err = s.QuestionSubcategories(ctx); err != nil {
 		return c, err
 	}
-	c.Questions, err = s.Questions(ctx)
+	if c.Questions, err = s.Questions(ctx); err != nil {
+		return c, err
+	}
+	c.Quizzes, err = s.Quizzes(ctx)
 	return c, err
 }
 

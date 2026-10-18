@@ -1,4 +1,4 @@
-import type { ApiArticle, ApiTask, Category, Company, Question, QuestionCategory, QuestionSubcategory, Section } from './content'
+import type { ApiArticle, ApiTask, Category, Company, Question, QuestionCategory, Quiz, QuestionSubcategory, Section } from './content'
 import { jsonInit, request } from './http'
 
 export interface AdminUser {
@@ -33,6 +33,11 @@ export const deleteQuestionSubcategory = (slug: string) => del(`/api/admin/quest
 export const saveQuestion = (q: Omit<Question, 'id'> & { id?: number }) =>
   q.id ? put<Question>(`/api/admin/questions/${q.id}`, q) : request<Question>('/api/admin/questions', jsonInit('POST', q))
 export const deleteQuestion = (id: number) => del(`/api/admin/questions/${id}`)
+
+/** Creates a quiz (no id yet) or replaces an existing one. */
+export const saveQuiz = (q: Omit<Quiz, 'id'> & { id?: number }) =>
+  q.id ? put<Quiz>(`/api/admin/quizzes/${q.id}`, q) : request<Quiz>('/api/admin/quizzes', jsonInit('POST', q))
+export const deleteQuiz = (id: number) => del(`/api/admin/quizzes/${id}`)
 
 export const fetchUsers = () => request<AdminUser[]>('/api/admin/users')
 export const resetPassword = (id: number) => request<{ password: string }>(`/api/admin/users/${id}/reset-password`, jsonInit('POST'))

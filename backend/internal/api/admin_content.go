@@ -268,6 +268,45 @@ func (a *API) adminSaveQuestion(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusOK, in)
 }
 
+// adminSaveQuiz creates (POST) or replaces (PUT /{id}) a quiz and returns it with its id.
+func (a *API) adminSaveQuiz(w http.ResponseWriter, r *http.Request) {
+	var in store.Quiz
+	if !decode(w, r, &in) {
+		return
+	}
+	in.ID = 0
+	if r.Method == http.MethodPut {
+		id, ok := pathID(w, r, "id")
+		if !ok {
+			return
+		}
+		in.ID = id
+	}
+	if err := validateQuiz(&in); err != nil {
+		badRequest(w, err.Error())
+		return
+	}
+	id, err := a.store.SaveQuiz(r.Context(), in)
+	if err != nil {
+		saveFail(w, err, "save quiz")
+		return
+	}
+	in.ID = id
+	writeJSON(w, http.StatusOK, in)
+}
+
+func (a *API) adminDeleteQuiz(w http.ResponseWriter, r *http.Request) {
+	id, ok := pathID(w, r, "id")
+	if !ok {
+		return
+	}
+	if err := a.store.DeleteQuiz(r.Context(), id); err != nil {
+		saveFail(w, err, "delete quiz")
+		return
+	}
+	w.WriteHeader(http.StatusNoContent)
+}
+
 func (a *API) adminDeleteQuestion(w http.ResponseWriter, r *http.Request) {
 	id, ok := pathID(w, r, "id")
 	if !ok {
@@ -288,6 +327,9 @@ func (a *API) registerAdminContent(mux *http.ServeMux) {
 	mux.HandleFunc("POST /api/admin/questions", a.adminSaveQuestion)
 	mux.HandleFunc("PUT /api/admin/questions/{id}", a.adminSaveQuestion)
 	mux.HandleFunc("DELETE /api/admin/questions/{id}", a.adminDeleteQuestion)
+	mux.HandleFunc("POST /api/admin/quizzes", a.adminSaveQuiz)
+	mux.HandleFunc("PUT /api/admin/quizzes/{id}", a.adminSaveQuiz)
+	mux.HandleFunc("DELETE /api/admin/quizzes/{id}", a.adminDeleteQuiz)
 	mux.HandleFunc("PUT /api/admin/sections/{slug}", a.adminPutSection)
 	mux.HandleFunc("PUT /api/admin/categories/{slug}", a.adminPutCategory)
 	mux.HandleFunc("PUT /api/admin/companies/{slug}", a.adminPutCompany)

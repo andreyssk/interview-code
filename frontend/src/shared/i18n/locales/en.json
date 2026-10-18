@@ -4,7 +4,8 @@
     "problems": "Problems",
     "mistakes": "Mistakes",
     "admin": "Admin",
-    "questions": "Questions"
+    "questions": "Questions",
+    "quizzes": "Quizzes"
   },
   "language": {
     "label": "Language of the interface and tasks"
@@ -227,6 +228,16 @@
     "none": "No questions found.",
     "searchPlaceholder": "Search by question or company…",
     "unknownCategory": "Unknown category."
+  },
+  "quizzes": {
+    "title": "Quizzes",
+    "searchPlaceholder": "Search by prompt, code or company…",
+    "none": "No quizzes found.",
+    "defaultPrompt": "What will be printed?",
+    "reveal": "Click to reveal the answer",
+    "hide": "Hide the answer",
+    "why": "Why",
+    "category": "Category"
   },
   "errors": {
     "title": "Something went wrong",

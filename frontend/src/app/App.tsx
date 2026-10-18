@@ -5,6 +5,7 @@ import { MistakesPage } from '@/pages/mistakes'
 import { ProblemListPage } from '@/pages/problem-list'
 import { QuestionListPage } from '@/pages/question-list'
 import { QuestionsPage } from '@/pages/questions'
+import { QuizzesPage } from '@/pages/quizzes'
 import { ProblemsPage } from '@/pages/problems'
 import { TaskPage } from '@/pages/task'
 import { TheoryPage } from '@/pages/theory'
@@ -33,6 +34,7 @@ export function App() {
             <Route path="/questions" element={<QuestionsPage />} />
             <Route path="/questions/:category" element={<QuestionListPage />} />
             <Route path="/questions/:category/:sub" element={<QuestionListPage />} />
+            <Route path="/quizzes" element={<QuizzesPage />} />
             <Route path="/tasks/:slug" element={<TaskPage />} />
             <Route path="/mistakes" element={<MistakesPage />} />
             <Route path="/mistakes/:id" element={<MistakeTypePage />} />

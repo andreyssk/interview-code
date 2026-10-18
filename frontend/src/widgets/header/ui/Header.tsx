@@ -11,6 +11,7 @@ const LINKS: (readonly [string, string])[] = [
   ['/theory', 'nav.theory'],
   ['/problems', 'nav.problems'],
   ['/questions', 'nav.questions'],
+  ['/quizzes', 'nav.quizzes'],
   ['/mistakes', 'nav.mistakes'],
 ]
 
