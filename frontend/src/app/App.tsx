@@ -1,5 +1,6 @@
 import { Navigate, Route, Routes, useLocation, useMatch } from 'react-router-dom'
 import { AdminPage, QuestionForm } from '@/pages/admin'
+import { HistoryDetailPage, HistoryPage } from '@/pages/history'
 import { MistakeTypePage } from '@/pages/mistake-type'
 import { MistakesPage } from '@/pages/mistakes'
 import { ProblemListPage } from '@/pages/problem-list'
@@ -7,6 +8,7 @@ import { QuestionListPage } from '@/pages/question-list'
 import { QuestionsPage } from '@/pages/questions'
 import { QuizzesPage } from '@/pages/quizzes'
 import { ProblemsPage } from '@/pages/problems'
+import { SessionPage } from '@/pages/session'
 import { TaskPage } from '@/pages/task'
 import { TheoryPage } from '@/pages/theory'
 import { TheoryListPage } from '@/pages/theory-list'
@@ -37,6 +39,9 @@ export function App() {
             <Route path="/questions/:category" element={<QuestionListPage />} />
             <Route path="/questions/:category/:sub" element={<QuestionListPage />} />
             <Route path="/quizzes" element={<QuizzesPage />} />
+            <Route path="/session/:id" element={<SessionPage />} />
+            <Route path="/history" element={<HistoryPage />} />
+            <Route path="/history/:id" element={<HistoryDetailPage />} />
             <Route path="/tasks/:slug" element={<TaskPage />} />
             <Route path="/mistakes" element={<MistakesPage />} />
             <Route path="/mistakes/:id" element={<MistakeTypePage />} />

@@ -1,5 +1,6 @@
 import { useTranslation } from 'react-i18next'
 import { CategoryTile } from '@/entities/category'
+import { PlayButton } from '@/features/study-session'
 import { ALL_QUESTIONS, UNCATEGORIZED, useQuestionCategories, useQuestions } from '@/entities/question'
 
 const COLORS = ['cyan', 'pink', 'amber', 'violet', 'green', 'blue']
@@ -14,7 +15,10 @@ export function QuestionsPage() {
 
   return (
     <div>
-      <h1 className="neon-title mb-4 text-3xl font-bold">{t('questions.title')}</h1>
+      <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+        <h1 className="neon-title text-3xl font-bold">{t('questions.title')}</h1>
+        <PlayButton kind="question" />
+      </div>
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         <CategoryTile to={`/questions/${ALL_QUESTIONS}`} glyph="☰" color="var(--text)" title={t('questions.all')} meta={meta(questions.length)} />
         {categories.map((c, i) => (

@@ -28,9 +28,10 @@ export function usePageTitle() {
       const p: { category?: string; sub?: string } = matchPath('/questions/:category/:sub', pathname)?.params ?? matchPath('/questions/:category', pathname)?.params ?? {}
       page = name(questionSubcategories, p.sub, (s) => s.name) ?? name(questionCategories, p.category, (c) => c.name)
     }
+    if (pathname.startsWith('/session/')) page = t('session.play')
     if (!page) {
       const section = pathname.split('/')[1]
-      const key = { theory: 'theory', problems: 'problems', questions: 'questions', quizzes: 'quizzes', mistakes: 'mistakes' }[section]
+      const key = { theory: 'theory', problems: 'problems', questions: 'questions', quizzes: 'quizzes', mistakes: 'mistakes', history: 'history' }[section]
       page = key ? t(`nav.${key}`) : undefined
     }
     document.title = page ? `${page} – ${APP_NAME}` : APP_NAME

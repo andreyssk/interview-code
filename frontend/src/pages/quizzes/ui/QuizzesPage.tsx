@@ -1,6 +1,7 @@
 import { useTranslation } from 'react-i18next'
 import { useSearchParams } from 'react-router-dom'
 import { useQuizzes } from '@/entities/quiz'
+import { PlayButton } from '@/features/study-session'
 import { useCompanies } from '@/entities/task'
 import { QuizCard } from './QuizCard'
 
@@ -31,7 +32,10 @@ export function QuizzesPage() {
 
   return (
     <div>
-      <h1 className="neon-title mb-4 text-3xl font-bold">{t('quizzes.title')}</h1>
+      <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+        <h1 className="neon-title text-3xl font-bold">{t('quizzes.title')}</h1>
+        <PlayButton kind="quiz" />
+      </div>
       <div className="with-sidebar with-sidebar-end">
         <div>
           <input className="search mb-4" placeholder={t('quizzes.searchPlaceholder')} value={q} onChange={(e) => set('q', e.target.value)} />

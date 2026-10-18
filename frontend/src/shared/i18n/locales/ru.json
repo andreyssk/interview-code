@@ -5,7 +5,8 @@
     "mistakes": "Ошибки",
     "admin": "Админка",
     "questions": "Вопросы",
-    "quizzes": "Квизы"
+    "quizzes": "Квизы",
+    "history": "История"
   },
   "language": {
     "label": "Язык интерфейса и задач"
@@ -263,5 +264,60 @@
     "title": "Недавно просмотренные",
     "empty": "Вы ещё не открывали задачи.",
     "clear": "Очистить историю"
+  },
+  "session": {
+    "play": "Играть",
+    "titleQuestion": "Сессия вопросов",
+    "titleQuiz": "Сессия квизов",
+    "count": "Сколько элементов",
+    "max": "Макс ({{count}})",
+    "onlyAvailable": "Доступно только {{count}}, столько и будет.",
+    "categories": "Категории",
+    "categoriesHint": "Если ничего не выбрано, берутся все категории.",
+    "mode": "Как выбирать",
+    "mode_srs": "С учётом оценок (SRS)",
+    "mode_srs_hint": "Плохо оценённые и ещё не виденные элементы выпадают чаще.",
+    "mode_random": "Просто случайно",
+    "mode_random_hint": "Любой элемент с равным шансом, прошлые оценки не учитываются.",
+    "start": "Начать ({{count}})",
+    "starting": "Запуск…",
+    "noQuestions": "Нет вопросов для сессии.",
+    "noQuestionsInCategories": "В выбранных категориях нет вопросов.",
+    "noQuizzes": "Нет квизов для сессии.",
+    "progress": "Элемент {{n}} из {{total}}",
+    "leave": "Выйти из сессии",
+    "showAnswer": "Показать ответ",
+    "nextStage": "Следующий этап",
+    "rateTitle": "Насколько хорошо вы знали ответ?",
+    "rating": {
+      "correct": "Верно",
+      "almost": "Почти",
+      "bad": "Плохо",
+      "veryBad": "Очень плохо"
+    },
+    "summaryTitle": "Сессия завершена",
+    "score": "Результат",
+    "notRated": "без оценки",
+    "playAgain": "Играть ещё",
+    "notFound": "Сессия не найдена.",
+    "missing": "«{{title}}» больше не существует.",
+    "skip": "Пропустить"
+  },
+  "history": {
+    "title": "История",
+    "empty": "Сессий пока нет. Нажмите «Играть» на странице вопросов или квизов.",
+    "loadError": "Не удалось загрузить историю.",
+    "questions_one": "{{count}} вопрос",
+    "questions_few": "{{count}} вопроса",
+    "questions_many": "{{count}} вопросов",
+    "questions_other": "{{count}} вопроса",
+    "quizzes_one": "{{count}} квиз",
+    "quizzes_few": "{{count}} квиза",
+    "quizzes_many": "{{count}} квизов",
+    "quizzes_other": "{{count}} квиза",
+    "unfinished": "не завершена",
+    "continue": "Продолжить",
+    "delete": "Удалить",
+    "deleteTitle": "Удалить эту сессию из истории?"
   }
 }

@@ -54,6 +54,7 @@ written in. Managed in the **admin panel** (`/admin`, admins only):
   Task numbers (`#N`) come from a database sequence: unique, starting at 1, never reused. The `add-task` and `add-article` skills
   produce these upload files (versioned copies go in `content/tasks/` and `content/articles/`).
 - **Questions** and **Question categories**: interview questions (title, companies, a rich-text answer, optional category). Users browse them on the **Questions** page (category tiles, search, company filter, answers open in place). Deleting a category keeps its questions; they become uncategorized.
+- **Study sessions**: the **Play** button on the Questions / Quizzes pages starts a self-rated drill (random or SRS-weighted); every session is kept on the **History** page. See [docs/study-sessions.md](docs/study-sessions.md).
 - **Sections & categories** and **Companies**: Algorithms / Golang / SQL, their categories, and the company tags. A task or article uploaded with a category, section (optional top-level `"section"` field) or company that does not exist creates it automatically, with a name derived from the slug and a stable pseudo-random glyph/color; new categories go to `other` unless `section` is given.
 - **Users & access**: the sign-up switch and password resets.
 

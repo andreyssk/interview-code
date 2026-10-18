@@ -13,6 +13,7 @@ const LINKS: (readonly [string, string])[] = [
   ['/questions', 'nav.questions'],
   ['/quizzes', 'nav.quizzes'],
   ['/mistakes', 'nav.mistakes'],
+  ['/history', 'nav.history'],
 ]
 
 export function Header() {

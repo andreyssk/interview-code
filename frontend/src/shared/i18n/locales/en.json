@@ -5,7 +5,8 @@
     "mistakes": "Mistakes",
     "admin": "Admin",
     "questions": "Questions",
-    "quizzes": "Quizzes"
+    "quizzes": "Quizzes",
+    "history": "History"
   },
   "language": {
     "label": "Language of the interface and tasks"
@@ -251,5 +252,56 @@
     "title": "Recently viewed",
     "empty": "No tasks viewed yet.",
     "clear": "Clear history"
+  },
+  "session": {
+    "play": "Play",
+    "titleQuestion": "Play questions",
+    "titleQuiz": "Play quizzes",
+    "count": "How many items",
+    "max": "Max ({{count}})",
+    "onlyAvailable": "Only {{count}} available, that is what you will get.",
+    "categories": "Categories",
+    "categoriesHint": "None selected means all categories.",
+    "mode": "Pick items",
+    "mode_srs": "SRS-weighted",
+    "mode_srs_hint": "Items you rated badly or have not seen yet come up more often.",
+    "mode_random": "Pure random",
+    "mode_random_hint": "Any item with the same chance, ignoring past ratings.",
+    "start": "Start ({{count}})",
+    "starting": "Starting…",
+    "noQuestions": "There are no questions to play.",
+    "noQuestionsInCategories": "There are no questions in the selected categories.",
+    "noQuizzes": "There are no quizzes to play.",
+    "progress": "Item {{n}} of {{total}}",
+    "leave": "Leave session",
+    "showAnswer": "Show answer",
+    "nextStage": "Next stage",
+    "rateTitle": "How well did you know it?",
+    "rating": {
+      "correct": "Correct",
+      "almost": "Almost",
+      "bad": "Bad",
+      "veryBad": "Very bad"
+    },
+    "summaryTitle": "Session complete",
+    "score": "Score",
+    "notRated": "not rated",
+    "playAgain": "Play again",
+    "notFound": "Session not found.",
+    "missing": "“{{title}}” no longer exists.",
+    "skip": "Skip"
+  },
+  "history": {
+    "title": "History",
+    "empty": "No sessions yet. Press Play on the Questions or Quizzes page.",
+    "loadError": "Could not load the history.",
+    "questions_one": "{{count}} question",
+    "questions_other": "{{count}} questions",
+    "quizzes_one": "{{count}} quiz",
+    "quizzes_other": "{{count}} quizzes",
+    "unfinished": "unfinished",
+    "continue": "Continue",
+    "delete": "Delete",
+    "deleteTitle": "Delete this session from the history?"
   }
 }

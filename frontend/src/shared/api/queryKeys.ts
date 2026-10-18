@@ -2,6 +2,8 @@ export const queryKeys = {
   content: ['content'] as const,
   me: ['me'] as const,
   recentTasks: ['recent-tasks'] as const,
+  sessions: ['sessions'] as const,
+  session: (id: number) => ['session', id] as const,
   adminUsers: ['admin-users'] as const,
   adminSettings: ['admin-settings'] as const,
   authConfig: ['auth-config'] as const,
