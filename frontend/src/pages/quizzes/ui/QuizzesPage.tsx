@@ -1,13 +1,16 @@
 import { useTranslation } from 'react-i18next'
-import { useSearchParams } from 'react-router-dom'
+import { Link, useSearchParams } from 'react-router-dom'
 import { useQuizzes } from '@/entities/quiz'
+import { useAuth } from '@/shared/auth/AuthContext'
 import { PlayButton } from '@/features/study-session'
 import { useCompanies } from '@/entities/task'
+import { Icon } from '@/shared/ui'
 import { QuizCard } from './QuizCard'
 
 /** All quizzes in one list, with a search box and company filter in the sidebar. */
 export function QuizzesPage() {
   const { t } = useTranslation()
+  const { user } = useAuth()
   const quizzes = useQuizzes()
   const companies = useCompanies()
   const [params, setParams] = useSearchParams()
@@ -34,7 +37,16 @@ export function QuizzesPage() {
     <div>
       <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
         <h1 className="neon-title text-3xl font-bold">{t('quizzes.title')}</h1>
-        <PlayButton kind="quiz" />
+        <div className="flex items-center gap-2">
+          {user.role === 'admin' && (
+            <span className="tip tip-left" data-tip={t('quizzes.add')}>
+              <Link to="/admin/quizzes/new" state={{ from: '/quizzes' }} className="icon-btn" aria-label={t('quizzes.add')}>
+                <Icon name="plus" />
+              </Link>
+            </span>
+          )}
+          <PlayButton kind="quiz" />
+        </div>
       </div>
       <div className="with-sidebar with-sidebar-end">
         <div>

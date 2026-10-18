@@ -238,6 +238,7 @@
     "reveal": "Click to reveal the answer",
     "hide": "Hide the answer",
     "why": "Why",
+    "add": "Add quiz",
     "stage": "Stage {{n}} of {{total}}"
   },
   "errors": {

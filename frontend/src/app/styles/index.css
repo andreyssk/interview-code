@@ -806,6 +806,9 @@ body::before {
   transition: opacity .12s, transform .12s;
 }
 .tip:hover::after, .tip:focus-within::after { opacity: 1; transform: none; transition-delay: .25s; }
+/* Variant: to the left of the trigger, vertically centered. */
+.tip-left::after { top: 50%; right: calc(100% + 0.4rem); transform: translate(2px, -50%); }
+.tip-left:hover::after, .tip-left:focus-within::after { transform: translate(0, -50%); }
 
 /* ---------- spinner ---------- */
 .spinner {
