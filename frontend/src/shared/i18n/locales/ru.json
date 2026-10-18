@@ -232,8 +232,10 @@
   "questions": {
     "title": "Вопросы",
     "all": "Все вопросы",
-    "uncategorized": "Без категории",
+    "uncategorized": "Прочее",
+    "otherSub": "Прочее",
     "allCategories": "← Все категории",
+    "backTo": "← {{name}}",
     "none": "Вопросы не найдены.",
     "searchPlaceholder": "Поиск по вопросу или компании…",
     "unknownCategory": "Неизвестная категория."

@@ -1,15 +1,15 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { deleteQuestion, deleteQuestionCategory, saveQuestionCategory } from '@/shared/api/admin'
-import type { Question, QuestionCategory } from '@/shared/api/content'
+import { deleteQuestion, deleteQuestionCategory, deleteQuestionSubcategory, saveQuestionCategory, saveQuestionSubcategory } from '@/shared/api/admin'
+import type { Question, QuestionCategory, QuestionSubcategory } from '@/shared/api/content'
 import { queryKeys } from '@/shared/api/queryKeys'
 import { useContent } from '@/shared/content/ContentContext'
 import { ConfirmDialog, Field } from '@/shared/ui'
 import { Crud } from './TaxonomyAdmin'
 
 export function QuestionsAdmin() {
-  const { questions, questionCategories, companies } = useContent()
+  const { questions, questionCategories, questionSubcategories, companies } = useContent()
   const queryClient = useQueryClient()
   const [filter, setFilter] = useState('') // '' = all, '-' = uncategorized, else a category slug
   const [removing, setRemoving] = useState<Question | null>(null)
@@ -20,7 +20,12 @@ export function QuestionsAdmin() {
       queryClient.invalidateQueries({ queryKey: queryKeys.content })
     },
   })
-  const categoryName = (slug: string | null) => questionCategories.find((c) => c.slug === slug)?.name ?? 'no category'
+  const placeName = (q: Question) => {
+    const cat = questionCategories.find((c) => c.slug === q.category)?.name
+    if (!cat) return 'Other'
+    const sub = questionSubcategories.find((c) => c.slug === q.subcategory)?.name
+    return `${cat} › ${sub ?? 'Other'}`
+  }
   const companyName = (slug: string) => companies.find((c) => c.slug === slug)?.name ?? slug
   const shown = questions.filter((q) => (filter === '' ? true : filter === '-' ? !q.category : q.category === filter))
 
@@ -31,7 +36,7 @@ export function QuestionsAdmin() {
         <div className="flex items-center gap-2">
           <select className="search search-sm" value={filter} onChange={(e) => setFilter(e.target.value)} aria-label="Filter by category">
             <option value="">all categories</option>
-            <option value="-">uncategorized</option>
+            <option value="-">Other (no category)</option>
             {questionCategories.map((c) => (
               <option key={c.slug} value={c.slug}>
                 {c.name}
@@ -50,7 +55,7 @@ export function QuestionsAdmin() {
             <span className="min-w-0 flex-1 basis-60">
               <span className="font-medium">{q.title}</span>
               <span className="ml-2 text-xs text-[var(--muted)]">
-                {categoryName(q.category)}
+                {placeName(q)}
                 {q.companies.length > 0 ? ` · ${q.companies.map(companyName).join(', ')}` : ''}
               </span>
             </span>
@@ -80,12 +85,18 @@ export function QuestionsAdmin() {
   )
 }
 
-/** Question categories. Deleting one keeps its questions; they become uncategorized. */
+/**
+ * Question categories and their subcategories. Questions without a category are shown under "Other",
+ * and those with a category but no subcategory under that category's "Other".
+ */
 export function QuestionCategoriesAdmin() {
-  const { questionCategories } = useContent()
+  const { questionCategories, questionSubcategories } = useContent()
+  const categoryName = (slug: string) => questionCategories.find((c) => c.slug === slug)?.name ?? slug
   return (
-    <div className="flex flex-col gap-3">
-      <p className="text-sm text-[var(--muted)]">Deleting a category does not delete its questions; they become uncategorized.</p>
+    <div className="flex flex-col gap-8">
+      <p className="text-sm text-[var(--muted)]">
+        Deleting a category deletes its subcategories but not its questions; they move to "Other". Deleting a subcategory moves its questions to the category's "Other".
+      </p>
       <Crud<QuestionCategory>
         title="Question categories"
         items={questionCategories}
@@ -97,6 +108,33 @@ export function QuestionCategoriesAdmin() {
           <>
             <Field label="Name">
               <input className="search" value={d.name} onChange={(e) => set({ name: e.target.value })} />
+            </Field>
+            <Field label="Order">
+              <input className="search" type="number" value={d.position} onChange={(e) => set({ position: Number(e.target.value) })} />
+            </Field>
+          </>
+        )}
+      />
+      <Crud<QuestionSubcategory>
+        title="Question subcategories"
+        items={questionSubcategories}
+        blank={{ slug: '', category: questionCategories[0]?.slug ?? '', name: '', position: questionSubcategories.length + 1 }}
+        describe={(c) => `${categoryName(c.category)} › ${c.name} (${c.slug})`}
+        save={saveQuestionSubcategory}
+        remove={deleteQuestionSubcategory}
+        renderForm={(d, set) => (
+          <>
+            <Field label="Name">
+              <input className="search" value={d.name} onChange={(e) => set({ name: e.target.value })} />
+            </Field>
+            <Field label="Category">
+              <select className="search" value={d.category} onChange={(e) => set({ category: e.target.value })}>
+                {questionCategories.map((c) => (
+                  <option key={c.slug} value={c.slug}>
+                    {c.name}
+                  </option>
+                ))}
+              </select>
             </Field>
             <Field label="Order">
               <input className="search" type="number" value={d.position} onChange={(e) => set({ position: Number(e.target.value) })} />

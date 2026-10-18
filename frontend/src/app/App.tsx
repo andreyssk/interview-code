@@ -1,5 +1,5 @@
-import { Navigate, Route, Routes, useLocation } from 'react-router-dom'
-import { AdminPage } from '@/pages/admin'
+import { Navigate, Route, Routes, useLocation, useMatch } from 'react-router-dom'
+import { AdminPage, QuestionForm } from '@/pages/admin'
 import { MistakeTypePage } from '@/pages/mistake-type'
 import { MistakesPage } from '@/pages/mistakes'
 import { ProblemListPage } from '@/pages/problem-list'
@@ -14,10 +14,14 @@ import { Header } from '@/widgets/header'
 
 export function App() {
   const { pathname } = useLocation()
+  // The question editor takes the whole viewport: no header, no admin tabs.
+  const isNew = useMatch('/admin/questions/new')
+  const isEdit = useMatch('/admin/questions/edit/:id')
+  const focus = isNew !== null || isEdit !== null
   return (
     <div className="app">
-      <Header />
-      <main className="main">
+      {!focus && <Header />}
+      <main className={focus ? 'main main-focus' : 'main'}>
         {/* A crash on one page leaves the header usable, and navigating elsewhere clears it. */}
         <ErrorBoundary resetKey={pathname}>
           <Routes>
@@ -28,9 +32,12 @@ export function App() {
             <Route path="/problems/:category" element={<ProblemListPage />} />
             <Route path="/questions" element={<QuestionsPage />} />
             <Route path="/questions/:category" element={<QuestionListPage />} />
+            <Route path="/questions/:category/:sub" element={<QuestionListPage />} />
             <Route path="/tasks/:slug" element={<TaskPage />} />
             <Route path="/mistakes" element={<MistakesPage />} />
             <Route path="/mistakes/:id" element={<MistakeTypePage />} />
+            <Route path="/admin/questions/new" element={<QuestionForm />} />
+            <Route path="/admin/questions/edit/:id" element={<QuestionForm />} />
             <Route path="/admin/*" element={<AdminPage />} />
           </Routes>
         </ErrorBoundary>

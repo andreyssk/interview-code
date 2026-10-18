@@ -1,4 +1,4 @@
-import type { ApiArticle, ApiTask, Category, Company, Question, QuestionCategory, Section } from './content'
+import type { ApiArticle, ApiTask, Category, Company, Question, QuestionCategory, QuestionSubcategory, Section } from './content'
 import { jsonInit, request } from './http'
 
 export interface AdminUser {
@@ -27,6 +27,8 @@ export const deleteCompany = (slug: string) => del(`/api/admin/companies/${slug}
 
 export const saveQuestionCategory = (c: QuestionCategory) => put<QuestionCategory>(`/api/admin/question-categories/${c.slug}`, c)
 export const deleteQuestionCategory = (slug: string) => del(`/api/admin/question-categories/${slug}`)
+export const saveQuestionSubcategory = (c: QuestionSubcategory) => put<QuestionSubcategory>(`/api/admin/question-subcategories/${c.slug}`, c)
+export const deleteQuestionSubcategory = (slug: string) => del(`/api/admin/question-subcategories/${slug}`)
 /** Creates a question (no id yet) or replaces an existing one. */
 export const saveQuestion = (q: Omit<Question, 'id'> & { id?: number }) =>
   q.id ? put<Question>(`/api/admin/questions/${q.id}`, q) : request<Question>('/api/admin/questions', jsonInit('POST', q))

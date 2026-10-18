@@ -1,2 +1,2 @@
-export { useQuestions, useQuestionCategories, ALL_QUESTIONS, UNCATEGORIZED } from './model/questions'
-export type { Question, QuestionCategory } from '@/shared/api/content'
+export { useQuestions, useQuestionCategories, useQuestionSubcategories, ALL_QUESTIONS, UNCATEGORIZED, OTHER_SUBCATEGORY } from './model/questions'
+export type { Question, QuestionCategory, QuestionSubcategory } from '@/shared/api/content'

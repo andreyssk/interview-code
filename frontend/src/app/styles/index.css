@@ -763,10 +763,14 @@ body::before {
   .workspace { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); grid-auto-rows: auto; }
 }
 .main:has(.workspace) { overflow: auto; }
-/* Full-height form pages (question editor): nothing scrolls except the panes inside the form. */
+/* Floating action buttons get a shadow so they read over the content behind them. */
+.fab { box-shadow: 0 6px 22px rgba(0, 0, 0, 0.45); }
+.btn-ghost.fab { background: var(--modal-bg); }
+
+/* Focus pages (question editor): no padding, and on wide screens nothing scrolls except the panes inside the form. */
+.main-focus { padding: 0; }
 @media (min-width: 1024px) {
   .main:has(.fit-form) { display: flex; flex-direction: column; overflow: hidden; }
-  .main:has(.fit-form) .admin-page { display: flex; min-height: 0; flex: 1; flex-direction: column; }
   .fit-form { min-height: 0; flex: 1; }
 }
 
@@ -893,6 +897,9 @@ button.btn-ghost:hover { border-color: var(--violet); box-shadow: var(--ghost-ho
 /* rich text editor (Tiptap) */
 .rte { padding: 0; }
 .rte .rte-body { min-height: 10rem; padding: 0.8rem 1rem; outline: none; }
+/* Frameless variant that fills a whole pane; the bottom padding keeps text clear of a floating action button. */
+.rte.rte-flush { border-width: 1px 0 0; border-radius: 0; }
+.rte.rte-flush .rte-body { padding: 1.2rem 1.6rem 6rem; }
 .rte .rte-body > :last-child { margin-bottom: 0; }
 .rte .rte-body li > p { margin: 0; }
 

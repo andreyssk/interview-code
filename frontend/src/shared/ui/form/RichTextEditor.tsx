@@ -92,9 +92,9 @@ function Toolbar({ editor }: { editor: Editor }) {
 
 /**
  * WYSIWYG editor over the same `Block[]` format that RichBlocks renders (p, h, pre, ul, ol, note; inline b, i, code).
- * Remount with a new `key` to load other content.
+ * Remount with a new `key` to load other content. `flush` drops the frame so it can fill a whole pane.
  */
-export function RichTextEditor({ initial, onChange }: { initial: Block[]; onChange: (blocks: Block[]) => void }) {
+export function RichTextEditor({ initial, onChange, flush = false }: { initial: Block[]; onChange: (blocks: Block[]) => void; flush?: boolean }) {
   const editor = useEditor({
     extensions,
     content: blocksToDoc(initial),
@@ -103,9 +103,11 @@ export function RichTextEditor({ initial, onChange }: { initial: Block[]; onChan
   })
   if (!editor) return null
   return (
-    <div className="flex min-h-0 flex-1 flex-col gap-2">
-      <Toolbar editor={editor} />
-      <EditorContent editor={editor} className="rte search min-h-0 flex-1 overflow-y-auto" />
+    <div className={`flex min-h-0 flex-1 flex-col ${flush ? '' : 'gap-2'}`}>
+      <div className={flush ? 'px-4 py-3' : undefined}>
+        <Toolbar editor={editor} />
+      </div>
+      <EditorContent editor={editor} className={`rte search min-h-0 flex-1 overflow-y-auto${flush ? ' rte-flush' : ''}`} />
     </div>
   )
 }

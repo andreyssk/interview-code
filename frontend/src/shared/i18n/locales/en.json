@@ -220,8 +220,10 @@
   "questions": {
     "title": "Questions",
     "all": "All questions",
-    "uncategorized": "Uncategorized",
+    "uncategorized": "Other",
+    "otherSub": "Other",
     "allCategories": "← All categories",
+    "backTo": "← {{name}}",
     "none": "No questions found.",
     "searchPlaceholder": "Search by question or company…",
     "unknownCategory": "Unknown category."

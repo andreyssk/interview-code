@@ -102,11 +102,23 @@ export interface QuestionCategory {
   position: number
 }
 
-/** An interview question with its rich-text answer. The category is optional. */
+/** Second level under a question category. */
+export interface QuestionSubcategory {
+  slug: string
+  category: string
+  name: string
+  position: number
+}
+
+/**
+ * An interview question with its rich-text answer. The category is optional; a subcategory only comes with a category.
+ * No category means the implicit "Other" category, a category without a subcategory the implicit "Other" subcategory.
+ */
 export interface Question {
   id: number
   title: string
   category: string | null
+  subcategory: string | null
   companies: string[]
   answer: Block[]
 }
@@ -118,6 +130,7 @@ export interface Content {
   tasks: ApiTask[]
   articles: ApiArticle[]
   questionCategories: QuestionCategory[]
+  questionSubcategories: QuestionSubcategory[]
   questions: Question[]
   /** The run limit of tasks that do not set their own */
   defaultTimeLimitSec: number
@@ -136,6 +149,7 @@ export const fetchContent = () =>
       tasks: c.tasks ?? [],
       articles: c.articles ?? [],
       questionCategories: c.questionCategories ?? [],
+      questionSubcategories: c.questionSubcategories ?? [],
       questions: c.questions ?? [],
       defaultTimeLimitSec: c.defaultTimeLimitSec ?? 5,
     }),

@@ -336,6 +336,17 @@ func validateQuestion(q *store.Question) error {
 			return err
 		}
 	}
+	if q.Subcat != nil && *q.Subcat == "" {
+		q.Subcat = nil
+	}
+	if q.Subcat != nil {
+		if q.Category == nil {
+			return fmt.Errorf("a subcategory needs a category")
+		}
+		if err := checkSlug("subcategory", *q.Subcat); err != nil {
+			return err
+		}
+	}
 	if q.Companies == nil {
 		q.Companies = []string{}
 	}

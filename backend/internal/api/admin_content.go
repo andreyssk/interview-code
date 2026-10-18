@@ -211,6 +211,36 @@ func (a *API) adminPutQuestionCategory(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusOK, in)
 }
 
+// Route segments reserved for the implicit pages /questions/{category}/all and /questions/{category}/other.
+func (a *API) adminPutQuestionSubcategory(w http.ResponseWriter, r *http.Request) {
+	slug, ok := slugOf(w, r)
+	if !ok {
+		return
+	}
+	var in store.QuestionSubcategory
+	if !decode(w, r, &in) {
+		return
+	}
+	in.Slug, in.Name = slug, strings.TrimSpace(in.Name)
+	if slug == "all" || slug == "other" {
+		badRequest(w, `"all" and "other" are reserved`)
+		return
+	}
+	if err := checkText("name", in.Name, 60); err != nil {
+		badRequest(w, err.Error())
+		return
+	}
+	if err := checkSlug("category", in.Category); err != nil {
+		badRequest(w, err.Error())
+		return
+	}
+	if err := a.store.SaveQuestionSubcategory(r.Context(), in); err != nil {
+		saveFail(w, err, "save question subcategory")
+		return
+	}
+	writeJSON(w, http.StatusOK, in)
+}
+
 // adminSaveQuestion creates (POST) or replaces (PUT /{id}) a question and returns it with its id.
 func (a *API) adminSaveQuestion(w http.ResponseWriter, r *http.Request) {
 	var in store.Question
@@ -253,6 +283,8 @@ func (a *API) adminDeleteQuestion(w http.ResponseWriter, r *http.Request) {
 func (a *API) registerAdminContent(mux *http.ServeMux) {
 	mux.HandleFunc("PUT /api/admin/question-categories/{slug}", a.adminPutQuestionCategory)
 	mux.HandleFunc("DELETE /api/admin/question-categories/{slug}", a.adminDeleter(a.store.DeleteQuestionCategory, "delete question category"))
+	mux.HandleFunc("PUT /api/admin/question-subcategories/{slug}", a.adminPutQuestionSubcategory)
+	mux.HandleFunc("DELETE /api/admin/question-subcategories/{slug}", a.adminDeleter(a.store.DeleteQuestionSubcategory, "delete question subcategory"))
 	mux.HandleFunc("POST /api/admin/questions", a.adminSaveQuestion)
 	mux.HandleFunc("PUT /api/admin/questions/{id}", a.adminSaveQuestion)
 	mux.HandleFunc("DELETE /api/admin/questions/{id}", a.adminDeleteQuestion)

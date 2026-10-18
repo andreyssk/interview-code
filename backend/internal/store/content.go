@@ -20,8 +20,9 @@ type Content struct {
 	// DefaultTimeLimitSec is the run limit of tasks that do not set their own.
 	DefaultTimeLimitSec int `json:"defaultTimeLimitSec"`
 	// Interview questions and their categories.
-	QuestionCategories []QuestionCategory `json:"questionCategories"`
-	Questions          []Question         `json:"questions"`
+	QuestionCategories []QuestionCategory    `json:"questionCategories"`
+	QuestionSubcats    []QuestionSubcategory `json:"questionSubcategories"`
+	Questions          []Question            `json:"questions"`
 }
 
 type Section struct {
@@ -84,7 +85,7 @@ type Article struct {
 }
 
 func (s *Store) Content(ctx context.Context) (Content, error) {
-	c := Content{Sections: []Section{}, Categories: []Category{}, Companies: []Company{}, Tasks: []Task{}, Articles: []Article{}, QuestionCategories: []QuestionCategory{}, Questions: []Question{}}
+	c := Content{Sections: []Section{}, Categories: []Category{}, Companies: []Company{}, Tasks: []Task{}, Articles: []Article{}, QuestionCategories: []QuestionCategory{}, QuestionSubcats: []QuestionSubcategory{}, Questions: []Question{}}
 
 	rows, err := s.pool.Query(ctx, `SELECT slug, name, position FROM sections ORDER BY position, slug`)
 	if err != nil {
@@ -182,6 +183,9 @@ func (s *Store) Content(ctx context.Context) (Content, error) {
 	rows.Close()
 
 	if c.QuestionCategories, err = s.QuestionCategories(ctx); err != nil {
+		return c, err
+	}
+	if c.QuestionSubcats, err = s.QuestionSubcategories(ctx); err != nil {
 		return c, err
 	}
 	c.Questions, err = s.Questions(ctx)
@@ -314,7 +318,7 @@ func refError(err error) error {
 	case "23503": // foreign key violation
 		c := pgErr.ConstraintName
 		switch {
-		case strings.Contains(c, "question_categories") || strings.Contains(c, "category") || strings.Contains(c, "section"):
+		case strings.Contains(c, "question_categories") || strings.Contains(c, "category") || strings.Contains(c, "subcategory") || strings.Contains(c, "section"):
 			if strings.HasPrefix(pgErr.Message, "update or delete") {
 				return ErrInUse
 			}
