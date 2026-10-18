@@ -378,25 +378,26 @@ func validateQuiz(q *store.Quiz) error {
 	default:
 		return fmt.Errorf("language must be go or java")
 	}
-	if err := checkText("code", q.Code, maxTextLen); err != nil {
-		return err
+	if len(q.Stages) == 0 {
+		return fmt.Errorf("a quiz needs at least one stage")
 	}
-	q.Answer = strings.TrimRight(q.Answer, " \t\r\n")
-	if err := checkText("answer", q.Answer, maxTextLen); err != nil {
-		return err
+	if len(q.Stages) > 20 {
+		return fmt.Errorf("a quiz has at most 20 stages")
 	}
-	q.Explanation = strings.TrimSpace(q.Explanation)
-	if q.Explanation != "" {
-		if err := checkText("explanation", q.Explanation, 2000); err != nil {
-			return err
+	for i := range q.Stages {
+		st := &q.Stages[i]
+		if err := checkText("code", st.Code, maxTextLen); err != nil {
+			return fmt.Errorf("stage %d: %w", i+1, err)
 		}
-	}
-	if q.Category != nil && *q.Category == "" {
-		q.Category = nil
-	}
-	if q.Category != nil {
-		if err := checkSlug("category", *q.Category); err != nil {
-			return err
+		st.Answer = strings.TrimRight(st.Answer, " \t\r\n")
+		if err := checkText("answer", st.Answer, maxTextLen); err != nil {
+			return fmt.Errorf("stage %d: %w", i+1, err)
+		}
+		st.Explanation = strings.TrimSpace(st.Explanation)
+		if st.Explanation != "" {
+			if err := checkText("explanation", st.Explanation, 2000); err != nil {
+				return fmt.Errorf("stage %d: %w", i+1, err)
+			}
 		}
 	}
 	if q.Companies == nil {

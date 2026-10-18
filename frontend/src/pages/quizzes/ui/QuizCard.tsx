@@ -40,16 +40,21 @@ export function QuizCard({ quiz }: { quiz: Quiz }) {
         </button>
       </div>
       {open && (
-        <div className="flex flex-col gap-3 border-t border-[var(--border)] px-5 py-4">
-          <pre className="code-block">{highlight(quiz.code, quiz.language)}</pre>
-          <Spoiler>
-            <pre className="output">{quiz.answer}</pre>
-            {quiz.explanation && (
-              <p className="mt-2 text-sm text-[var(--muted)]">
-                <b className="text-[var(--text)]">{t('quizzes.why')}:</b> {quiz.explanation}
-              </p>
-            )}
-          </Spoiler>
+        <div className="flex flex-col gap-5 border-t border-[var(--border)] px-5 py-4">
+          {quiz.stages.map((st, i) => (
+            <div key={i} className="flex flex-col gap-3">
+              {quiz.stages.length > 1 && <div className="text-xs uppercase tracking-wider text-[var(--muted)]">{t('quizzes.stage', { n: i + 1, total: quiz.stages.length })}</div>}
+              <pre className="code-block">{highlight(st.code, quiz.language)}</pre>
+              <Spoiler>
+                <pre className="output">{st.answer}</pre>
+                {st.explanation && (
+                  <p className="mt-2 text-sm text-[var(--muted)]">
+                    <b className="text-[var(--text)]">{t('quizzes.why')}:</b> {st.explanation}
+                  </p>
+                )}
+              </Spoiler>
+            </div>
+          ))}
         </div>
       )}
     </div>

@@ -123,19 +123,22 @@ export interface Question {
   answer: Block[]
 }
 
-/** A code snippet and what it prints / does; the answer is hidden behind a spoiler until the reader clicks it. */
-export interface Quiz {
-  id: number
-  /** Optional prompt, e.g. "What will be printed?" */
-  title: string
-  language: 'go' | 'java'
+/** One step of a quiz: a code snippet and what it prints / does; the answer is hidden behind a spoiler. */
+export interface QuizStage {
   code: string
   /** Plain text: the output, or what happens */
   answer: string
   /** Optional short why */
   explanation: string
-  /** One of the task categories */
-  category: string | null
+}
+
+/** A quiz is a sequence of stages. */
+export interface Quiz {
+  id: number
+  /** Optional prompt, e.g. "What will be printed?" */
+  title: string
+  language: 'go' | 'java'
+  stages: QuizStage[]
   companies: string[]
 }
 

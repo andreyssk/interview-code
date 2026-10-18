@@ -12,9 +12,11 @@ import { TheoryPage } from '@/pages/theory'
 import { TheoryListPage } from '@/pages/theory-list'
 import { ErrorBoundary } from '@/shared/ui'
 import { Header } from '@/widgets/header'
+import { usePageTitle } from './usePageTitle'
 
 export function App() {
   const { pathname } = useLocation()
+  usePageTitle()
   // The question editor takes the whole viewport: no header, no admin tabs.
   const isNew = useMatch('/admin/questions/new')
   const isEdit = useMatch('/admin/questions/edit/:id')

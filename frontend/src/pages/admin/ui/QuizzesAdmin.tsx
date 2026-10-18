@@ -9,7 +9,7 @@ import { ConfirmDialog } from '@/shared/ui'
 
 /** Quizzes: a code snippet and its answer. The list shows the prompt (or the first line of code). */
 export function QuizzesAdmin() {
-  const { quizzes, categories, companies } = useContent()
+  const { quizzes, companies } = useContent()
   const queryClient = useQueryClient()
   const [removing, setRemoving] = useState<Quiz | null>(null)
   const remove = useMutation({
@@ -19,8 +19,7 @@ export function QuizzesAdmin() {
       queryClient.invalidateQueries({ queryKey: queryKeys.content })
     },
   })
-  const label = (q: Quiz) => q.title || q.code.split('\n').find((l) => l.trim()) || `Quiz #${q.id}`
-  const categoryName = (slug: string | null) => categories.find((c) => c.slug === slug)?.name
+  const label = (q: Quiz) => q.title || q.stages[0]?.code.split('\n').find((l) => l.trim()) || `Quiz #${q.id}`
   const companyName = (slug: string) => companies.find((c) => c.slug === slug)?.name ?? slug
 
   return (
@@ -38,7 +37,7 @@ export function QuizzesAdmin() {
             <span className="min-w-0 flex-1 basis-60">
               <span className="font-medium">{label(q)}</span>
               <span className="ml-2 text-xs text-[var(--muted)]">
-                {[q.language, categoryName(q.category), q.companies.map(companyName).join(', ')].filter(Boolean).join(' · ')}
+                {[q.language, `${q.stages.length} stage${q.stages.length === 1 ? '' : 's'}`, q.companies.map(companyName).join(', ')].filter(Boolean).join(' · ')}
               </span>
             </span>
             <span className="flex gap-1.5">

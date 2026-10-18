@@ -237,7 +237,7 @@
     "reveal": "Click to reveal the answer",
     "hide": "Hide the answer",
     "why": "Why",
-    "category": "Category"
+    "stage": "Stage {{n}} of {{total}}"
   },
   "errors": {
     "title": "Something went wrong",

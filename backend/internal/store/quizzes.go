@@ -7,21 +7,25 @@ import (
 	"github.com/jackc/pgx/v5"
 )
 
-// Quiz is a code snippet with the output (or behavior) it produces, revealed by the user on demand.
+// QuizStage is one step of a quiz: a code snippet, the output (or behavior) it produces, and a short why.
+type QuizStage struct {
+	Code        string `json:"code"`
+	Answer      string `json:"answer"`
+	Explanation string `json:"explanation"`
+}
+
+// Quiz is an ordered list of stages, each revealed by the user on demand.
 type Quiz struct {
-	ID          int64    `json:"id"`
-	Title       string   `json:"title"` // optional prompt
-	Language    string   `json:"language"`
-	Code        string   `json:"code"`
-	Answer      string   `json:"answer"`
-	Explanation string   `json:"explanation"`
-	Category    *string  `json:"category"` // optional, one of the task categories
-	Companies   []string `json:"companies"`
+	ID        int64       `json:"id"`
+	Title     string      `json:"title"` // optional prompt
+	Language  string      `json:"language"`
+	Stages    []QuizStage `json:"stages"`
+	Companies []string    `json:"companies"`
 }
 
 func (s *Store) Quizzes(ctx context.Context) ([]Quiz, error) {
 	rows, err := s.pool.Query(ctx, `
-		SELECT q.id, q.title, q.language, q.code, q.answer, q.explanation, q.category_slug,
+		SELECT q.id, q.title, q.language,
 		       COALESCE((SELECT array_agg(company_slug ORDER BY company_slug) FROM quiz_companies WHERE quiz_id = q.id), '{}')
 		FROM quizzes q ORDER BY q.id`)
 	if err != nil {
@@ -29,14 +33,35 @@ func (s *Store) Quizzes(ctx context.Context) ([]Quiz, error) {
 	}
 	defer rows.Close()
 	out := []Quiz{}
+	byID := map[int64]int{}
 	for rows.Next() {
 		var q Quiz
-		if err := rows.Scan(&q.ID, &q.Title, &q.Language, &q.Code, &q.Answer, &q.Explanation, &q.Category, &q.Companies); err != nil {
+		if err := rows.Scan(&q.ID, &q.Title, &q.Language, &q.Companies); err != nil {
 			return nil, err
 		}
+		q.Stages = []QuizStage{}
+		byID[q.ID] = len(out)
 		out = append(out, q)
 	}
-	return out, rows.Err()
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	srows, err := s.pool.Query(ctx, `SELECT quiz_id, code, answer, explanation FROM quiz_stages ORDER BY quiz_id, position`)
+	if err != nil {
+		return nil, err
+	}
+	defer srows.Close()
+	for srows.Next() {
+		var id int64
+		var st QuizStage
+		if err := srows.Scan(&id, &st.Code, &st.Answer, &st.Explanation); err != nil {
+			return nil, err
+		}
+		if i, ok := byID[id]; ok {
+			out[i].Stages = append(out[i].Stages, st)
+		}
+	}
+	return out, srows.Err()
 }
 
 // SaveQuiz creates a quiz (ID 0) or replaces an existing one, and returns its ID.
@@ -45,19 +70,29 @@ func (s *Store) SaveQuiz(ctx context.Context, q Quiz) (int64, error) {
 	err := pgx.BeginFunc(ctx, s.pool, func(tx pgx.Tx) error {
 		if id == 0 {
 			if err := tx.QueryRow(ctx,
-				`INSERT INTO quizzes (title, language, code, answer, explanation, category_slug) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id`,
-				q.Title, q.Language, q.Code, q.Answer, q.Explanation, q.Category).Scan(&id); err != nil {
+				`INSERT INTO quizzes (title, language) VALUES ($1, $2) RETURNING id`,
+				q.Title, q.Language).Scan(&id); err != nil {
 				return err
 			}
 		} else {
 			tag, err := tx.Exec(ctx,
-				`UPDATE quizzes SET title = $2, language = $3, code = $4, answer = $5, explanation = $6, category_slug = $7, updated_at = now() WHERE id = $1`,
-				id, q.Title, q.Language, q.Code, q.Answer, q.Explanation, q.Category)
+				`UPDATE quizzes SET title = $2, language = $3, updated_at = now() WHERE id = $1`,
+				id, q.Title, q.Language)
 			if err != nil {
 				return err
 			}
 			if tag.RowsAffected() == 0 {
 				return ErrNotFound
+			}
+		}
+		if _, err := tx.Exec(ctx, `DELETE FROM quiz_stages WHERE quiz_id = $1`, id); err != nil {
+			return err
+		}
+		for i, st := range q.Stages {
+			if _, err := tx.Exec(ctx,
+				`INSERT INTO quiz_stages (quiz_id, position, code, answer, explanation) VALUES ($1, $2, $3, $4, $5)`,
+				id, i, st.Code, st.Answer, st.Explanation); err != nil {
+				return err
 			}
 		}
 		if _, err := tx.Exec(ctx, `DELETE FROM quiz_companies WHERE quiz_id = $1`, id); err != nil {
