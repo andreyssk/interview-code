@@ -2,7 +2,7 @@ import type { ReactNode } from 'react'
 
 export type EditorLanguage = 'go' | 'java'
 
-const CLASS: Record<string, string> = {
+export const TOKEN_CLASS: Record<string, string> = {
   comment: 'tok-comment',
   string: 'tok-string',
   number: 'tok-number',
@@ -41,19 +41,33 @@ const TOKENS: Record<EditorLanguage, RegExp> = {
   ),
 }
 
+export interface Token {
+  from: number
+  to: number
+  /** Key of TOKEN_CLASS */
+  kind: string
+}
+
+/** The highlighted spans of `src`; everything between them is plain text. */
+export function tokenize(src: string, language: EditorLanguage = 'go'): Token[] {
+  return [...src.matchAll(TOKENS[language])].map((m) => ({
+    from: m.index!,
+    to: m.index! + m[0].length,
+    kind: Object.keys(m.groups!).find((k) => m.groups![k] !== undefined)!,
+  }))
+}
+
 export function highlight(src: string, language: EditorLanguage = 'go'): ReactNode[] {
   const out: ReactNode[] = []
   let last = 0
-  for (const m of src.matchAll(TOKENS[language])) {
-    const start = m.index!
-    if (start > last) out.push(src.slice(last, start))
-    const kind = Object.keys(m.groups!).find((k) => m.groups![k] !== undefined)!
+  for (const t of tokenize(src, language)) {
+    if (t.from > last) out.push(src.slice(last, t.from))
     out.push(
-      <span key={start} className={CLASS[kind]}>
-        {m[0]}
+      <span key={t.from} className={TOKEN_CLASS[t.kind]}>
+        {src.slice(t.from, t.to)}
       </span>,
     )
-    last = start + m[0].length
+    last = t.to
   }
   out.push(src.slice(last))
   return out

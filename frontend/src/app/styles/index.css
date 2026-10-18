@@ -773,7 +773,8 @@ body::before {
 
 /* Small square icon button (row actions, viewer toolbar). */
 .icon-btn { display: inline-flex; align-items: center; justify-content: center; padding: 0.4rem; border-radius: 0.45rem; color: var(--muted); transition: color .15s, background-color .15s; }
-.icon-btn:hover { color: var(--cyan); background: var(--ghost-bg); }
+.icon-btn:hover:not(:disabled) { color: var(--cyan); background: var(--ghost-bg); }
+.icon-btn:disabled { opacity: 0.4; cursor: not-allowed; }
 
 /* Floating action buttons get a shadow so they read over the content behind them. */
 .fab { box-shadow: 0 6px 22px rgba(0, 0, 0, 0.45); }
@@ -900,6 +901,23 @@ button.btn-ghost:hover { border-color: var(--violet); box-shadow: var(--ghost-ho
   font: 0.92rem/1.7 "JetBrains Mono", ui-monospace, monospace;
   background: var(--example-bg); border: 1px solid var(--border); border-left: 3px solid var(--accent-bar);
 }
+/* Inside a code block, <code> must not look like inline code. */
+.prose-task pre { tab-size: 4; }
+.prose-task pre code { padding: 0; border: 0; border-radius: 0; background: none; color: inherit; font: inherit; }
+/* Text background (<mark>, amber by default) and text color: one of six theme colors. */
+.prose-task mark { padding: 0.05em 0.25em; border-radius: 0.25em; color: inherit; background: color-mix(in srgb, var(--amber) 32%, transparent); }
+.prose-task mark[data-c='red'] { background: color-mix(in srgb, var(--red) 32%, transparent); }
+.prose-task mark[data-c='amber'] { background: color-mix(in srgb, var(--amber) 32%, transparent); }
+.prose-task mark[data-c='green'] { background: color-mix(in srgb, var(--green) 32%, transparent); }
+.prose-task mark[data-c='cyan'] { background: color-mix(in srgb, var(--cyan) 32%, transparent); }
+.prose-task mark[data-c='blue'] { background: color-mix(in srgb, var(--blue) 32%, transparent); }
+.prose-task mark[data-c='violet'] { background: color-mix(in srgb, var(--violet) 32%, transparent); }
+.prose-task [data-fg='red'] { color: var(--red); }
+.prose-task [data-fg='amber'] { color: var(--amber); }
+.prose-task [data-fg='green'] { color: var(--green); }
+.prose-task [data-fg='cyan'] { color: var(--cyan); }
+.prose-task [data-fg='blue'] { color: var(--blue); }
+.prose-task [data-fg='violet'] { color: var(--violet); }
 .prose-task ul { margin: 0 0 1rem; padding-left: 1.4rem; list-style: disc; }
 .prose-task ol { margin: 0 0 1rem; padding-left: 1.4rem; list-style: decimal; }
 .prose-task i { font-style: italic; }
@@ -914,6 +932,7 @@ button.btn-ghost:hover { border-color: var(--violet); box-shadow: var(--ghost-ho
 .rte.rte-flush .rte-body { padding: 1.2rem 1.6rem 6rem; }
 .rte .rte-body > :last-child { margin-bottom: 0; }
 .rte .rte-body li > p { margin: 0; }
+.rte .rte-body pre { white-space: pre; }
 
 .output {
   margin: 0; padding: 1rem; border-radius: 0.7rem; overflow: auto; white-space: pre-wrap;

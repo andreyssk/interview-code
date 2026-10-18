@@ -1,12 +1,12 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { useState } from 'react'
-import { Link, Navigate, useLocation, useNavigate, useParams } from 'react-router-dom'
+import { useEffect, useState } from 'react'
+import { Link, Navigate, useLocation, useParams } from 'react-router-dom'
 import { saveQuestion } from '@/shared/api/admin'
 import type { Question } from '@/shared/api/content'
 import { queryKeys } from '@/shared/api/queryKeys'
 import { useAuth } from '@/shared/auth/AuthContext'
 import { useContent } from '@/shared/content/ContentContext'
-import { CompanyMultiSelect, Field, RichTextEditor } from '@/shared/ui'
+import { CompanyMultiSelect, Field, Icon, RichTextEditor } from '@/shared/ui'
 
 type Draft = Omit<Question, 'id'> & { id?: number }
 const blank: Draft = { title: '', category: null, subcategory: null, companies: [], answer: [{ p: '' }] }
@@ -45,20 +45,28 @@ export function QuestionForm() {
 }
 
 function Form({ initial }: { initial: Draft }) {
-  const navigate = useNavigate()
   const back = useBackTo()
   const queryClient = useQueryClient()
   const { questionCategories, questionSubcategories } = useContent()
   const [q, setQ] = useState(initial)
   const categorySubs = q.category ? questionSubcategories.filter((c) => c.category === q.category) : []
 
+  // Saving keeps the form open. A new question gets its id from the first save, so later saves update it
+  // instead of creating a duplicate.
+  const [saved, setSaved] = useState(false)
   const save = useMutation({
     mutationFn: () => saveQuestion({ ...q, title: q.title.trim() }),
-    onSuccess: () => {
+    onSuccess: (saved) => {
+      setQ((p) => ({ ...p, id: saved.id }))
       queryClient.invalidateQueries({ queryKey: queryKeys.content })
-      navigate(back)
+      setSaved(true)
     },
   })
+  useEffect(() => {
+    if (!saved) return
+    const timer = setTimeout(() => setSaved(false), 2500)
+    return () => clearTimeout(timer)
+  }, [saved])
   const canSave = q.title.trim() !== '' && !save.isPending
 
   return (
@@ -67,6 +75,12 @@ function Form({ initial }: { initial: Draft }) {
       onSubmit={(e) => {
         e.preventDefault()
         if (canSave) save.mutate()
+      }}
+      onKeyDown={(e) => {
+        if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 's') {
+          e.preventDefault()
+          if (canSave) save.mutate()
+        }
       }}
     >
       <Link to={back} className="btn-ghost fab fixed top-3 left-4 z-30">
@@ -103,13 +117,22 @@ function Form({ initial }: { initial: Draft }) {
         </Field>
       </aside>
       <div className="flex h-[70dvh] min-h-0 flex-col lg:h-auto">
-        <RichTextEditor flush initial={initial.answer} onChange={(b) => setQ((p) => ({ ...p, answer: b }))} />
-      </div>
-      <div className="fixed right-6 bottom-5 z-30 flex items-center gap-4">
-        {save.isError && <p className="fab rounded-lg px-3 py-2 text-sm text-[var(--pink)]">{save.error.message}</p>}
-        <button type="submit" className="btn-run btn-lg fab" disabled={!canSave}>
-          {save.isPending ? 'Saving…' : 'Save question'}
-        </button>
+        <RichTextEditor
+          flush
+          initial={initial.answer}
+          onChange={(b) => setQ((p) => ({ ...p, answer: b }))}
+          actions={
+            <>
+              <span role="status" className="text-sm">
+                {saved && <span className="text-[var(--green)]">Saved ✓</span>}
+                {save.isError && <span className="text-[var(--pink)]">{save.error.message}</span>}
+              </span>
+              <button type="submit" className="icon-btn" title="Save (Ctrl+S)" aria-label="Save question" disabled={!canSave}>
+                <Icon name="save" />
+              </button>
+            </>
+          }
+        />
       </div>
     </form>
   )

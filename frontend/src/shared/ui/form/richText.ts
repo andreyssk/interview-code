@@ -1,3 +1,4 @@
+import { INLINE_TOKEN, isInlineColor, type InlineColor } from '@/shared/lib/inlineColors'
 import type { Block } from '../rich-blocks/RichBlocks'
 
 /** Minimal shape of the Tiptap/ProseMirror JSON we produce and read. */
@@ -6,69 +7,90 @@ export interface PMNode {
   attrs?: Record<string, unknown>
   content?: PMNode[]
   text?: string
-  marks?: { type: string }[]
+  marks?: { type: string; attrs?: Record<string, unknown> }[]
 }
 
-type Tag = 'b' | 'i' | 'code'
-const TAGS: Tag[] = ['b', 'i', 'code'] // nesting order when serializing: outermost first
-const MARK: Record<Tag, string> = { b: 'bold', i: 'italic', code: 'code' }
-const TAG_OF: Record<string, Tag> = { bold: 'b', italic: 'i', code: 'code' }
-const TOKEN = /<(\/?)(b|i|code)>/g
+type Tag = 'mark' | 'color' | 'b' | 'i' | 'code'
+const TAG_ORDER: Tag[] = ['mark', 'color', 'b', 'i', 'code'] // nesting order when serializing: outermost first
+const MARK_NAME: Record<Tag, string> = { mark: 'highlight', color: 'textColor', b: 'bold', i: 'italic', code: 'code' }
+const TAG_OF: Record<string, Tag> = { highlight: 'mark', textColor: 'color', bold: 'b', italic: 'i', code: 'code' }
+
+/** A mark in markup terms: the tag plus its color (color for <color>, optional for <mark>). */
+interface Style {
+  tag: Tag
+  color?: InlineColor
+}
+const keyOf = (s: Style) => (s.color ? `${s.tag}:${s.color}` : s.tag)
+const openTag = (s: Style) => `<${keyOf(s)}>`
 
 interface Run {
   text: string
-  tags: Set<Tag>
+  styles: Style[]
 }
 
-/** Parses "a <b>b</b> <code>c</code>" into text runs. Unbalanced tags stay as literal text. */
+/** Parses "a <b>b</b> <color:red>c</color>" into text runs. Unbalanced or invalid tags stay as literal text. */
 function parseInline(source: string): Run[] {
-  const frames: { tag: Tag | null; runs: Run[] }[] = [{ tag: null, runs: [] }]
+  const frames: { style: Style | null; runs: Run[] }[] = [{ style: null, runs: [] }]
   const top = () => frames[frames.length - 1]
-  const text = (t: string) => t && top().runs.push({ text: t, tags: new Set() })
+  const text = (t: string) => t && top().runs.push({ text: t, styles: [] })
   let last = 0
-  for (const m of source.matchAll(TOKEN)) {
+  for (const m of source.matchAll(INLINE_TOKEN)) {
     text(source.slice(last, m.index))
     last = m.index + m[0].length
     const closing = m[1] === '/'
     const tag = m[2] as Tag
-    if (!closing) frames.push({ tag, runs: [] })
-    else if (top().tag === tag) {
-      const f = frames.pop()!
-      f.runs.forEach((r) => r.tags.add(tag))
-      top().runs.push(...f.runs)
-    } else text(m[0])
+    const color = m[3] as InlineColor | undefined
+    if (closing) {
+      if (top().style?.tag === tag && !color) {
+        const f = frames.pop()!
+        f.runs.forEach((r) => r.styles.push(f.style!))
+        top().runs.push(...f.runs)
+      } else text(m[0])
+    } else if (tag === 'color' && !color) text(m[0]) // a text color needs a color
+    else frames.push({ style: { tag, color }, runs: [] })
   }
   text(source.slice(last))
   while (frames.length > 1) {
     const f = frames.pop()!
-    text(`<${f.tag}>`)
+    text(openTag(f.style!))
     top().runs.push(...f.runs)
   }
   return frames[0].runs
 }
 
 function inlineToPM(source: string): PMNode[] {
-  return parseInline(source.replace(/\n/g, ' ')).map(({ text, tags }) => {
-    // The code mark excludes all other marks.
-    const marks = tags.has('code') ? ['code'] : TAGS.filter((t) => tags.has(t)).map((t) => MARK[t])
-    return { type: 'text', text, ...(marks.length ? { marks: marks.map((type) => ({ type })) } : {}) }
+  return parseInline(source.replace(/\n/g, ' ')).map(({ text, styles }) => {
+    // The code mark excludes all other marks. Within a kind, the innermost (first closed) wins on conflicts.
+    const used = styles.some((s) => s.tag === 'code') ? styles.filter((s) => s.tag === 'code') : styles
+    const marks = TAG_ORDER.flatMap((tag) => {
+      const s = used.find((u) => u.tag === tag)
+      if (!s) return []
+      return [{ type: MARK_NAME[tag], ...(tag === 'mark' || tag === 'color' ? { attrs: { color: s.color ?? null } } : {}) }]
+    })
+    return { type: 'text', text, ...(marks.length ? { marks } : {}) }
   })
 }
 
 function inlineFromPM(nodes: PMNode[] = []): string {
   let out = ''
-  let open: Tag[] = []
+  let open: Style[] = []
   for (const n of nodes) {
-    const marks = (n.marks ?? []).map((m) => TAG_OF[m.type]).filter(Boolean)
-    const want = TAGS.filter((t) => marks.includes(t))
+    const styles: Style[] = []
+    for (const tag of TAG_ORDER) {
+      const m = (n.marks ?? []).find((x) => TAG_OF[x.type] === tag)
+      if (!m) continue
+      const color = m.attrs?.color
+      if (tag === 'color' && !isInlineColor(color)) continue
+      styles.push({ tag, color: isInlineColor(color) ? color : undefined })
+    }
     let k = 0
-    while (k < open.length && k < want.length && open[k] === want[k]) k++
-    for (let i = open.length - 1; i >= k; i--) out += `</${open[i]}>`
-    for (let i = k; i < want.length; i++) out += `<${want[i]}>`
+    while (k < open.length && k < styles.length && keyOf(open[k]) === keyOf(styles[k])) k++
+    for (let i = open.length - 1; i >= k; i--) out += `</${open[i].tag}>`
+    for (let i = k; i < styles.length; i++) out += openTag(styles[i])
     out += n.text ?? ''
-    open = want
+    open = styles
   }
-  for (let i = open.length - 1; i >= 0; i--) out += `</${open[i]}>`
+  for (let i = open.length - 1; i >= 0; i--) out += `</${open[i].tag}>`
   return out
 }
 
@@ -82,7 +104,7 @@ export function blocksToDoc(blocks: Block[]): PMNode {
   const content = blocks.map((b): PMNode => {
     if ('p' in b) return { type: 'paragraph', content: inlineToPM(b.p) }
     if ('h' in b) return { type: 'heading', attrs: { level: 4 }, content: b.h ? [{ type: 'text', text: b.h }] : [] }
-    if ('pre' in b) return { type: 'codeBlock', content: b.pre ? [{ type: 'text', text: b.pre }] : [] }
+    if ('pre' in b) return { type: 'codeBlock', attrs: { language: b.lang ?? null }, content: b.pre ? [{ type: 'text', text: b.pre }] : [] }
     if ('note' in b) return { type: 'note', content: inlineToPM(b.note) }
     if ('ol' in b) return list('orderedList', b.ol)
     return list('bulletList', b.ul)
@@ -108,7 +130,8 @@ export function docToBlocks(doc: PMNode): Block[] {
       }
       case 'codeBlock': {
         const pre = plain(n.content)
-        if (pre.trim()) blocks.push({ pre })
+        const lang = n.attrs?.language
+        if (pre.trim()) blocks.push(lang === 'go' || lang === 'java' ? { pre, lang } : { pre })
         break
       }
       case 'note': {

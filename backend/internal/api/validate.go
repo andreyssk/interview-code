@@ -65,6 +65,14 @@ func validateBlocks(what string, raw json.RawMessage, required bool) error {
 		return fmt.Errorf("%s must have at least one block", what)
 	}
 	for i, b := range blocks {
+		// A code block may carry its language next to the code: {"pre": "...", "lang": "go"}.
+		if lang, ok := b["lang"]; ok {
+			var l string
+			if _, hasPre := b["pre"]; !hasPre || len(b) != 2 || json.Unmarshal(lang, &l) != nil || (l != "go" && l != "java") {
+				return fmt.Errorf(`%s block %d: "lang" (go or java) is only allowed next to "pre"`, what, i+1)
+			}
+			delete(b, "lang")
+		}
 		if len(b) != 1 {
 			return fmt.Errorf("%s block %d: exactly one of p, h, pre, ul, ol, note", what, i+1)
 		}
