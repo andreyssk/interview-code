@@ -4,8 +4,8 @@ import { INLINE_COLORS, type InlineColor } from '@/shared/lib/inlineColors'
 import { Icon } from '../icon/Icon'
 
 const KIND = {
-  bg: { mark: 'highlight', title: 'Background color', icon: <Icon name="highlight" /> },
-  fg: { mark: 'textColor', title: 'Text color', icon: <span className="font-semibold">A</span> },
+  bg: { mark: 'highlight', title: 'Background color (Ctrl+Shift+H)', icon: <Icon name="highlight" /> },
+  fg: { mark: 'textColor', title: 'Text color', icon: <span className="font-semibold leading-none">A</span> },
 } as const
 
 /** A toolbar button with a six-color palette: sets the selection's text color (fg) or background (bg). */
@@ -37,12 +37,12 @@ export function ColorMenu({ editor, kind }: { editor: Editor; kind: keyof typeof
         title={title}
         aria-label={title}
         aria-expanded={open}
-        className={`chip flex items-center gap-1 ${current ? 'chip-active' : ''}`}
+        className={`chip inline-flex h-[1.9rem] items-center justify-center gap-1.5 !px-2.5 ${current ? 'chip-active' : ''}`}
         onMouseDown={(e) => e.preventDefault()}
         onClick={() => setOpen((v) => !v)}
       >
         {icon}
-        <span className="h-1 w-3 rounded-full" style={{ background: current ? `var(--${current})` : 'var(--border)' }} aria-hidden="true" />
+        <span className="h-3.5 w-3.5 shrink-0 rounded-[4px] border border-[var(--border)]" style={{ background: current ? `var(--${current})` : 'var(--border)' }} aria-hidden="true" />
       </button>
       {open && (
         <div className="absolute top-full left-0 z-30 mt-1 flex items-center gap-1.5 rounded-lg border border-[var(--border)] bg-[var(--modal-bg)] p-2 shadow-lg" role="menu" aria-label={title}>

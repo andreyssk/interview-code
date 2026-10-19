@@ -1,4 +1,4 @@
-import { Mark, Node } from '@tiptap/core'
+import { Extension, InputRule, Mark, Node } from '@tiptap/core'
 import Highlight from '@tiptap/extension-highlight'
 import { EditorContent, useEditor, useEditorState, type Editor } from '@tiptap/react'
 import { ListItem } from '@tiptap/extension-list'
@@ -47,6 +47,32 @@ const TextColor = Mark.create({
   renderHTML: ({ HTMLAttributes }) => ['span', HTMLAttributes, 0],
 })
 
+/** Extra hotkeys; bold, italic, inline code, undo and redo come with the starter kit. */
+const Hotkeys = Extension.create({
+  name: 'hotkeys',
+  addKeyboardShortcuts() {
+    const e = () => this.editor
+    return {
+      'Mod-Alt-h': () => e().chain().focus().toggleHeading({ level: 4 }).run(),
+      'Mod-Shift-8': () => e().chain().focus().toggleBulletList().run(),
+      'Mod-Shift-7': () => e().chain().focus().toggleOrderedList().run(),
+      'Mod-Alt-c': () => e().chain().focus().toggleCodeBlock({ language: 'go' }).run(),
+      'Mod-Alt-n': () => e().chain().focus().toggleNode('note', 'paragraph').run(),
+      'Mod-Shift-h': () => e().chain().focus().toggleHighlight().run(),
+    }
+  },
+})
+
+/** "--" becomes an em dash; one more "-" right after it gives the literal "---" back. Backspace undoes either. */
+const SmartDash = Extension.create({
+  name: 'smartDash',
+  addInputRules() {
+    const replace = (find: RegExp, text: string) =>
+      new InputRule({ find, handler: ({ state, range }) => void state.tr.insertText(text, range.from, range.to) })
+    return [replace(/--$/, '\u2014'), replace(/\u2014-$/, '---')]
+  },
+})
+
 // A list item holds a single paragraph: the block format stores one string per item.
 const FlatListItem = ListItem.extend({ content: 'paragraph' })
 
@@ -69,6 +95,8 @@ const extensions = [
   ColoredHighlight,
   TextColor,
   CodeEditing,
+  Hotkeys,
+  SmartDash,
 ]
 
 // Curved-arrow icons (Lucide undo-2 / redo-2); redo is the undo icon mirrored.
@@ -93,18 +121,18 @@ const TOOLS: Tool[] = [
   { label: <b>B</b>, title: 'Bold (Ctrl+B)', active: (e) => e.isActive('bold'), run: (e) => e.chain().focus().toggleBold().run() },
   { label: <i>I</i>, title: 'Italic (Ctrl+I)', active: (e) => e.isActive('italic'), run: (e) => e.chain().focus().toggleItalic().run() },
   { label: '</>', mono: true, title: 'Inline code (Ctrl+E)', active: (e) => e.isActive('code'), run: (e) => e.chain().focus().toggleCode().run() },
-  { label: 'H', title: 'Heading', active: (e) => e.isActive('heading'), run: (e) => e.chain().focus().toggleHeading({ level: 4 }).run() },
-  { label: '• List', title: 'Bullet list', active: (e) => e.isActive('bulletList'), run: (e) => e.chain().focus().toggleBulletList().run() },
-  { label: '1. List', title: 'Numbered list', active: (e) => e.isActive('orderedList'), run: (e) => e.chain().focus().toggleOrderedList().run() },
-  { label: 'Code block', mono: true, title: 'Code block', active: (e) => e.isActive('codeBlock'), run: (e) => e.chain().focus().toggleCodeBlock({ language: 'go' }).run() },
-  { label: 'Note', title: 'Info callout', active: (e) => e.isActive('note'), run: (e) => e.chain().focus().toggleNode('note', 'paragraph').run() },
+  { label: 'H', title: 'Heading (Ctrl+Alt+H)', active: (e) => e.isActive('heading'), run: (e) => e.chain().focus().toggleHeading({ level: 4 }).run() },
+  { label: '• List', title: 'Bullet list (Ctrl+Shift+8)', active: (e) => e.isActive('bulletList'), run: (e) => e.chain().focus().toggleBulletList().run() },
+  { label: '1. List', title: 'Numbered list (Ctrl+Shift+7)', active: (e) => e.isActive('orderedList'), run: (e) => e.chain().focus().toggleOrderedList().run() },
+  { label: 'Code block', mono: true, title: 'Code block (Ctrl+Alt+C)', active: (e) => e.isActive('codeBlock'), run: (e) => e.chain().focus().toggleCodeBlock({ language: 'go' }).run() },
+  { label: 'Note', title: 'Info callout (Ctrl+Alt+N)', active: (e) => e.isActive('note'), run: (e) => e.chain().focus().toggleNode('note', 'paragraph').run() },
 ]
 
 function Toolbar({ editor, actions }: { editor: Editor; actions?: ReactNode }) {
   // Re-render on selection/content changes so the active states stay current.
   useEditorState({ editor, selector: (s) => s.transactionNumber })
   return (
-    <div className="flex flex-wrap gap-1.5">
+    <div className="flex flex-wrap items-center gap-1.5">
       {TOOLS.map((t) => (
         <button
           key={t.title}
