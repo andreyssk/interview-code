@@ -4,13 +4,13 @@ import { INLINE_COLORS, type InlineColor } from '@/shared/lib/inlineColors'
 import { Icon } from '../icon/Icon'
 
 const KIND = {
-  bg: { mark: 'highlight', title: 'Background color (Ctrl+Shift+H)', icon: <Icon name="highlight" /> },
-  fg: { mark: 'textColor', title: 'Text color', icon: <span className="font-semibold leading-none">A</span> },
+  bg: { mark: 'highlight', title: 'Background color (Ctrl+Shift+H)', reset: { label: 'None', title: 'Remove background color' }, icon: <Icon name="highlight" /> },
+  fg: { mark: 'textColor', title: 'Text color', reset: { label: 'Default', title: 'Default text color' }, icon: <span className="font-semibold leading-none">A</span> },
 } as const
 
 /** A toolbar button with a six-color palette: sets the selection's text color (fg) or background (bg). */
 export function ColorMenu({ editor, kind }: { editor: Editor; kind: keyof typeof KIND }) {
-  const { mark, title, icon } = KIND[kind]
+  const { mark, title, icon, reset } = KIND[kind]
   const [open, setOpen] = useState(false)
   const root = useRef<HTMLSpanElement>(null)
   const current = editor.isActive(mark) ? ((editor.getAttributes(mark).color as string | null) ?? (kind === 'bg' ? 'amber' : null)) : null
@@ -59,8 +59,17 @@ export function ColorMenu({ editor, kind }: { editor: Editor; kind: keyof typeof
               onClick={() => apply(c)}
             />
           ))}
-          <button type="button" role="menuitem" title="Remove" aria-label="Remove color" className="icon-btn !p-0.5" onMouseDown={(e) => e.preventDefault()} onClick={() => apply(null)}>
-            <Icon name="close" />
+          <button
+            type="button"
+            role="menuitem"
+            title={reset.title}
+            aria-label={reset.title}
+            className={`ml-1 flex items-center gap-1.5 rounded-md border px-2 py-0.5 text-xs ${current === null ? 'ring-2 ring-[var(--text)]' : 'border-[var(--border)] text-[var(--muted)] hover:text-[var(--text)]'}`}
+            onMouseDown={(e) => e.preventDefault()}
+            onClick={() => apply(null)}
+          >
+            <span className="h-3.5 w-3.5 rounded-[4px] border border-[var(--border)]" style={{ background: kind === 'fg' ? 'var(--text)' : 'transparent' }} aria-hidden="true" />
+            {reset.label}
           </button>
         </div>
       )}
