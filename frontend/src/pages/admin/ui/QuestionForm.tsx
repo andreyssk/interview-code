@@ -11,6 +11,8 @@ import { CompanyMultiSelect, Field, Icon, RichTextEditor } from '@/shared/ui'
 type Draft = Omit<Question, 'id'> & { id?: number }
 const blank: Draft = { title: '', category: null, subcategory: null, companies: [], answer: [{ p: '' }] }
 
+const AUTOSAVE_MS = 2000
+
 /** Where Back and a successful save lead when the editor was not opened from somewhere specific. */
 const DEFAULT_BACK = '/admin/questions'
 
@@ -69,17 +71,36 @@ function Form({ initial }: { initial: Draft }) {
   }, [saved])
   const canSave = q.title.trim() !== '' && !save.isPending
 
+  // Autosave once the answer has been left alone (no typing or formatting) for 2 seconds. Any further change restarts
+  // the wait; a pending save or an empty title just postpones it.
+  const [dirty, setDirty] = useState(false)
+  const { mutate } = save
+  useEffect(() => {
+    if (!dirty || !canSave) return
+    const timer = setTimeout(() => {
+      setDirty(false)
+      mutate()
+    }, AUTOSAVE_MS)
+    return () => clearTimeout(timer)
+  }, [dirty, canSave, q, mutate])
+
   return (
     <form
       className="fit-form grid lg:grid-cols-[19rem_minmax(0,1fr)] lg:grid-rows-[minmax(0,1fr)]"
       onSubmit={(e) => {
         e.preventDefault()
-        if (canSave) save.mutate()
+        if (canSave) {
+          setDirty(false)
+          save.mutate()
+        }
       }}
       onKeyDown={(e) => {
         if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 's') {
           e.preventDefault()
-          if (canSave) save.mutate()
+          if (canSave) {
+            setDirty(false)
+            save.mutate()
+          }
         }
       }}
     >
@@ -120,7 +141,10 @@ function Form({ initial }: { initial: Draft }) {
         <RichTextEditor
           flush
           initial={initial.answer}
-          onChange={(b) => setQ((p) => ({ ...p, answer: b }))}
+          onChange={(b) => {
+            setQ((p) => ({ ...p, answer: b }))
+            setDirty(true)
+          }}
           actions={
             <>
               <span role="status" className="text-sm">

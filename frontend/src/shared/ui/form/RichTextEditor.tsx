@@ -160,13 +160,13 @@ function Toolbar({ editor, actions }: { editor: Editor; actions?: ReactNode }) {
         </select>
       )}
       <span className="ml-auto flex items-center gap-1.5">
+        {actions}
         <button type="button" title="Undo (Ctrl+Z)" aria-label="Undo" className="chip" disabled={!editor.can().undo()} onMouseDown={(e) => e.preventDefault()} onClick={() => editor.chain().focus().undo().run()}>
           <HistoryIcon />
         </button>
         <button type="button" title="Redo (Ctrl+Shift+Z)" aria-label="Redo" className="chip" disabled={!editor.can().redo()} onMouseDown={(e) => e.preventDefault()} onClick={() => editor.chain().focus().redo().run()}>
           <HistoryIcon redo />
         </button>
-        {actions}
       </span>
     </div>
   )
@@ -186,7 +186,7 @@ export function RichTextEditor({
   initial: Block[]
   onChange: (blocks: Block[]) => void
   flush?: boolean
-  /** Extra controls at the right end of the toolbar (e.g. a save button) */
+  /** Extra controls at the right end of the toolbar (e.g. a save button), shown left of undo / redo */
   actions?: ReactNode
 }) {
   const editor = useEditor({

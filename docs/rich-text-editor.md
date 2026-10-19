@@ -20,6 +20,10 @@ The editor used for question answers (`RichTextEditor`). On macOS read **Ctrl** 
 
 Inside code blocks Tab / Shift+Tab indent and outdent.
 
+## Autosave
+
+In the question form the answer is saved automatically after 2 seconds without typing or formatting (needs a non-empty title). Ctrl+S still saves immediately.
+
 ## Dashes
 
 - Typing `--` produces an em dash (—).
