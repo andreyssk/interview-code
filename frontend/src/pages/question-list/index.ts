@@ -1,1 +1,1 @@
-export { QuestionListPage } from './ui/QuestionListPage'
+export { QuestionCard } from './ui/QuestionCard'

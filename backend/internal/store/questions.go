@@ -28,6 +28,7 @@ type Question struct {
 	Category  *string         `json:"category"`    // optional
 	Subcat    *string         `json:"subcategory"` // optional, only together with a category
 	Companies []string        `json:"companies"`
+	Sources   []string        `json:"sources"`
 	Answer    json.RawMessage `json:"answer"` // rich blocks
 }
 
@@ -68,7 +69,8 @@ func (s *Store) QuestionSubcategories(ctx context.Context) ([]QuestionSubcategor
 func (s *Store) Questions(ctx context.Context) ([]Question, error) {
 	rows, err := s.pool.Query(ctx, `
 		SELECT q.id, q.title, q.category_slug, q.subcategory_slug, q.answer,
-		       COALESCE((SELECT array_agg(company_slug ORDER BY company_slug) FROM question_companies WHERE question_id = q.id), '{}')
+		       COALESCE((SELECT array_agg(company_slug ORDER BY company_slug) FROM question_companies WHERE question_id = q.id), '{}'),
+		       COALESCE((SELECT array_agg(source_slug ORDER BY source_slug) FROM question_sources WHERE question_id = q.id), '{}')
 		FROM questions q ORDER BY q.id`)
 	if err != nil {
 		return nil, err
@@ -77,7 +79,7 @@ func (s *Store) Questions(ctx context.Context) ([]Question, error) {
 	out := []Question{}
 	for rows.Next() {
 		var q Question
-		if err := rows.Scan(&q.ID, &q.Title, &q.Category, &q.Subcat, &q.Answer, &q.Companies); err != nil {
+		if err := rows.Scan(&q.ID, &q.Title, &q.Category, &q.Subcat, &q.Answer, &q.Companies, &q.Sources); err != nil {
 			return nil, err
 		}
 		out = append(out, q)
@@ -141,7 +143,13 @@ func (s *Store) SaveQuestion(ctx context.Context, q Question) (int64, error) {
 		if _, err := tx.Exec(ctx, `DELETE FROM question_companies WHERE question_id = $1`, id); err != nil {
 			return err
 		}
-		_, err := tx.Exec(ctx, `INSERT INTO question_companies (question_id, company_slug) SELECT $1, unnest($2::text[])`, id, q.Companies)
+		if _, err := tx.Exec(ctx, `INSERT INTO question_companies (question_id, company_slug) SELECT $1, unnest($2::text[])`, id, q.Companies); err != nil {
+			return err
+		}
+		if _, err := tx.Exec(ctx, `DELETE FROM question_sources WHERE question_id = $1`, id); err != nil {
+			return err
+		}
+		_, err := tx.Exec(ctx, `INSERT INTO question_sources (question_id, source_slug) SELECT $1, unnest($2::text[])`, id, q.Sources)
 		return err
 	})
 	if errors.Is(err, ErrNotFound) {

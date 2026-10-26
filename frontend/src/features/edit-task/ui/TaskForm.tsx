@@ -6,7 +6,7 @@ import { normalizeSignature, type ApiTask, type Difficulty, type Signature, type
 import { queryKeys } from '@/shared/api/queryKeys'
 import { runGo, type RunResult } from '@/shared/api/run'
 import { useContent } from '@/shared/content/ContentContext'
-import { BlockEditor, ChipPicker, CompanyPicker, Field, type Block } from '@/shared/ui'
+import { BlockEditor, ChipPicker, CompanyPicker, Field, MultiSelect, type Block } from '@/shared/ui'
 
 const blank: Initial = {
   slug: '',
@@ -14,6 +14,7 @@ const blank: Initial = {
   difficulty: 'easy',
   categories: [],
   companies: [],
+  sources: [],
   leetcodeUrl: null,
   description: [{ p: '' }],
   solutionNotes: null,
@@ -77,7 +78,7 @@ function Form({
   compact,
 }: { initial: Initial; isNew: boolean } & Pick<ReturnType<typeof useContent>, 'categories' | 'sections'> & Pick<Props, 'onDone' | 'onCancel' | 'compact'>) {
   const queryClient = useQueryClient()
-  const { defaultTimeLimitSec } = useContent()
+  const { defaultTimeLimitSec, sources } = useContent()
   const [t, setT] = useState(initial)
   const [testsText, setTestsText] = useState(() => JSON.stringify(initial.tests, null, 2))
   const [verify, setVerify] = useState<RunResult | 'running' | string | null>(null)
@@ -174,6 +175,9 @@ function Form({
       </Field>
       <Field label="Companies" group>
         <CompanyPicker value={t.companies} onChange={(v) => set('companies', v)} />
+      </Field>
+      <Field label="Sources" group>
+        <MultiSelect label="Sources" placeholder="Search sources…" options={sources.map((s) => ({ value: s.slug, label: s.name }))} value={t.sources} onChange={(v) => set('sources', v)} />
       </Field>
 
       <Field label="Statement" group>

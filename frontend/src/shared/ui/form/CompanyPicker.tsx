@@ -36,7 +36,7 @@ function useNewCompany(value: string[], onChange: (v: string[]) => void) {
     }
     setBusy(true)
     try {
-      await saveCompany({ slug, name: clean, tone: TONES[Math.floor(Math.random() * TONES.length)] })
+      await saveCompany({ slug, name: clean, tone: TONES[Math.floor(Math.random() * TONES.length)], description: '' })
       await queryClient.invalidateQueries({ queryKey: queryKeys.content }) // wait, so the new company exists
       onChange([...value, slug])
       setName('')

@@ -6,7 +6,9 @@
     "admin": "Админка",
     "questions": "Вопросы",
     "quizzes": "Квизы",
-    "history": "История"
+    "history": "История",
+    "resources": "Ресурсы",
+    "companies": "Компании"
   },
   "language": {
     "label": "Язык интерфейса и задач"
@@ -38,7 +40,11 @@
     "none": "Задачи не найдены.",
     "unknownCategory": "Неизвестная категория.",
     "allProblems": "Все задачи",
-    "allOf": "Все: {{name}}"
+    "allOf": "Все: {{name}}",
+    "byCategory": "По категориям →",
+    "backToAll": "← Все задачи",
+    "categories": "Категории",
+    "shown": "Показано {{shown}} из {{total}}"
   },
   "theory": {
     "title": "Теория",
@@ -195,7 +201,12 @@
     "solved": "Решённые",
     "unsolved": "Нерешённые",
     "company": "Компания",
-    "reset": "Сбросить фильтры"
+    "reset": "Сбросить фильтры",
+    "source": "Источник",
+    "searchCompanies": "Поиск компаний…",
+    "searchSources": "Поиск источников…",
+    "allSelected": "Всё выбрано",
+    "noMatch": "Не найдено"
   },
   "stats": {
     "title": "Прогресс",
@@ -240,7 +251,19 @@
     "backTo": "← {{name}}",
     "none": "Вопросы не найдены.",
     "searchPlaceholder": "Поиск по вопросу или компании…",
-    "unknownCategory": "Неизвестная категория."
+    "unknownCategory": "Неизвестная категория.",
+    "category": "Категория",
+    "searchCategories": "Поиск категорий…",
+    "page": "Страница {{page}} из {{pages}}",
+    "prev": "← Назад",
+    "next": "Далее →",
+    "add": "Добавить вопрос",
+    "addTitle": "Новый вопрос",
+    "fieldQuestion": "Вопрос",
+    "subcategory": "Подкатегория",
+    "fieldAnswer": "Ответ",
+    "save": "Сохранить",
+    "saving": "Сохранение…"
   },
   "quizzes": {
     "title": "Квизы",
@@ -302,7 +325,10 @@
     "playAgain": "Играть ещё",
     "notFound": "Сессия не найдена.",
     "missing": "«{{title}}» больше не существует.",
-    "skip": "Пропустить"
+    "skip": "Пропустить",
+    "searchCategories": "Поиск категорий…",
+    "companies": "Компании",
+    "companiesHint": "Если ничего не выбрано — все компании."
   },
   "history": {
     "title": "История",
@@ -320,5 +346,30 @@
     "continue": "Продолжить",
     "delete": "Удалить",
     "deleteTitle": "Удалить эту сессию из истории?"
+  },
+  "stack": {
+    "companies_one": "{{count}} компания",
+    "companies_few": "{{count}} компании",
+    "companies_many": "{{count}} компаний",
+    "companies_other": "{{count}} компании",
+    "sources_one": "{{count}} источник",
+    "sources_few": "{{count}} источника",
+    "sources_many": "{{count}} источников",
+    "sources_other": "{{count}} источника"
+  },
+  "companies": {
+    "title": "Компании",
+    "search": "Поиск компаний…",
+    "none": "Компании не найдены.",
+    "items_one": "{{count}} материал",
+    "items_few": "{{count}} материала",
+    "items_many": "{{count}} материалов",
+    "items_other": "{{count}} материала",
+    "back": "← Все компании",
+    "notFound": "Компания не найдена.",
+    "problems": "Задачи",
+    "questions": "Вопросы",
+    "quizzes": "Квизы",
+    "empty": "Пока ничего не отмечено этой компанией."
   }
 }

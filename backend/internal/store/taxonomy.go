@@ -38,7 +38,7 @@ func pick[T any](slug string, options []T) T {
 // ensureTaxonomy creates, inside the caller's transaction, whatever of these a task or article refers to that does
 // not exist yet. Names come from the slug; glyph, color and tag color are picked from the slug. New categories go
 // into `section` (created if missing) or into "other" when none is given. Existing rows are never changed.
-func ensureTaxonomy(ctx context.Context, tx pgx.Tx, section string, categories, companies []string) error {
+func ensureTaxonomy(ctx context.Context, tx pgx.Tx, section string, categories, companies, sources []string) error {
 	if len(categories) > 0 {
 		var missing []string
 		rows, err := tx.Query(ctx, `SELECT s FROM unnest($1::text[]) AS s WHERE s NOT IN (SELECT slug FROM categories)`, categories)
@@ -80,6 +80,11 @@ func ensureTaxonomy(ctx context.Context, tx pgx.Tx, section string, categories, 
 	for _, slug := range companies {
 		if _, err := tx.Exec(ctx, `INSERT INTO companies (slug, name, tone) VALUES ($1, $2, $3) ON CONFLICT (slug) DO NOTHING`,
 			slug, nameFromSlug(slug), pick(slug, tones)); err != nil {
+			return err
+		}
+	}
+	for _, slug := range sources {
+		if _, err := tx.Exec(ctx, `INSERT INTO sources (slug, name) VALUES ($1, $2) ON CONFLICT (slug) DO NOTHING`, slug, nameFromSlug(slug)); err != nil {
 			return err
 		}
 	}

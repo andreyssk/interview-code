@@ -41,6 +41,7 @@ export interface StartSession {
   mode: SessionMode
   count: number
   categories?: string[]
+  companies?: string[]
 }
 
 export const fetchSessions = () => request<StudySession[]>('/api/sessions')

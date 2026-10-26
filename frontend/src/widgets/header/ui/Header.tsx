@@ -6,12 +6,18 @@ import { ThemeSwitcher } from '@/features/switch-theme'
 import { UserMenu } from '@/features/user-menu'
 import { useAuth } from '@/shared/auth/AuthContext'
 import { adminCrumbs } from '@/shared/lib/adminTabs'
+import { NavDropdown } from './NavDropdown'
 
-const LINKS: (readonly [string, string])[] = [
-  ['/theory', 'nav.theory'],
+// Browsable material lives under one "Resources" menu to keep the bar short.
+const RESOURCES: (readonly [string, string])[] = [
   ['/problems', 'nav.problems'],
   ['/questions', 'nav.questions'],
   ['/quizzes', 'nav.quizzes'],
+  ['/companies', 'nav.companies'],
+]
+
+const LINKS: (readonly [string, string])[] = [
+  ['/theory', 'nav.theory'],
   ['/mistakes', 'nav.mistakes'],
   ['/history', 'nav.history'],
 ]
@@ -36,6 +42,7 @@ export function Header() {
         </span>
       )}
       <nav className="flex items-center gap-1">
+        <NavDropdown label={t('nav.resources')} links={RESOURCES} />
         {(user.role === 'admin' ? [...LINKS, ['/admin', 'nav.admin'] as const] : LINKS).map(([to, key]) => (
           <NavLink key={to} to={to} className={({ isActive }) => `navlink ${isActive ? 'navlink-active' : ''}`}>
             {t(key)}

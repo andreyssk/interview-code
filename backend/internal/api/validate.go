@@ -150,6 +150,14 @@ func validateTask(t *store.Task) error {
 	if t.Companies == nil {
 		t.Companies = []string{}
 	}
+	if t.Sources == nil {
+		t.Sources = []string{}
+	}
+	for _, c := range t.Sources {
+		if err := checkSlug("source", c); err != nil {
+			return err
+		}
+	}
 	for _, c := range t.Categories {
 		if err := checkSlug("category", c); err != nil {
 			return err
@@ -358,6 +366,14 @@ func validateQuestion(q *store.Question) error {
 	if q.Companies == nil {
 		q.Companies = []string{}
 	}
+	if q.Sources == nil {
+		q.Sources = []string{}
+	}
+	for _, c := range q.Sources {
+		if err := checkSlug("source", c); err != nil {
+			return err
+		}
+	}
 	for _, c := range q.Companies {
 		if err := checkSlug("company", c); err != nil {
 			return err
@@ -402,6 +418,14 @@ func validateQuiz(q *store.Quiz) error {
 	}
 	if q.Companies == nil {
 		q.Companies = []string{}
+	}
+	if q.Sources == nil {
+		q.Sources = []string{}
+	}
+	for _, c := range q.Sources {
+		if err := checkSlug("source", c); err != nil {
+			return err
+		}
 	}
 	for _, c := range q.Companies {
 		if err := checkSlug("company", c); err != nil {

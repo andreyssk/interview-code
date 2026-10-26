@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"math/rand/v2"
+	"strconv"
 	"time"
 
 	"github.com/jackc/pgx/v5"
@@ -21,6 +22,7 @@ type SessionParams struct {
 	Mode       string // random | srs
 	Count      int
 	Categories []string // questions only; empty = all
+	Companies  []string // questions only; empty = all, otherwise questions tagged with any of them
 }
 
 type SessionItem struct {
@@ -56,6 +58,15 @@ func (s *Store) candidates(ctx context.Context, userID int64, p SessionParams) (
 		if len(p.Categories) > 0 {
 			source += ` WHERE COALESCE(category_slug, 'uncategorized') = ANY($3)`
 			args = append(args, p.Categories)
+		}
+		if len(p.Companies) > 0 {
+			clause := ` EXISTS (SELECT 1 FROM question_companies qc WHERE qc.question_id = questions.id AND qc.company_slug = ANY($` + strconv.Itoa(len(args)+1) + `))`
+			if len(p.Categories) > 0 {
+				source += ` AND` + clause
+			} else {
+				source += ` WHERE` + clause
+			}
+			args = append(args, p.Companies)
 		}
 	}
 	rows, err := s.pool.Query(ctx, `

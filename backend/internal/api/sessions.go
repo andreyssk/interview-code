@@ -16,6 +16,7 @@ func (a *API) startStudySession(w http.ResponseWriter, r *http.Request) {
 		Mode       string   `json:"mode"`
 		Count      int      `json:"count"`
 		Categories []string `json:"categories"`
+		Companies  []string `json:"companies"`
 	}
 	if !decode(w, r, &in) {
 		return
@@ -34,6 +35,7 @@ func (a *API) startStudySession(w http.ResponseWriter, r *http.Request) {
 	}
 	if in.Kind == "quiz" {
 		in.Categories = nil
+		in.Companies = nil
 	}
 	for _, c := range in.Categories {
 		if c != store.UncategorizedSlug {
@@ -43,9 +45,15 @@ func (a *API) startStudySession(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 	}
-	id, err := a.store.StartStudySession(r.Context(), currentUser(r).ID, store.SessionParams{Kind: in.Kind, Mode: in.Mode, Count: in.Count, Categories: in.Categories})
+	for _, c := range in.Companies {
+		if err := checkSlug("company", c); err != nil {
+			badRequest(w, err.Error())
+			return
+		}
+	}
+	id, err := a.store.StartStudySession(r.Context(), currentUser(r).ID, store.SessionParams{Kind: in.Kind, Mode: in.Mode, Count: in.Count, Categories: in.Categories, Companies: in.Companies})
 	if errors.Is(err, store.ErrEmptyPool) {
-		msg := "There are no questions to play in the selected categories."
+		msg := "There are no questions to play in the selected categories and companies."
 		if in.Kind == "quiz" {
 			msg = "There are no quizzes to play."
 		}

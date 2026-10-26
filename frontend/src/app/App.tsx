@@ -1,13 +1,14 @@
-import { Navigate, Route, Routes, useLocation, useMatch } from 'react-router-dom'
+import { Navigate, Route, Routes, useLocation, useMatch, useParams } from 'react-router-dom'
 import { AdminPage, QuestionForm } from '@/pages/admin'
 import { HistoryDetailPage, HistoryPage } from '@/pages/history'
 import { MistakeTypePage } from '@/pages/mistake-type'
 import { MistakesPage } from '@/pages/mistakes'
 import { ProblemListPage } from '@/pages/problem-list'
-import { QuestionListPage } from '@/pages/question-list'
 import { QuestionsPage } from '@/pages/questions'
 import { QuizzesPage } from '@/pages/quizzes'
-import { ProblemsPage } from '@/pages/problems'
+import { CompaniesPage } from '@/pages/companies'
+import { CompanyPage } from '@/pages/company'
+import { ProblemCategoriesPage, ProblemsPage } from '@/pages/problems'
 import { SessionPage } from '@/pages/session'
 import { TaskPage } from '@/pages/task'
 import { TheoryPage } from '@/pages/theory'
@@ -15,6 +16,12 @@ import { TheoryListPage } from '@/pages/theory-list'
 import { ErrorBoundary } from '@/shared/ui'
 import { Header } from '@/widgets/header'
 import { usePageTitle } from './usePageTitle'
+
+/** Old /questions/:category links now open the list with that category filtered. */
+function LegacyQuestionCategory() {
+  const { category = '' } = useParams()
+  return <Navigate to={category === 'all' ? '/questions' : `/questions?category=${encodeURIComponent(category)}`} replace />
+}
 
 export function App() {
   const { pathname } = useLocation()
@@ -34,10 +41,12 @@ export function App() {
             <Route path="/theory" element={<TheoryListPage />} />
             <Route path="/theory/:slug" element={<TheoryPage />} />
             <Route path="/problems" element={<ProblemsPage />} />
+            <Route path="/problems/categories" element={<ProblemCategoriesPage />} />
             <Route path="/problems/:category" element={<ProblemListPage />} />
+            <Route path="/companies" element={<CompaniesPage />} />
+            <Route path="/companies/:slug" element={<CompanyPage />} />
             <Route path="/questions" element={<QuestionsPage />} />
-            <Route path="/questions/:category" element={<QuestionListPage />} />
-            <Route path="/questions/:category/:sub" element={<QuestionListPage />} />
+            <Route path="/questions/:category/*" element={<LegacyQuestionCategory />} />
             <Route path="/quizzes" element={<QuizzesPage />} />
             <Route path="/session/:id" element={<SessionPage />} />
             <Route path="/history" element={<HistoryPage />} />

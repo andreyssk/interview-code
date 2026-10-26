@@ -1,4 +1,4 @@
-import type { ApiArticle, ApiTask, Category, Company, Question, QuestionCategory, Quiz, QuestionSubcategory, Section } from './content'
+import type { ApiArticle, ApiTask, Category, Company, Question, Source, QuestionCategory, Quiz, QuestionSubcategory, Section } from './content'
 import { jsonInit, request } from './http'
 
 export interface AdminUser {
@@ -24,6 +24,12 @@ export const saveCategory = (c: Category) => put<Category>(`/api/admin/categorie
 export const deleteCategory = (slug: string) => del(`/api/admin/categories/${slug}`)
 export const saveCompany = (c: Company) => put<Company>(`/api/admin/companies/${c.slug}`, c)
 export const deleteCompany = (slug: string) => del(`/api/admin/companies/${slug}`)
+export const saveSource = (s: Pick<Source, 'slug' | 'name' | 'link'>) => put<Source>(`/api/admin/sources/${s.slug}`, s)
+export const deleteSource = (slug: string) => del(`/api/admin/sources/${slug}`)
+/** The image is sent as the raw request body. */
+export const uploadSourceIcon = (slug: string, file: Blob) =>
+  request<void>(`/api/admin/sources/${slug}/icon`, { method: 'PUT', headers: { 'Content-Type': file.type || 'application/octet-stream' }, body: file })
+export const deleteSourceIcon = (slug: string) => del(`/api/admin/sources/${slug}/icon`)
 
 export const saveQuestionCategory = (c: QuestionCategory) => put<QuestionCategory>(`/api/admin/question-categories/${c.slug}`, c)
 export const deleteQuestionCategory = (slug: string) => del(`/api/admin/question-categories/${slug}`)

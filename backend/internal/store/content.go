@@ -15,6 +15,7 @@ type Content struct {
 	Sections   []Section  `json:"sections"`
 	Categories []Category `json:"categories"`
 	Companies  []Company  `json:"companies"`
+	Sources    []Source   `json:"sources"`
 	Tasks      []Task     `json:"tasks"`
 	Articles   []Article  `json:"articles"`
 	// DefaultTimeLimitSec is the run limit of tasks that do not set their own.
@@ -46,6 +47,8 @@ type Company struct {
 	Slug string `json:"slug"`
 	Name string `json:"name"`
 	Tone string `json:"tone"`
+	// Description is optional text for the company page; empty when none.
+	Description string `json:"description"`
 }
 
 // Task is the full definition of a problem. The JSON fields are passed through as they are stored.
@@ -56,6 +59,7 @@ type Task struct {
 	Difficulty     string          `json:"difficulty"`
 	Categories     []string        `json:"categories"`
 	Companies      []string        `json:"companies"`
+	Sources        []string        `json:"sources"`
 	LeetcodeURL    *string         `json:"leetcodeUrl"`
 	Description    json.RawMessage `json:"description"`
 	SolutionNotes  json.RawMessage `json:"solutionNotes"`
@@ -86,7 +90,7 @@ type Article struct {
 }
 
 func (s *Store) Content(ctx context.Context) (Content, error) {
-	c := Content{Sections: []Section{}, Categories: []Category{}, Companies: []Company{}, Tasks: []Task{}, Articles: []Article{}, QuestionCategories: []QuestionCategory{}, QuestionSubcats: []QuestionSubcategory{}, Questions: []Question{}, Quizzes: []Quiz{}}
+	c := Content{Sections: []Section{}, Categories: []Category{}, Companies: []Company{}, Sources: []Source{}, Tasks: []Task{}, Articles: []Article{}, QuestionCategories: []QuestionCategory{}, QuestionSubcats: []QuestionSubcategory{}, Questions: []Question{}, Quizzes: []Quiz{}}
 
 	rows, err := s.pool.Query(ctx, `SELECT slug, name, position FROM sections ORDER BY position, slug`)
 	if err != nil {
@@ -122,13 +126,13 @@ func (s *Store) Content(ctx context.Context) (Content, error) {
 		return c, err
 	}
 
-	rows, err = s.pool.Query(ctx, `SELECT slug, name, tone FROM companies ORDER BY name`)
+	rows, err = s.pool.Query(ctx, `SELECT slug, name, tone, description FROM companies ORDER BY name`)
 	if err != nil {
 		return c, err
 	}
 	for rows.Next() {
 		var x Company
-		if err := rows.Scan(&x.Slug, &x.Name, &x.Tone); err != nil {
+		if err := rows.Scan(&x.Slug, &x.Name, &x.Tone, &x.Description); err != nil {
 			rows.Close()
 			return c, err
 		}
@@ -139,11 +143,16 @@ func (s *Store) Content(ctx context.Context) (Content, error) {
 		return c, err
 	}
 
+	if c.Sources, err = s.Sources(ctx); err != nil {
+		return c, err
+	}
+
 	rows, err = s.pool.Query(ctx, `
 		SELECT t.slug, t.number, t.title, t.difficulty, t.leetcode_url, t.description, t.solution_notes, t.common_mistakes, t.solution,
 		       t.signature, t.tests, t.complexity, t.template, t.time_limit_sec,
 		       COALESCE((SELECT array_agg(category_slug ORDER BY category_slug) FROM task_categories WHERE task_id = t.id), '{}'),
-		       COALESCE((SELECT array_agg(company_slug ORDER BY company_slug) FROM task_companies WHERE task_id = t.id), '{}')
+		       COALESCE((SELECT array_agg(company_slug ORDER BY company_slug) FROM task_companies WHERE task_id = t.id), '{}'),
+		       COALESCE((SELECT array_agg(source_slug ORDER BY source_slug) FROM task_sources WHERE task_id = t.id), '{}')
 		FROM tasks t ORDER BY t.number`)
 	if err != nil {
 		return c, err
@@ -151,7 +160,7 @@ func (s *Store) Content(ctx context.Context) (Content, error) {
 	for rows.Next() {
 		var x Task
 		if err := rows.Scan(&x.Slug, &x.Number, &x.Title, &x.Difficulty, &x.LeetcodeURL, &x.Description, &x.SolutionNotes, &x.CommonMistakes, &x.Solution,
-			&x.Signature, &x.Tests, &x.Complexity, &x.Template, &x.TimeLimitSec, &x.Categories, &x.Companies); err != nil {
+			&x.Signature, &x.Tests, &x.Complexity, &x.Template, &x.TimeLimitSec, &x.Categories, &x.Companies, &x.Sources); err != nil {
 			rows.Close()
 			return c, err
 		}
@@ -214,8 +223,9 @@ func (s *Store) UpsertCategory(ctx context.Context, x Category) error {
 
 func (s *Store) UpsertCompany(ctx context.Context, x Company) error {
 	_, err := s.pool.Exec(ctx, `
-		INSERT INTO companies (slug, name, tone) VALUES ($1, $2, $3)
-		ON CONFLICT (slug) DO UPDATE SET name = EXCLUDED.name, tone = EXCLUDED.tone`, x.Slug, x.Name, x.Tone)
+		INSERT INTO companies (slug, name, tone, description) VALUES ($1, $2, $3, $4)
+		ON CONFLICT (slug) DO UPDATE SET name = EXCLUDED.name, tone = EXCLUDED.tone, description = EXCLUDED.description`,
+		x.Slug, x.Name, x.Tone, x.Description)
 	return err
 }
 
@@ -241,7 +251,7 @@ func (s *Store) UpsertTask(ctx context.Context, t Task) error {
 		if err != nil {
 			return err
 		}
-		if err := ensureTaxonomy(ctx, tx, t.Section, t.Categories, t.Companies); err != nil {
+		if err := ensureTaxonomy(ctx, tx, t.Section, t.Categories, t.Companies, t.Sources); err != nil {
 			return err
 		}
 		if _, err := tx.Exec(ctx, `DELETE FROM task_categories WHERE task_id = $1`, id); err != nil {
@@ -254,6 +264,12 @@ func (s *Store) UpsertTask(ctx context.Context, t Task) error {
 			return err
 		}
 		if _, err := tx.Exec(ctx, `INSERT INTO task_companies (task_id, company_slug) SELECT $1, unnest($2::text[])`, id, t.Companies); err != nil {
+			return err
+		}
+		if _, err := tx.Exec(ctx, `DELETE FROM task_sources WHERE task_id = $1`, id); err != nil {
+			return err
+		}
+		if _, err := tx.Exec(ctx, `INSERT INTO task_sources (task_id, source_slug) SELECT $1, unnest($2::text[])`, id, t.Sources); err != nil {
 			return err
 		}
 		// Keep the sequence ahead of any explicit number so the next automatic one is unused.
@@ -269,7 +285,7 @@ func (s *Store) UpsertArticle(ctx context.Context, a Article) error {
 		if a.Category != nil {
 			cats = append([]string{*a.Category}, cats...)
 		}
-		if err := ensureTaxonomy(ctx, tx, a.Section, cats, nil); err != nil {
+		if err := ensureTaxonomy(ctx, tx, a.Section, cats, nil, nil); err != nil {
 			return err
 		}
 		var id int64
@@ -327,6 +343,11 @@ func refError(err error) error {
 				return ErrInUse
 			}
 			return ErrBadReference{Detail: "category or section"}
+		case strings.Contains(c, "source"):
+			if strings.HasPrefix(pgErr.Message, "update or delete") {
+				return ErrInUse
+			}
+			return ErrBadReference{Detail: "source"}
 		case strings.Contains(c, "company"):
 			if strings.HasPrefix(pgErr.Message, "update or delete") {
 				return ErrInUse

@@ -6,7 +6,8 @@ import { UNCATEGORIZED, useQuestionCategories, useQuestions } from '@/entities/q
 import { useQuizzes } from '@/entities/quiz'
 import { startSession, type SessionKind, type SessionMode } from '@/shared/api/sessions'
 import { queryKeys } from '@/shared/api/queryKeys'
-import { ChipPicker, Field, Modal } from '@/shared/ui'
+import { useCompanies } from '@/entities/task'
+import { Field, Modal, MultiSelect } from '@/shared/ui'
 
 const PRESETS = [5, 10, 20]
 
@@ -21,29 +22,38 @@ export function StartSessionDialog({ kind, onClose }: { kind: SessionKind; onClo
   const questions = useQuestions()
   const quizzes = useQuizzes()
   const categories = useQuestionCategories()
+  const companies = useCompanies()
   const [count, setCount] = useState(10)
   const [mode, setMode] = useState<SessionMode>('srs')
   const [picked, setPicked] = useState<string[]>([])
+  const [pickedCompanies, setPickedCompanies] = useState<string[]>([])
 
   const hasUncategorized = questions.some((q) => !q.category)
   const options = [
     ...categories.map((c) => ({ value: c.slug, label: `${c.name} (${questions.filter((q) => q.category === c.slug).length})` })),
     ...(hasUncategorized && categories.length > 0 ? [{ value: UNCATEGORIZED, label: `${t('questions.uncategorized')} (${questions.filter((q) => !q.category).length})` }] : []),
   ]
+  const companyOptions = companies.map((c) => ({ value: c.slug, label: c.name }))
   const available =
-    kind === 'quiz' ? quizzes.length : questions.filter((q) => picked.length === 0 || picked.includes(q.category ?? UNCATEGORIZED)).length
+    kind === 'quiz'
+      ? quizzes.length
+      : questions.filter(
+          (q) =>
+            (picked.length === 0 || picked.includes(q.category ?? UNCATEGORIZED)) &&
+            (pickedCompanies.length === 0 || q.companies.some((c) => pickedCompanies.includes(c))),
+        ).length
   const wanted = Math.max(1, Math.floor(count) || 1)
   const given = Math.min(wanted, available)
 
   const start = useMutation({
-    mutationFn: () => startSession({ kind, mode, count: given, categories: kind === 'question' ? picked : undefined }),
+    mutationFn: () => startSession({ kind, mode, count: given, categories: kind === 'question' ? picked : undefined, companies: kind === 'question' ? pickedCompanies : undefined }),
     onSuccess: (s) => {
       queryClient.invalidateQueries({ queryKey: queryKeys.sessions })
       navigate(`/session/${s.id}`)
     },
   })
   const empty = available === 0
-  const emptyMessage = kind === 'quiz' ? t('session.noQuizzes') : picked.length > 0 ? t('session.noQuestionsInCategories') : t('session.noQuestions')
+  const emptyMessage = kind === 'quiz' ? t('session.noQuizzes') : picked.length > 0 || pickedCompanies.length > 0 ? t('session.noQuestionsInCategories') : t('session.noQuestions')
 
   return (
     <Modal open title={t(kind === 'quiz' ? 'session.titleQuiz' : 'session.titleQuestion')} onClose={onClose} wide>
@@ -77,9 +87,28 @@ export function StartSessionDialog({ kind, onClose }: { kind: SessionKind; onClo
           {!empty && given < wanted && <span className="text-xs text-[var(--amber)]">{t('session.onlyAvailable', { count: given })}</span>}
         </Field>
         {kind === 'question' && (
-          <Field label={t('session.categories')} hint={t('session.categoriesHint')} group>
-            <ChipPicker options={options} value={picked} onChange={setPicked} />
-          </Field>
+          <>
+            <Field label={t('session.categories')} hint={t('session.categoriesHint')} group>
+              <MultiSelect
+                label={t('session.categories')}
+                placeholder={t('session.searchCategories')}
+                options={options}
+                value={picked}
+                onChange={setPicked}
+                emptyText={{ all: t('filters.allSelected'), none: t('filters.noMatch') }}
+              />
+            </Field>
+            <Field label={t('session.companies')} hint={t('session.companiesHint')} group>
+              <MultiSelect
+                label={t('session.companies')}
+                placeholder={t('filters.searchCompanies')}
+                options={companyOptions}
+                value={pickedCompanies}
+                onChange={setPickedCompanies}
+                emptyText={{ all: t('filters.allSelected'), none: t('filters.noMatch') }}
+              />
+            </Field>
+          </>
         )}
         <Field label={t('session.mode')} group>
           <div className="grid gap-2 sm:grid-cols-2">

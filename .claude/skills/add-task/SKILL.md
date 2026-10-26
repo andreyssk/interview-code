@@ -21,6 +21,7 @@ The server assigns the unique `number`; never put one in the file.
   "difficulty": "easy",
   "categories": ["two-pointers"],
   "companies": ["vk", "yandex"],
+  "sources": [],
   "leetcodeUrl": null,
   "description": [ { "p": "…" }, { "h": "Пример 1:" }, { "pre": "Ввод: …\nВывод: …" } ],
   "signature": { "name": "sortedSquares", "params": [{ "name": "nums", "type": "[]int" }], "returns": "[]int" },

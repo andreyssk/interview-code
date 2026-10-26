@@ -21,12 +21,14 @@ type Quiz struct {
 	Language  string      `json:"language"`
 	Stages    []QuizStage `json:"stages"`
 	Companies []string    `json:"companies"`
+	Sources   []string    `json:"sources"`
 }
 
 func (s *Store) Quizzes(ctx context.Context) ([]Quiz, error) {
 	rows, err := s.pool.Query(ctx, `
 		SELECT q.id, q.title, q.language,
-		       COALESCE((SELECT array_agg(company_slug ORDER BY company_slug) FROM quiz_companies WHERE quiz_id = q.id), '{}')
+		       COALESCE((SELECT array_agg(company_slug ORDER BY company_slug) FROM quiz_companies WHERE quiz_id = q.id), '{}'),
+		       COALESCE((SELECT array_agg(source_slug ORDER BY source_slug) FROM quiz_sources WHERE quiz_id = q.id), '{}')
 		FROM quizzes q ORDER BY q.id`)
 	if err != nil {
 		return nil, err
@@ -36,7 +38,7 @@ func (s *Store) Quizzes(ctx context.Context) ([]Quiz, error) {
 	byID := map[int64]int{}
 	for rows.Next() {
 		var q Quiz
-		if err := rows.Scan(&q.ID, &q.Title, &q.Language, &q.Companies); err != nil {
+		if err := rows.Scan(&q.ID, &q.Title, &q.Language, &q.Companies, &q.Sources); err != nil {
 			return nil, err
 		}
 		q.Stages = []QuizStage{}
@@ -98,7 +100,13 @@ func (s *Store) SaveQuiz(ctx context.Context, q Quiz) (int64, error) {
 		if _, err := tx.Exec(ctx, `DELETE FROM quiz_companies WHERE quiz_id = $1`, id); err != nil {
 			return err
 		}
-		_, err := tx.Exec(ctx, `INSERT INTO quiz_companies (quiz_id, company_slug) SELECT $1, unnest($2::text[])`, id, q.Companies)
+		if _, err := tx.Exec(ctx, `INSERT INTO quiz_companies (quiz_id, company_slug) SELECT $1, unnest($2::text[])`, id, q.Companies); err != nil {
+			return err
+		}
+		if _, err := tx.Exec(ctx, `DELETE FROM quiz_sources WHERE quiz_id = $1`, id); err != nil {
+			return err
+		}
+		_, err := tx.Exec(ctx, `INSERT INTO quiz_sources (quiz_id, source_slug) SELECT $1, unnest($2::text[])`, id, q.Sources)
 		return err
 	})
 	if errors.Is(err, ErrNotFound) {

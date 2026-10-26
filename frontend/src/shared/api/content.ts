@@ -53,6 +53,17 @@ export interface Company {
   name: string
   /** CSS class that colors the tag, e.g. neon-blue */
   tone: string
+  /** Text for the company page; empty when none */
+  description: string
+}
+
+/** Where problems / questions / quizzes originally came from: a platform, provider or knowledge base. */
+export interface Source {
+  slug: string
+  name: string
+  link: string | null
+  /** Where the icon image is served; null = no icon */
+  iconUrl: string | null
 }
 
 /** A task as the backend stores and serves it (text in a single language). */
@@ -64,6 +75,7 @@ export interface ApiTask {
   difficulty: Difficulty
   categories: string[]
   companies: string[]
+  sources: string[]
   leetcodeUrl: string | null
   description: Block[]
   solutionNotes: Block[] | null
@@ -120,6 +132,7 @@ export interface Question {
   category: string | null
   subcategory: string | null
   companies: string[]
+  sources: string[]
   answer: Block[]
 }
 
@@ -140,12 +153,14 @@ export interface Quiz {
   language: 'go' | 'java'
   stages: QuizStage[]
   companies: string[]
+  sources: string[]
 }
 
 export interface Content {
   sections: Section[]
   categories: Category[]
   companies: Company[]
+  sources: Source[]
   tasks: ApiTask[]
   articles: ApiArticle[]
   questionCategories: QuestionCategory[]
@@ -166,12 +181,13 @@ export const fetchContent = () =>
       sections: c.sections ?? [],
       categories: c.categories ?? [],
       companies: c.companies ?? [],
-      tasks: c.tasks ?? [],
+      sources: c.sources ?? [],
+      tasks: (c.tasks ?? []).map((t) => ({ ...t, sources: t.sources ?? [] })),
       articles: c.articles ?? [],
       questionCategories: c.questionCategories ?? [],
       questionSubcategories: c.questionSubcategories ?? [],
-      questions: c.questions ?? [],
-      quizzes: c.quizzes ?? [],
+      questions: (c.questions ?? []).map((q) => ({ ...q, sources: q.sources ?? [] })),
+      quizzes: (c.quizzes ?? []).map((q) => ({ ...q, sources: q.sources ?? [] })),
       defaultTimeLimitSec: c.defaultTimeLimitSec ?? 5,
     }),
   )

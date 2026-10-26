@@ -1,7 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useState, type ReactNode } from 'react'
-import { deleteCategory, deleteCompany, deleteSection, saveCategory, saveCompany, saveSection } from '@/shared/api/admin'
-import type { Category, Company, Section } from '@/shared/api/content'
+import { deleteCategory, deleteCompany, deleteSection, deleteSource, deleteSourceIcon, saveCategory, saveCompany, saveSection, saveSource, uploadSourceIcon } from '@/shared/api/admin'
+import type { Category, Company, Section, Source } from '@/shared/api/content'
 import { queryKeys } from '@/shared/api/queryKeys'
 import { useContent } from '@/shared/content/ContentContext'
 import { ConfirmDialog, Field, Modal } from '@/shared/ui'
@@ -202,7 +202,7 @@ export function CompaniesAdmin() {
     <Crud<Company>
       title="Companies"
       items={companies}
-      blank={{ slug: '', name: '', tone: 'neon-violet' }}
+      blank={{ slug: '', name: '', tone: 'neon-violet', description: '' }}
       describe={(c) => `${c.name} (${c.slug})`}
       save={saveCompany}
       remove={deleteCompany}
@@ -220,6 +220,74 @@ export function CompaniesAdmin() {
               ))}
             </select>
           </Field>
+          <div className="sm:col-span-2">
+            <Field label="Description" hint="Optional; shown on the company page">
+              <textarea className="search min-h-24" maxLength={2000} value={d.description} onChange={(e) => set({ description: e.target.value })} />
+            </Field>
+          </div>
+        </div>
+      )}
+    />
+  )
+}
+
+type SourceDraft = Source & { file?: File; removeIcon?: boolean }
+
+const MAX_ICON = 100 * 1024
+
+/** Sources: where problems, questions and quizzes came from (name, optional link and icon). */
+export function SourcesAdmin() {
+  const { sources } = useContent()
+  const [error, setError] = useState('')
+  return (
+    <Crud<SourceDraft>
+      title="Sources"
+      items={sources}
+      blank={{ slug: '', name: '', link: null, iconUrl: null }}
+      describe={(s) => `${s.name} (${s.slug})${s.link ? ` · ${s.link}` : ''}`}
+      save={async ({ file, removeIcon, ...s }) => {
+        await saveSource({ slug: s.slug, name: s.name, link: s.link })
+        if (file) await uploadSourceIcon(s.slug, file)
+        else if (removeIcon) await deleteSourceIcon(s.slug)
+      }}
+      remove={deleteSource}
+      renderForm={(d, set) => (
+        <div className="grid gap-3 sm:grid-cols-2">
+          <Field label="Name">
+            <input className="search" value={d.name} onChange={(e) => set({ name: e.target.value })} />
+          </Field>
+          <Field label="Link (optional)">
+            <input className="search" type="url" placeholder="https://…" value={d.link ?? ''} onChange={(e) => set({ link: e.target.value || null })} />
+          </Field>
+          <div className="sm:col-span-2">
+            <Field label="Icon (optional)" hint="PNG, JPEG, GIF, WebP, ICO or SVG, up to 100 KB">
+              <div className="flex items-center gap-3">
+                {(d.file || (d.iconUrl && !d.removeIcon)) && (
+                  <img className="h-10 w-10 rounded-lg bg-white object-cover" alt="" src={d.file ? URL.createObjectURL(d.file) : (d.iconUrl ?? undefined)} />
+                )}
+                <input
+                  type="file"
+                  accept="image/png,image/jpeg,image/gif,image/webp,image/svg+xml,image/x-icon,image/vnd.microsoft.icon,.ico"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0]
+                    if (file && file.size > MAX_ICON) {
+                      setError('The icon is larger than 100 KB.')
+                      e.target.value = ''
+                      return
+                    }
+                    setError('')
+                    set({ file, removeIcon: false })
+                  }}
+                />
+                {(d.file || d.iconUrl) && !d.removeIcon && (
+                  <button type="button" className="btn-ghost" onClick={() => set({ file: undefined, removeIcon: true })}>
+                    Remove icon
+                  </button>
+                )}
+              </div>
+              {error && <span className="text-sm text-[var(--pink)]">{error}</span>}
+            </Field>
+          </div>
         </div>
       )}
     />

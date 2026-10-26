@@ -5,11 +5,11 @@ import { saveQuiz } from '@/shared/api/admin'
 import type { Quiz, QuizStage } from '@/shared/api/content'
 import { queryKeys } from '@/shared/api/queryKeys'
 import { useContent } from '@/shared/content/ContentContext'
-import { CodeEditor, CompanyMultiSelect, Field } from '@/shared/ui'
+import { CodeEditor, CompanyMultiSelect, Field, MultiSelect } from '@/shared/ui'
 
 type Draft = Omit<Quiz, 'id'> & { id?: number }
 const blankStage: QuizStage = { code: '', answer: '', explanation: '' }
-const blank: Draft = { title: '', language: 'go', stages: [blankStage], companies: [] }
+const blank: Draft = { title: '', language: 'go', stages: [blankStage], companies: [], sources: [] }
 
 /** Create (/admin/quizzes/new) or edit (/admin/quizzes/edit/:id) a quiz. */
 export function QuizForm() {
@@ -26,6 +26,7 @@ function Form({ initial }: { initial: Draft }) {
   // Where the edit link on the public page came from; the admin list otherwise.
   const from = (useLocation().state as { from?: unknown } | null)?.from
   const back = typeof from === 'string' && from.startsWith('/') ? from : '/admin/quizzes'
+  const { sources } = useContent()
   const [q, setQ] = useState(initial)
   const set = (p: Partial<Draft>) => setQ((prev) => ({ ...prev, ...p }))
 
@@ -66,6 +67,9 @@ function Form({ initial }: { initial: Draft }) {
       </div>
       <Field label="Companies" group>
         <CompanyMultiSelect value={q.companies} onChange={(v) => set({ companies: v })} />
+      </Field>
+      <Field label="Sources" group>
+        <MultiSelect label="Sources" placeholder="Search sources…" options={sources.map((s) => ({ value: s.slug, label: s.name }))} value={q.sources} onChange={(v) => set({ sources: v })} />
       </Field>
       {q.stages.map((st, i) => (
         // Stages have no stable id and are only reordered via the buttons, so the index is a fine key.

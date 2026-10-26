@@ -5,6 +5,7 @@ import (
 	"errors"
 	"net/http"
 	"strings"
+	"unicode/utf8"
 
 	"github.com/app/interview-prep/internal/store"
 )
@@ -104,6 +105,11 @@ func (a *API) adminPutCompany(w http.ResponseWriter, r *http.Request) {
 	in.Slug, in.Name = slug, strings.TrimSpace(in.Name)
 	if err := checkText("name", in.Name, 60); err != nil {
 		badRequest(w, err.Error())
+		return
+	}
+	in.Description = strings.TrimSpace(in.Description)
+	if utf8.RuneCountInString(in.Description) > 2000 {
+		badRequest(w, "description is too long (max 2000 characters)")
 		return
 	}
 	if in.Tone == "" {
@@ -333,6 +339,10 @@ func (a *API) registerAdminContent(mux *http.ServeMux) {
 	mux.HandleFunc("PUT /api/admin/sections/{slug}", a.adminPutSection)
 	mux.HandleFunc("PUT /api/admin/categories/{slug}", a.adminPutCategory)
 	mux.HandleFunc("PUT /api/admin/companies/{slug}", a.adminPutCompany)
+	mux.HandleFunc("PUT /api/admin/sources/{slug}", a.adminPutSource)
+	mux.HandleFunc("PUT /api/admin/sources/{slug}/icon", a.adminPutSourceIcon)
+	mux.HandleFunc("DELETE /api/admin/sources/{slug}/icon", a.adminDeleteSourceIcon)
+	mux.HandleFunc("DELETE /api/admin/sources/{slug}", a.adminDeleter(a.store.DeleteSource, "delete source"))
 	mux.HandleFunc("PUT /api/admin/tasks/{slug}", a.adminPutTask)
 	mux.HandleFunc("PUT /api/admin/articles/{slug}", a.adminPutArticle)
 	mux.HandleFunc("DELETE /api/admin/sections/{slug}", a.adminDeleter(a.store.DeleteSection, "delete section"))

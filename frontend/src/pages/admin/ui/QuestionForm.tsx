@@ -6,10 +6,10 @@ import type { Question } from '@/shared/api/content'
 import { queryKeys } from '@/shared/api/queryKeys'
 import { useAuth } from '@/shared/auth/AuthContext'
 import { useContent } from '@/shared/content/ContentContext'
-import { CompanyMultiSelect, Field, Icon, RichTextEditor } from '@/shared/ui'
+import { CompanyMultiSelect, Field, Icon, MultiSelect, RichTextEditor } from '@/shared/ui'
 
 type Draft = Omit<Question, 'id'> & { id?: number }
-const blank: Draft = { title: '', category: null, subcategory: null, companies: [], answer: [{ p: '' }] }
+const blank: Draft = { title: '', category: null, subcategory: null, companies: [], sources: [], answer: [{ p: '' }] }
 
 const AUTOSAVE_MS = 2000
 
@@ -49,7 +49,7 @@ export function QuestionForm() {
 function Form({ initial }: { initial: Draft }) {
   const back = useBackTo()
   const queryClient = useQueryClient()
-  const { questionCategories, questionSubcategories } = useContent()
+  const { questionCategories, questionSubcategories, sources } = useContent()
   const [q, setQ] = useState(initial)
   const categorySubs = q.category ? questionSubcategories.filter((c) => c.category === q.category) : []
 
@@ -135,6 +135,9 @@ function Form({ initial }: { initial: Draft }) {
         )}
         <Field label="Companies" group>
           <CompanyMultiSelect value={q.companies} onChange={(v) => setQ({ ...q, companies: v })} />
+        </Field>
+        <Field label="Sources" group>
+          <MultiSelect label="Sources" placeholder="Search sources…" options={sources.map((s) => ({ value: s.slug, label: s.name }))} value={q.sources} onChange={(v) => setQ({ ...q, sources: v })} />
         </Field>
       </aside>
       <div className="flex h-[70dvh] min-h-0 flex-col lg:h-auto">

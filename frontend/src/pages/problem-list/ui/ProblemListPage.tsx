@@ -14,7 +14,7 @@ export function ProblemListPage() {
 
   return (
     <div>
-      <Link to="/problems" className="mb-3 inline-block text-sm text-[var(--muted)] hover:text-[var(--cyan)]">
+      <Link to="/problems/categories" className="mb-3 inline-block text-sm text-[var(--muted)] hover:text-[var(--cyan)]">
         {t('problems.allCategories')}
       </Link>
       <h1 className="neon-title mb-4 text-3xl font-bold">{known ? title : t('problems.allProblems')}</h1>

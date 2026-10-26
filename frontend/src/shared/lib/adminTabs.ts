@@ -7,6 +7,7 @@ export const ADMIN_TABS = [
   ['question-categories', 'Question categories'],
   ['taxonomy', 'Sections & categories'],
   ['companies', 'Companies'],
+  ['sources', 'Sources'],
   ['users', 'Users & access'],
 ] as const
 

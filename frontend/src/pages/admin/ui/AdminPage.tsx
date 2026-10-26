@@ -8,7 +8,7 @@ import { TasksAdmin } from './TasksAdmin'
 import { QuestionCategoriesAdmin, QuestionsAdmin } from './QuestionsAdmin'
 import { QuizForm } from './QuizForm'
 import { QuizzesAdmin } from './QuizzesAdmin'
-import { CompaniesAdmin, TaxonomyAdmin } from './TaxonomyAdmin'
+import { CompaniesAdmin, SourcesAdmin, TaxonomyAdmin } from './TaxonomyAdmin'
 import { UsersAdmin } from './UsersAdmin'
 
 /** Admin panel (admins only): content management and access control. */
@@ -40,6 +40,7 @@ export function AdminPage() {
         <Route path="question-categories" element={<QuestionCategoriesAdmin />} />
         <Route path="taxonomy" element={<TaxonomyAdmin />} />
         <Route path="companies" element={<CompaniesAdmin />} />
+        <Route path="sources" element={<SourcesAdmin />} />
         <Route path="users" element={<UsersAdmin />} />
         <Route path="*" element={<Navigate to="tasks" replace />} />
       </Routes>

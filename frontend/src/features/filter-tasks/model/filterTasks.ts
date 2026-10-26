@@ -5,19 +5,22 @@ interface Filters {
   slugs?: string[]
   q: string
   difficulty?: string
-  company?: string
+  /** A task matches when it has any of these companies / sources */
+  company?: string[]
+  source?: string[]
   status?: 'solved' | 'unsolved' | ''
   isSolved?: (slug: string) => boolean
   /** Strings the query is matched against (title, company, difficulty and category names) */
   searchText: (task: TaskDef) => string[]
 }
 
-export function filterTasks(tasks: TaskDef[], { slugs, q, difficulty, company, status, isSolved, searchText }: Filters): TaskDef[] {
+export function filterTasks(tasks: TaskDef[], { slugs, q, difficulty, company, source, status, isSolved, searchText }: Filters): TaskDef[] {
   const needle = q.trim().toLowerCase()
   return tasks.filter((t) => {
     if (slugs && !t.categories.some((c) => slugs.includes(c))) return false
     if (difficulty && t.difficulty !== difficulty) return false
-    if (company && !t.companies.includes(company)) return false
+    if (company?.length && !company.some((c) => t.companies.includes(c))) return false
+    if (source?.length && !source.some((s) => t.sources.includes(s))) return false
     if (status && isSolved && isSolved(t.slug) !== (status === 'solved')) return false
     if (!needle) return true
     return searchText(t).some((s) => s.toLowerCase().includes(needle))

@@ -6,7 +6,9 @@
     "admin": "Admin",
     "questions": "Questions",
     "quizzes": "Quizzes",
-    "history": "History"
+    "history": "History",
+    "resources": "Resources",
+    "companies": "Companies"
   },
   "language": {
     "label": "Language of the interface and tasks"
@@ -34,7 +36,11 @@
     "none": "No problems found.",
     "unknownCategory": "Unknown category.",
     "allProblems": "All problems",
-    "allOf": "All: {{name}}"
+    "allOf": "All: {{name}}",
+    "byCategory": "Browse by category →",
+    "backToAll": "← All problems",
+    "categories": "Categories",
+    "shown": "Showing {{shown}} of {{total}}"
   },
   "theory": {
     "title": "Theory",
@@ -183,7 +189,12 @@
     "solved": "Solved",
     "unsolved": "Unsolved",
     "company": "Company",
-    "reset": "Reset filters"
+    "reset": "Reset filters",
+    "source": "Source",
+    "searchCompanies": "Search companies…",
+    "searchSources": "Search sources…",
+    "allSelected": "All selected",
+    "noMatch": "No match"
   },
   "stats": {
     "title": "Progress",
@@ -228,7 +239,19 @@
     "backTo": "← {{name}}",
     "none": "No questions found.",
     "searchPlaceholder": "Search by question or company…",
-    "unknownCategory": "Unknown category."
+    "unknownCategory": "Unknown category.",
+    "category": "Category",
+    "searchCategories": "Search categories…",
+    "page": "Page {{page}} of {{pages}}",
+    "prev": "← Previous",
+    "next": "Next →",
+    "add": "Add question",
+    "addTitle": "New question",
+    "fieldQuestion": "Question",
+    "subcategory": "Subcategory",
+    "fieldAnswer": "Answer",
+    "save": "Save",
+    "saving": "Saving…"
   },
   "quizzes": {
     "title": "Quizzes",
@@ -290,7 +313,10 @@
     "playAgain": "Play again",
     "notFound": "Session not found.",
     "missing": "“{{title}}” no longer exists.",
-    "skip": "Skip"
+    "skip": "Skip",
+    "searchCategories": "Search categories…",
+    "companies": "Companies",
+    "companiesHint": "None selected means all companies."
   },
   "history": {
     "title": "History",
@@ -304,5 +330,24 @@
     "continue": "Continue",
     "delete": "Delete",
     "deleteTitle": "Delete this session from the history?"
+  },
+  "stack": {
+    "companies_one": "{{count}} company",
+    "companies_other": "{{count}} companies",
+    "sources_one": "{{count}} source",
+    "sources_other": "{{count}} sources"
+  },
+  "companies": {
+    "title": "Companies",
+    "search": "Search companies…",
+    "none": "No companies found.",
+    "items_one": "{{count}} item",
+    "items_other": "{{count}} items",
+    "back": "← All companies",
+    "notFound": "Company not found.",
+    "problems": "Problems",
+    "questions": "Questions",
+    "quizzes": "Quizzes",
+    "empty": "Nothing tagged with this company yet."
   }
 }
