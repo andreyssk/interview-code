@@ -2,10 +2,9 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { saveQuestion } from '@/shared/api/admin'
-import type { Block } from '@/shared/api/content'
 import { queryKeys } from '@/shared/api/queryKeys'
 import { useContent } from '@/shared/content/ContentContext'
-import { CompanyMultiSelect, Field, Modal, MultiSelect, RichTextEditor } from '@/shared/ui'
+import { CompanyMultiSelect, Field, Modal, MultiSelect, RichTextEditor, type Block } from '@/shared/ui'
 
 /** Admin-only popup that creates a question without leaving the list. The full editor stays at /admin/questions/new. */
 export function AddQuestionDialog({ onClose }: { onClose: () => void }) {

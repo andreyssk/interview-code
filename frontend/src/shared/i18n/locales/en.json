@@ -194,7 +194,10 @@
     "searchCompanies": "Search companies…",
     "searchSources": "Search sources…",
     "allSelected": "All selected",
-    "noMatch": "No match"
+    "noMatch": "No match",
+    "companies": "Companies",
+    "categories": "Categories",
+    "selected": "{{count}} selected"
   },
   "stats": {
     "title": "Progress",

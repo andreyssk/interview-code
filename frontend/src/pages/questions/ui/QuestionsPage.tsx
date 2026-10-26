@@ -65,33 +65,37 @@ export function QuestionsPage() {
 
   return (
     <div>
-      <div className="mb-4 flex flex-wrap items-start gap-3">
+      <div className="mb-4 flex flex-wrap items-center gap-3">
         <h1 className="neon-title text-3xl font-bold">{t('questions.title')}</h1>
-        <div className="min-w-48 flex-1 basis-56">
+        <label className="field w-56">
+          <span>
+            {t('filters.companies')}{pickedCompanies.length > 0 && <span className="ml-1 text-[var(--cyan)]">({pickedCompanies.length})</span>}
+          </span>
           <MultiSelect
-            label={t('questions.category')}
-            placeholder={t('questions.searchCategories')}
-            options={categoryOptions}
-            value={picked}
-            onChange={(v) => set('category', v.join(','))}
-            emptyText={emptyText}
-          />
-        </div>
-        <div className="min-w-48 flex-1 basis-56">
-          <MultiSelect
-            label={t('filters.company')}
-            placeholder={t('filters.searchCompanies')}
+            label={t('filters.companies')}
+            placeholder=""
             options={usedCompanies.map((c) => ({ value: c.slug, label: c.name }))}
             value={pickedCompanies}
             onChange={(v) => set('company', v.join(','))}
             emptyText={emptyText}
+            compact
           />
-        </div>
-        {(q || picked.length > 0 || pickedCompanies.length > 0) && (
-          <button className="btn-ghost" onClick={() => setParams(new URLSearchParams(), { replace: true })}>
-            {t('filters.reset')}
-          </button>
-        )}
+        </label>
+        <label className="field w-56">
+          <span>
+            {t('filters.categories')}{picked.length > 0 && <span className="ml-1 text-[var(--cyan)]">({picked.length})</span>}
+          </span>
+          <MultiSelect
+            label={t('filters.categories')}
+            placeholder=""
+            options={categoryOptions}
+            value={picked}
+            onChange={(v) => set('category', v.join(','))}
+            emptyText={emptyText}
+            compact
+          />
+        </label>
+        <div className="ml-auto" />
         {user.role === 'admin' && (
           <span className="tip tip-left" data-tip={t('questions.add')}>
             <button type="button" className="icon-btn" aria-label={t('questions.add')} onClick={() => setAdding(true)}>
@@ -101,7 +105,20 @@ export function QuestionsPage() {
         )}
         <PlayButton kind="question" />
       </div>
-      <input className="search mb-4" placeholder={t('questions.searchPlaceholder')} value={q} onChange={(e) => set('q', e.target.value)} />
+      <div className="relative mb-4">
+        <input className="search pr-8" placeholder={t('questions.searchPlaceholder')} value={q} onChange={(e) => set('q', e.target.value)} />
+        {q && (
+          <button
+            type="button"
+            className="absolute top-1/2 right-2 -translate-y-1/2 text-[var(--muted)] hover:text-[var(--pink)]"
+            title={t('filters.reset')}
+            aria-label={t('filters.reset')}
+            onClick={() => set('q', '')}
+          >
+            ×
+          </button>
+        )}
+      </div>
       {shown.length === 0 ? (
         <div className="panel p-6 text-[var(--muted)]">{t('questions.none')}</div>
       ) : (

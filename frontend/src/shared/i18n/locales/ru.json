@@ -206,7 +206,10 @@
     "searchCompanies": "Поиск компаний…",
     "searchSources": "Поиск источников…",
     "allSelected": "Всё выбрано",
-    "noMatch": "Не найдено"
+    "noMatch": "Не найдено",
+    "companies": "Компании",
+    "categories": "Категории",
+    "selected": "Выбрано: {{count}}"
   },
   "stats": {
     "title": "Прогресс",

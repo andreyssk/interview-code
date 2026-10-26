@@ -14,13 +14,15 @@ interface Props {
   label: string
   /** Text when every option is already selected / nothing matches */
   emptyText?: { all: string; none: string }
+  /** No chips under the input: the placeholder counts the selection and a button inside the input clears it */
+  compact?: boolean
 }
 
 /**
  * Autocomplete with multiple selection: type to filter, Enter / click to add, selected values show as removable chips.
  * The list can be long (hundreds of options), so it never renders more than it can show at once.
  */
-export function MultiSelect({ options, value, onChange, placeholder, label, emptyText = { all: 'All selected', none: 'No match' } }: Props) {
+export function MultiSelect({ options, value, onChange, placeholder, label, emptyText = { all: 'All selected', none: 'No match' }, compact }: Props) {
   const [query, setQuery] = useState('')
   const [open, setOpen] = useState(false)
   const [active, setActive] = useState(0)
@@ -53,7 +55,7 @@ export function MultiSelect({ options, value, onChange, placeholder, label, empt
     <div className="flex flex-col gap-2">
       <div className="relative">
         <input
-          className="search"
+          className={`search${compact && value.length > 0 ? ' pr-8' : ''}`}
           placeholder={placeholder}
           aria-label={label}
           role="combobox"
@@ -69,6 +71,17 @@ export function MultiSelect({ options, value, onChange, placeholder, label, empt
           onBlur={() => setOpen(false)}
           onKeyDown={onKey}
         />
+        {compact && value.length > 0 && (
+          <button
+            type="button"
+            className="absolute top-1/2 right-2 -translate-y-1/2 text-[var(--muted)] hover:text-[var(--pink)]"
+            title="Reset"
+            aria-label="Reset"
+            onClick={() => onChange([])}
+          >
+            ×
+          </button>
+        )}
         {open && (
           <ul id={listId} className="dropdown-menu max-h-60 overflow-y-auto" role="listbox">
             {shown.length === 0 && <li className="px-3 py-2 text-sm text-[var(--muted)]">{needle ? emptyText.none : emptyText.all}</li>}
@@ -88,7 +101,7 @@ export function MultiSelect({ options, value, onChange, placeholder, label, empt
           </ul>
         )}
       </div>
-      {value.length > 0 && (
+      {!compact && value.length > 0 && (
         <div className="flex flex-wrap gap-1.5">
           {value.map((v) => (
             <button key={v} type="button" className="chip chip-active" title="Remove" onClick={() => onChange(value.filter((x) => x !== v))}>
