@@ -7,7 +7,7 @@
     "questions": "Вопросы",
     "quizzes": "Квизы",
     "history": "История",
-    "resources": "Ресурсы",
+    "more": "Ещё",
     "companies": "Компании"
   },
   "language": {
@@ -266,7 +266,12 @@
     "subcategory": "Подкатегория",
     "fieldAnswer": "Ответ",
     "save": "Сохранить",
-    "saving": "Сохранение…"
+    "saving": "Сохранение…",
+    "newCategory": "Новая категория…",
+    "addShort": "+ Добавить",
+    "adding": "Добавление…",
+    "badCategoryName": "Используйте буквы или цифры в названии",
+    "search": "Поиск"
   },
   "quizzes": {
     "title": "Квизы",

@@ -55,7 +55,7 @@ export function MultiSelect({ options, value, onChange, placeholder, label, empt
     <div className="flex flex-col gap-2">
       <div className="relative">
         <input
-          className={`search${compact && value.length > 0 ? ' pr-8' : ''}`}
+          className={`search${compact && value.length > 0 ? ' !pr-8' : ''}`}
           placeholder={placeholder}
           aria-label={label}
           role="combobox"

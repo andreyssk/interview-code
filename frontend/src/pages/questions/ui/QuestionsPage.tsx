@@ -45,6 +45,20 @@ export function QuestionsPage() {
   const page = Math.min(Math.max(1, Number(params.get('page')) || 1), pages)
   const shown = visible.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)
 
+  // Cmd/Ctrl+; opens the add popup (admins only).
+  const isAdmin = user.role === 'admin'
+  useEffect(() => {
+    if (!isAdmin) return
+    const onKey = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === ';') {
+        e.preventDefault()
+        setAdding(true)
+      }
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [isAdmin])
+
   useEffect(() => {
     window.scrollTo({ top: 0 })
   }, [page])
@@ -66,7 +80,27 @@ export function QuestionsPage() {
   return (
     <div>
       <div className="mb-4 flex flex-wrap items-center gap-3">
-        <h1 className="neon-title text-3xl font-bold">{t('questions.title')}</h1>
+        <h1 className="sr-only">{t('questions.title')}</h1>
+        <label className="field min-w-48 max-w-md flex-1">
+          <span>{t('questions.search')}</span>
+          <div className="relative">
+            <span className="pointer-events-none absolute top-1/2 left-3 -translate-y-1/2 text-[var(--muted)]">
+              <Icon name="search" />
+            </span>
+            <input className="search !pr-8 !pl-10" value={q} onChange={(e) => set('q', e.target.value)} />
+            {q && (
+              <button
+                type="button"
+                className="absolute top-1/2 right-2 -translate-y-1/2 text-[var(--muted)] hover:text-[var(--pink)]"
+                title={t('filters.reset')}
+                aria-label={t('filters.reset')}
+                onClick={() => set('q', '')}
+              >
+                ×
+              </button>
+            )}
+          </div>
+        </label>
         <label className="field w-56">
           <span>
             {t('filters.companies')}{pickedCompanies.length > 0 && <span className="ml-1 text-[var(--cyan)]">({pickedCompanies.length})</span>}
@@ -97,7 +131,7 @@ export function QuestionsPage() {
         </label>
         <div className="ml-auto" />
         {user.role === 'admin' && (
-          <span className="tip tip-left" data-tip={t('questions.add')}>
+          <span className="tip tip-left" data-tip={`${t('questions.add')} (⌘;)`}>
             <button type="button" className="icon-btn" aria-label={t('questions.add')} onClick={() => setAdding(true)}>
               <Icon name="plus" />
             </button>
@@ -105,20 +139,32 @@ export function QuestionsPage() {
         )}
         <PlayButton kind="question" />
       </div>
-      <div className="relative mb-4">
-        <input className="search pr-8" placeholder={t('questions.searchPlaceholder')} value={q} onChange={(e) => set('q', e.target.value)} />
-        {q && (
-          <button
-            type="button"
-            className="absolute top-1/2 right-2 -translate-y-1/2 text-[var(--muted)] hover:text-[var(--pink)]"
-            title={t('filters.reset')}
-            aria-label={t('filters.reset')}
-            onClick={() => set('q', '')}
-          >
-            ×
-          </button>
-        )}
-      </div>
+      {(picked.length > 0 || pickedCompanies.length > 0) && (
+        <div className="mb-3 flex flex-wrap gap-1.5">
+          {picked.map((slug) => (
+            <button
+              key={`category:${slug}`}
+              type="button"
+              className="chip chip-active"
+              title={t('filters.reset')}
+              onClick={() => set('category', picked.filter((v) => v !== slug).join(','))}
+            >
+              {categoryOptions.find((c) => c.value === slug)?.label ?? slug} <span aria-hidden="true">×</span>
+            </button>
+          ))}
+          {pickedCompanies.map((slug) => (
+            <button
+              key={`company:${slug}`}
+              type="button"
+              className="chip chip-active"
+              title={t('filters.reset')}
+              onClick={() => set('company', pickedCompanies.filter((v) => v !== slug).join(','))}
+            >
+              {nameOf(slug)} <span aria-hidden="true">×</span>
+            </button>
+          ))}
+        </div>
+      )}
       {shown.length === 0 ? (
         <div className="panel p-6 text-[var(--muted)]">{t('questions.none')}</div>
       ) : (
@@ -141,7 +187,12 @@ export function QuestionsPage() {
           </button>
         </nav>
       )}
-      {adding && <AddQuestionDialog onClose={() => setAdding(false)} />}
+      {adding && <AddQuestionDialog
+          onClose={() => setAdding(false)}
+          // A question has one category: prefill it only when the filter names exactly one real category.
+          initialCategory={picked.length === 1 && picked[0] !== UNCATEGORIZED ? picked[0] : ''}
+          initialCompanies={pickedCompanies}
+        />}
     </div>
   )
 }

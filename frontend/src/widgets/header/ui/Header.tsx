@@ -8,15 +8,15 @@ import { useAuth } from '@/shared/auth/AuthContext'
 import { adminCrumbs } from '@/shared/lib/adminTabs'
 import { NavDropdown } from './NavDropdown'
 
-// Browsable material lives under one "Resources" menu to keep the bar short.
-const RESOURCES: (readonly [string, string])[] = [
+// The main sections sit on the bar; everything else goes under one "More" menu to keep it short.
+const LINKS: (readonly [string, string])[] = [
   ['/problems', 'nav.problems'],
   ['/questions', 'nav.questions'],
   ['/quizzes', 'nav.quizzes'],
-  ['/companies', 'nav.companies'],
 ]
 
-const LINKS: (readonly [string, string])[] = [
+const MORE: (readonly [string, string])[] = [
+  ['/companies', 'nav.companies'],
   ['/theory', 'nav.theory'],
   ['/mistakes', 'nav.mistakes'],
   ['/history', 'nav.history'],
@@ -25,7 +25,9 @@ const LINKS: (readonly [string, string])[] = [
 export function Header() {
   const { t } = useTranslation()
   const { user } = useAuth()
-  const crumbs = adminCrumbs(useLocation().pathname)
+  const { pathname } = useLocation()
+  // The questions list has no title of its own: its filters take that row, so the name lives in the header.
+  const crumbs = pathname === '/questions' ? [t('questions.title')] : adminCrumbs(pathname)
   return (
     <header className="topbar">
       <Link to="/problems" className="logo">
@@ -42,12 +44,12 @@ export function Header() {
         </span>
       )}
       <nav className="flex items-center gap-1">
-        <NavDropdown label={t('nav.resources')} links={RESOURCES} />
-        {(user.role === 'admin' ? [...LINKS, ['/admin', 'nav.admin'] as const] : LINKS).map(([to, key]) => (
+        {LINKS.map(([to, key]) => (
           <NavLink key={to} to={to} className={({ isActive }) => `navlink ${isActive ? 'navlink-active' : ''}`}>
             {t(key)}
           </NavLink>
         ))}
+        <NavDropdown label={t('nav.more')} links={user.role === 'admin' ? [...MORE, ['/admin', 'nav.admin'] as const] : MORE} />
         <span className="ml-2 flex items-center gap-3">
           <RecentTasksPopover />
           <ThemeSwitcher />

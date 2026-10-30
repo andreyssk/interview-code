@@ -7,7 +7,7 @@
     "questions": "Questions",
     "quizzes": "Quizzes",
     "history": "History",
-    "resources": "Resources",
+    "more": "More",
     "companies": "Companies"
   },
   "language": {
@@ -254,7 +254,12 @@
     "subcategory": "Subcategory",
     "fieldAnswer": "Answer",
     "save": "Save",
-    "saving": "Saving…"
+    "saving": "Saving…",
+    "newCategory": "New category…",
+    "addShort": "+ Add",
+    "adding": "Adding…",
+    "badCategoryName": "Use letters or digits in the name",
+    "search": "Search"
   },
   "quizzes": {
     "title": "Quizzes",
